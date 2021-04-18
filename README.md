@@ -7,3 +7,13 @@ An implementation of the abalone game as an android app, developed as a group pr
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=team-abalone_abalone&metric=bugs)](https://sonarcloud.io/dashboard?id=team-abalone_abalone)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=team-abalone_abalone&metric=code_smells)](https://sonarcloud.io/dashboard?id=team-abalone_abalone)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=team-abalone_abalone&metric=sqale_index)](https://sonarcloud.io/dashboard?id=team-abalone_abalone)
+
+
+## Rollen
+| Rolle          | Hauptverantwortlicher   | Backup                  |
+|----------------|-------------------------|-------------------------|
+| Architekt      | Aron Sacherer           | Alexander Franz Laggner |
+| User Interface | Nicolas Wetscher        | Aron Sacherer           |
+| Tester         | Kilian Ricardo Fröhlich | Nicolas Wetscher        |
+| Developer      | Lukas Kohlmaier         | Kilian Ricardo Fröhlich |
+| Dokumentation  | Alexander Franz Laggner | Lukas Kohlmaier         |
