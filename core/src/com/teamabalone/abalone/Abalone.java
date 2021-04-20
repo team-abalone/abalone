@@ -32,9 +32,10 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
         OrthographicCamera camera = new OrthographicCamera();
         camera.setToOrtho(false, 288, 288);
-        viewport = new FitViewport(288, 288, camera);
-        camera.zoom += (float) 1.2;
+        viewport = new FitViewport(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4, camera);
+        camera.zoom += (float) 1.0;
         viewport.getCamera().translate(280,230,0);
+
     }
 
     @Override
