@@ -25,7 +25,7 @@ public class Abalone extends ApplicationAdapter {
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
-    Sprite sprite;
+    Sprite currentSprite;
     float start = 507;
 
     //branch
@@ -60,13 +60,12 @@ public class Abalone extends ApplicationAdapter {
                 643, 796,
                 835, 684,
                 963, 684,
-                1091, 684,
-                start, 1000
+                1091, 684
         };
 
-        float[] positionsBlack ={
+        float[] positionsBlack = {
                 707, 18,
-                835, 1,
+                835, 18,
                 963, 18,
                 1091, 18,
                 1219, 18,
@@ -81,12 +80,11 @@ public class Abalone extends ApplicationAdapter {
                 1091, 242
         };
 
-        StartPosition startPositionBlack = new StartPosition(blackBall, positionsBlack);
-        blackMarbleSet = new MarbleSet(startPositionBlack.getSprites());
+        GameSet gameSet = GameSet.getInstance();
+        whiteMarbleSet = gameSet.register(whiteBall, positionsWhite);
+        blackMarbleSet = gameSet.register(blackBall, positionsBlack);
 
-        StartPosition startPositionWhite = new StartPosition(whiteBall, positionsWhite);
-        whiteMarbleSet = new MarbleSet(startPositionWhite.getSprites());
-        sprite = whiteMarbleSet.getMarble(14);
+//        sprite = whiteMarbleSet.getMarble(14);
     }
 
     @Override
@@ -100,11 +98,11 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera());
         tiledMapRenderer.render();
 
-        sprite.setPosition(start++, 1000);
+//        sprite.setPosition(start++, 1000);
 
         batch.begin();
 
-        sprite.draw(batch);
+//        sprite.draw(batch);
 
         for (int i = 0; i < blackMarbleSet.size(); i++) {
             blackMarbleSet.getMarble(i).draw(batch);
@@ -116,8 +114,13 @@ public class Abalone extends ApplicationAdapter {
 
         batch.end();
 
-
-        //sprite.setPosition(Gdx.input.getX(), Gdx.input.getY());
+        Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.input.getY());
+        if (potentialSprite != null) {
+            currentSprite = potentialSprite;
+        }
+        if (currentSprite != null) {
+            currentSprite.setPosition(Gdx.input.getX(), Gdx.input.getY());
+        }
     }
 
     @Override

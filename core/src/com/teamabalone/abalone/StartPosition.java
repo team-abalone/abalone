@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class StartPosition {
 
-    ArrayList<Sprite> sprites = new ArrayList<>();
+    private final ArrayList<Sprite> sprites = new ArrayList<>();
 
     //coordinates are read alternately x1, y1, x2, y2, x3...
     public StartPosition(Texture texture, float... coordinates) {
@@ -26,4 +26,5 @@ public class StartPosition {
     public ArrayList<Sprite> getSprites() {
         return sprites;
     }
+
 }

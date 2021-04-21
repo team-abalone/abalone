@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MarbleSet {
-    HashMap<Integer, Sprite> marbles = new HashMap<>();
+    private final HashMap<Integer, Sprite> marbles = new HashMap<>();
 
     public MarbleSet(ArrayList<Sprite> sprites) {
         if (sprites != null) {
