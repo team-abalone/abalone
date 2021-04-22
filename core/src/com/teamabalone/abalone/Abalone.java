@@ -27,32 +27,42 @@ public class Abalone extends ApplicationAdapter {
 
     Texture blackBall;
     Texture whiteBall;
+    float textureWidth;
+    float textureHeight;
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
     Sprite currentSprite;
 
+    float mapWidth = 15 * 64;
+    float mapHeight = 4.5f * 76;
+    float screenWidth;
+    float screenHeight;
+
     @Override
     public void create() {
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
+
         batch = new SpriteBatch();
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
 
         OrthographicCamera camera = new OrthographicCamera();
-        //TODO Warum 288?
-        camera.setToOrtho(false, 288, 288);
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
 
-        viewport = new FitViewport(Gdx.graphics.getWidth() / 4f, Gdx.graphics.getHeight() / 4f, camera);
+        camera.setToOrtho(false, Gdx.graphics.getWidth() - mapWidth, Gdx.graphics.getHeight() - mapHeight);
+        camera.zoom = 0.5f;
 
-        System.out.println(Gdx.graphics.getWidth());
-
-        camera.zoom += (float) Gdx.graphics.getWidth() / 2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
+//        camera.zoom = 1 + (float) Gdx.graphics.getWidth() / 2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
         //TODO Warum zentriert das?
-        viewport.getCamera().translate(280, 230, 0);
-        viewport.setScaling(Scaling.fillY);
+//        viewport.getCamera().translate(50,50, 0);
 
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
+
+        textureWidth = blackBall.getWidth();
+        textureHeight = blackBall.getHeight();
 
         float[] positionsWhite = {
                 707, 908,
@@ -68,7 +78,8 @@ public class Abalone extends ApplicationAdapter {
                 643, 796,
                 835, 684,
                 963, 684,
-                1091, 684
+                Gdx.graphics.getWidth() / 2f - textureWidth / 2f, Gdx.graphics.getHeight() / 2f - textureHeight / 2f //showing center
+//                1091, 684
         };
 
         float[] positionsBlack = {
@@ -103,6 +114,8 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera());
         tiledMapRenderer.render();
 
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+
         batch.begin();
 
         //TODO Ball resize! & Koordinaten rework!
@@ -112,7 +125,8 @@ public class Abalone extends ApplicationAdapter {
                 //TODO Marble scaling Aufpassen:Minimal=0
 
                 //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
-                m.getMarble(i).setScale(Gdx.graphics.getWidth() / 2088f, Gdx.graphics.getWidth() / 2088f);
+                //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
+                m.getMarble(i).setScale((Gdx.graphics.getWidth() - mapWidth) / screenWidth, (Gdx.graphics.getWidth() - mapWidth) / screenWidth);
                 m.getMarble(i).draw(batch);
             }
         }
@@ -130,7 +144,7 @@ public class Abalone extends ApplicationAdapter {
                 currentSprite = potentialSprite;
             }
             if (currentSprite != null) {
-                currentSprite.setPosition(Gdx.input.getX() - 50, Gdx.graphics.getHeight() - Gdx.input.getY() - 50);
+                currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             }
         }
 
@@ -150,6 +164,11 @@ public class Abalone extends ApplicationAdapter {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
 
+        //debugging shows coordinates
+        System.out.println("sx: " + Gdx.input.getX());
+        System.out.println("sx: " + Gdx.input.getY());
+        System.out.println("vx: " + viewport.getCamera().position.x);
+        System.out.println("vx: " + viewport.getCamera().position.y);
     }
 
     @Override
