@@ -100,7 +100,6 @@ public class Abalone extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        //viewport.getCamera().translate(0.1f, 0, 0); //potential movement
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera());
         tiledMapRenderer.render();
 
@@ -145,6 +144,10 @@ public class Abalone extends ApplicationAdapter {
             if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
                 ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
             }
+        }
+
+        if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
+            viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
 
     }
