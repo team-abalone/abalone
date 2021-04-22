@@ -1,10 +1,9 @@
 package com.teamabalone.abalone;
 
 import android.os.Bundle;
-
+import com.teamabalone.abalone.Abalone;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.teamabalone.abalone.Abalone;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
