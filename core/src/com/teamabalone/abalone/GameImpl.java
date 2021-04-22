@@ -2,17 +2,19 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.teamabalone.abalone.Screens.MenuScreen;
 
 public class GameImpl extends Game {
 
     public SpriteBatch batch;
-    public Abalone abalone;
+    public MenuScreen menuScreen;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        abalone = new Abalone(this);
-        this.setScreen(abalone);
+
+        menuScreen = new MenuScreen(this);
+        this.setScreen(menuScreen);
     }
 
     @Override
@@ -22,7 +24,7 @@ public class GameImpl extends Game {
 
     @Override
     public void dispose() {
-        abalone.dispose();
+        menuScreen.dispose();
         batch.dispose();
     }
 

@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.teamabalone.abalone.Abalone;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.Helpers;
 
@@ -19,7 +21,7 @@ import com.teamabalone.abalone.Helpers.Helpers;
  * Implements the menu screen of the game.
  */
 public class MenuScreen implements Screen {
-    private Game Game;
+    private GameImpl Game;
 
     private TextButton CreateRoomButton;
     private TextButton JoinGameButton;
@@ -27,7 +29,7 @@ public class MenuScreen implements Screen {
 
     private Stage Stage;
 
-    public MenuScreen(Game game) {
+    public MenuScreen(GameImpl game) {
         this.Game = game;
     }
 
@@ -46,6 +48,10 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open create room overlay.
                 Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
+
+                // For testing purposes we  for now use this button for starting the game screen.
+                Abalone abalone = new Abalone(Game);
+                Game.setScreen(abalone);
             }
 
             ;
