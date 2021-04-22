@@ -20,7 +20,6 @@ import java.awt.DisplayMode;
 
 public class Abalone extends ApplicationAdapter {
     SpriteBatch batch;
-    Texture img;
 
     TiledMap tiledMap;
     HexagonalTiledMapRenderer tiledMapRenderer;
@@ -32,9 +31,6 @@ public class Abalone extends ApplicationAdapter {
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
     Sprite currentSprite;
-    float start = 507;
-
-    //branch
 
     @Override
     public void create() {
@@ -95,8 +91,6 @@ public class Abalone extends ApplicationAdapter {
         GameSet gameSet = GameSet.getInstance();
         whiteMarbleSet = gameSet.register(whiteBall, positionsWhite);
         blackMarbleSet = gameSet.register(blackBall, positionsBlack);
-
-//        sprite = whiteMarbleSet.getMarble(14);
     }
 
     @Override
@@ -110,9 +104,7 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera());
         tiledMapRenderer.render();
 
-//        sprite.setPosition(start++, 1000);
         batch.begin();
-//        sprite.draw(batch);
 
         //TODO Ball resize! & Koordinaten rework!
 
