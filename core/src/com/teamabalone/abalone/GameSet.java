@@ -27,6 +27,9 @@ public class GameSet { //singleton
         return marbleSet;
     }
 
+    public ArrayList<MarbleSet> getMarbleSets() {
+        return marbleSets;
+    }
 
     public Sprite getMarble(float x, float y) {
         for (int i = 0; i < marbleSets.size(); i++) {

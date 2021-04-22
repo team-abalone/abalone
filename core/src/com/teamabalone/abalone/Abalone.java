@@ -10,6 +10,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Abalone extends ApplicationAdapter {
@@ -37,11 +40,17 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
 
         OrthographicCamera camera = new OrthographicCamera();
+        //TODO Warum 288?
         camera.setToOrtho(false, 288, 288);
 
-        viewport = new FitViewport(Gdx.graphics.getWidth() / 4f, Gdx.graphics.getHeight() / 4f, camera);
-        camera.zoom += (float) 1.0;
+        viewport = new FitViewport(Gdx.graphics.getWidth()/4f, Gdx.graphics.getHeight()/4f, camera);
+
+        System.out.println(Gdx.graphics.getWidth());
+
+        camera.zoom += (float) Gdx.graphics.getWidth()/2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
+        //TODO Warum zentriert das?
         viewport.getCamera().translate(280, 230, 0);
+        viewport.setScaling(Scaling.fillY);
 
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
@@ -99,27 +108,29 @@ public class Abalone extends ApplicationAdapter {
         tiledMapRenderer.render();
 
 //        sprite.setPosition(start++, 1000);
-
         batch.begin();
-
 //        sprite.draw(batch);
 
-        for (int i = 0; i < blackMarbleSet.size(); i++) {
-            blackMarbleSet.getMarble(i).draw(batch);
-        }
+        //TODO Ball resize! & Koordinaten rework!
 
-        for (int i = 0; i < whiteMarbleSet.size(); i++) {
-            whiteMarbleSet.getMarble(i).draw(batch);
+        for (MarbleSet m:GameSet.getInstance().getMarbleSets()) {
+            for (int i = 0; i < m.size(); i++) {
+                //TODO Marble scaling Aufpassen:Minimal=0
+
+                //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
+                m.getMarble(i).setScale(Gdx.graphics.getWidth()/2088f,Gdx.graphics.getWidth()/2088f);
+                m.getMarble(i).draw(batch);
+            }
         }
 
         batch.end();
 
-        Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.input.getY());
+        Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
         if (potentialSprite != null) {
             currentSprite = potentialSprite;
         }
         if (currentSprite != null) {
-            currentSprite.setPosition(Gdx.input.getX(), Gdx.input.getY());
+            currentSprite.setPosition(Gdx.input.getX()-50, Gdx.graphics.getHeight()-Gdx.input.getY()-50);
         }
     }
 
