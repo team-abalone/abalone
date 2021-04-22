@@ -1,10 +1,8 @@
 package com.teamabalone.abalone;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,8 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.awt.DisplayMode;
 
-public class Abalone implements Screen {
-    final GameImpl game;
+public class Abalone extends ApplicationAdapter {
     SpriteBatch batch;
 
     TiledMap tiledMap;
@@ -42,13 +39,12 @@ public class Abalone implements Screen {
     float screenWidth;
     float screenHeight;
 
-    public Abalone(GameImpl game){
-        this.game = game;
-        batch = game.getBatch();
-
+    @Override
+    public void create() {
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
+        batch = new SpriteBatch();
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
 
@@ -109,7 +105,7 @@ public class Abalone implements Screen {
     }
 
     @Override
-    public void render(float delta) {
+    public void render() {
         Gdx.gl.glClearColor(120 / 255f, 120 / 255f, 120 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -173,31 +169,6 @@ public class Abalone implements Screen {
         System.out.println("sx: " + Gdx.input.getY());
         System.out.println("vx: " + viewport.getCamera().position.x);
         System.out.println("vx: " + viewport.getCamera().position.y);
-    }
-
-    @Override
-    public void show() {
-
-    }
-
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
     }
 
     @Override
