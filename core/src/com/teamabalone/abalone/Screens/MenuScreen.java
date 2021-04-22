@@ -1,33 +1,34 @@
-package com.teamabalone.abalone.Views;
+package com.teamabalone.abalone.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.Helpers;
 
-import java.util.Set;
 
 /**
  * Implements the menu screen of the game.
  */
 public class MenuScreen implements Screen {
-    private Game game;
+    private Game Game;
 
     private TextButton CreateRoomButton;
     private TextButton JoinGameButton;
     private ImageButton SettingsButton;
 
-    private Stage stage;
+    private Stage Stage;
 
     public MenuScreen(Game game) {
-        this.game = game;
+        this.Game = game;
     }
 
     @Override
@@ -39,7 +40,27 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.getHeight() / 6);
 
         CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
+
+        CreateRoomButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open create room overlay.
+                Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
+            }
+
+            ;
+        });
+
         JoinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
+        JoinGameButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open join game overlay.
+                Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
+            }
+
+            ;
+        });
 
         SettingsButton = FactoryHelper.CreateImageButton(
                 Helpers.TextureToDrawable(new Texture(Gdx.files.internal("buttons/settings_up.png"))),
@@ -50,25 +71,32 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.getWidth() - 250,
                 Gdx.graphics.getHeight() - 250);
 
+        SettingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", SettingsButton.toString() + " clicked");
+            };
+        });
 
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+        Stage = new Stage();
+        Gdx.input.setInputProcessor(Stage);
 
         // Adding buttons.
         buttonTable.row().fillX().expandX();
         buttonTable.add(CreateRoomButton);
         buttonTable.row().fillX().expandX().padTop(32);
         buttonTable.add(JoinGameButton);
-        stage.addActor(SettingsButton);
-        stage.addActor(buttonTable);
+        Stage.addActor(SettingsButton);
+        Stage.addActor(buttonTable);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act();
-        stage.draw();
+        Stage.act();
+        Stage.draw();
     }
 
     @Override
