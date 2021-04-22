@@ -1,8 +1,10 @@
 package com.teamabalone.abalone;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,7 +20,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.awt.DisplayMode;
 
-public class Abalone extends ApplicationAdapter {
+public class Abalone implements Screen {
+    final GameImpl game;
     SpriteBatch batch;
 
     TiledMap tiledMap;
@@ -39,12 +42,13 @@ public class Abalone extends ApplicationAdapter {
     float screenWidth;
     float screenHeight;
 
-    @Override
-    public void create() {
+    public Abalone(GameImpl game){
+        this.game = game;
+        batch = game.getBatch();
+
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        batch = new SpriteBatch();
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
 
@@ -105,7 +109,7 @@ public class Abalone extends ApplicationAdapter {
     }
 
     @Override
-    public void render() {
+    public void render(float delta) {
         Gdx.gl.glClearColor(120 / 255f, 120 / 255f, 120 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -169,6 +173,31 @@ public class Abalone extends ApplicationAdapter {
         System.out.println("sx: " + Gdx.input.getY());
         System.out.println("vx: " + viewport.getCamera().position.x);
         System.out.println("vx: " + viewport.getCamera().position.y);
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 
     @Override
