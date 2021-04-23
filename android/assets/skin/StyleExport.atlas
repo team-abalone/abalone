@@ -1,0 +1,76 @@
+
+StyleExport.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+button_down
+  rotate: false
+  xy: 1219, 1633
+  size: 476, 153
+  orig: 476, 153
+  offset: 0, 0
+  index: -1
+button_exit_down
+  rotate: false
+  xy: 509, 842
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_exit_up
+  rotate: false
+  xy: 1219, 1540
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_settings_down
+  rotate: false
+  xy: 1697, 1696
+  size: 91, 90
+  orig: 91, 90
+  offset: 0, 0
+  index: -1
+button_settings_up
+  rotate: false
+  xy: 1, 296
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_up
+  rotate: false
+  xy: 1, 389
+  size: 476, 153
+  orig: 476, 153
+  offset: 0, 0
+  index: -1
+logo
+  rotate: false
+  xy: 1, 1427
+  size: 1216, 359
+  orig: 1216, 359
+  offset: 0, 0
+  index: -1
+window_background
+  rotate: false
+  xy: 863, 1313
+  size: 112, 112
+  orig: 112, 112
+  offset: 0, 0
+  index: -1
+window_frame
+  rotate: false
+  xy: 1, 935
+  size: 860, 490
+  orig: 860, 490
+  offset: 0, 0
+  index: -1
+Oswald-Bold(1)
+  rotate: false
+  xy: 1, 544
+  size: 506, 389
+  orig: 506, 389
+  offset: 0, 0
+  index: -1
