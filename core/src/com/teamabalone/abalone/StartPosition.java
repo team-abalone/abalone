@@ -19,7 +19,7 @@ public class StartPosition {
                 sprites.add(sprite);
             }
         } else {
-            System.out.println("invalid start position parameter count");
+            //System.out.println("invalid start position parameter count");
         }
     }
 

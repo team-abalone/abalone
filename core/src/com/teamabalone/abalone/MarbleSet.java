@@ -14,7 +14,7 @@ public class MarbleSet {
                 marbles.put(i, sprites.get(i));
             }
         } else {
-            System.out.println("no sprites passed to marble set");
+            //System.out.println("no sprites passed to marble set");
         }
     }
 

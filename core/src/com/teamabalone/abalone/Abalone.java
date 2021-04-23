@@ -169,10 +169,12 @@ public class Abalone implements Screen {
         }
 
         //debugging shows coordinates
+        /*
         System.out.println("sx: " + Gdx.input.getX());
         System.out.println("sx: " + Gdx.input.getY());
         System.out.println("vx: " + viewport.getCamera().position.x);
         System.out.println("vx: " + viewport.getCamera().position.y);
+         */
     }
 
     @Override
