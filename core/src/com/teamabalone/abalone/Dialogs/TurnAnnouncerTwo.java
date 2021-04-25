@@ -13,13 +13,14 @@ public class TurnAnnouncerTwo extends Dialog {
         Table contentTable = getContentTable();
         contentTable.setDebug(true);
 
-        contentTable.setWidth(Gdx.graphics.getWidth());
-        contentTable.setWidth(Gdx.graphics.getWidth());
+        contentTable.setWidth(200);
+        contentTable.setWidth(200);
     }
 
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);
+
     }
 }
 

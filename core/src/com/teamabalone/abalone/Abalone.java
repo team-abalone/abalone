@@ -10,12 +10,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
-import com.teamabalone.abalone.Helpers.GameConstants;
-import com.teamabalone.abalone.Screens.TurnAnnouncer;
+import com.teamabalone.abalone.Helpers.FactoryHelper;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Abalone implements Screen {
     final GameImpl game;
@@ -38,15 +44,16 @@ public class Abalone implements Screen {
     float mapHeight = 4.5f * 76;
     float screenWidth;
     float screenHeight;
-    // change
-    private Stage Stage;
+
+    //changes
+    boolean yourTurn = true;
+    TurnAnnouncerTwo nextPlayer = new TurnAnnouncerTwo("Next Players Turn", FactoryHelper.GetDefaultSkin());
+
+    private Stage stage;
+    private TextButton next;
     //
 
     public Abalone(GameImpl game){
-        // change
-        Stage = new Stage();
-        Gdx.input.setInputProcessor(Stage);
-        //
         this.game = game;
         batch = game.getBatch();
 
@@ -111,7 +118,6 @@ public class Abalone implements Screen {
         whiteMarbleSet = gameSet.register(whiteBall, positionsWhite);
         blackMarbleSet = gameSet.register(blackBall, positionsBlack);
     }
-
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(120 / 255f, 120 / 255f, 120 / 255f, 1);
@@ -125,6 +131,10 @@ public class Abalone implements Screen {
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
+        //changes
+        stage.act();
+        stage.draw();
+        //
 
         //TODO Ball resize! & Koordinaten rework!
 
@@ -145,11 +155,6 @@ public class Abalone implements Screen {
         boolean firstFingerTouching = Gdx.input.isTouched(0);
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
-        //change
-        //TurnAnnouncer nextPlayer = new TurnAnnouncer();
-        Skin skin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-        TurnAnnouncerTwo nextOne = new TurnAnnouncerTwo("next Player!", skin);
-        //
 
         if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
             Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
@@ -159,10 +164,8 @@ public class Abalone implements Screen {
             if (currentSprite != null) {
                 currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             }
-            // change
-            //nextPlayer.show();
-            nextOne.show(Stage);
-            //
+            yourTurn = false;
+            Gdx.app.log("Marble Movement","Turn ended");
         }
 
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -192,6 +195,34 @@ public class Abalone implements Screen {
 
     @Override
     public void show() {
+        // changes
+        Table buttonTable = FactoryHelper.CreateTable(
+                15,
+                15,
+                Gdx.graphics.getWidth() - 250,
+                Gdx.graphics.getHeight() -100);
+        next = FactoryHelper.CreateButtonWithText("Next Player");
+        next.addListener(new ClickListener() {
+            @Override
+            public void clicked(final InputEvent event, float x, float y) {
+                Gdx.app.log("ClickListener", next.toString() + " clicked");
+                nextPlayer.show(stage);
+                final Timer t = new Timer();
+                t.schedule(new TimerTask() {
+                    public void run() {
+                        nextPlayer.hide();
+                        t.cancel();
+                    }}, 1000);//time in milliseconds
+            }
+        });
+
+        buttonTable.row().fillX().expandX();
+        buttonTable.add(next);
+
+        stage = new Stage(new ScreenViewport());
+        stage.addActor(buttonTable);
+        Gdx.input.setInputProcessor(stage);
+        //
 
     }
 
