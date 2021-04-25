@@ -1,9 +1,6 @@
 package com.teamabalone.abalone;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,12 +10,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.awt.DisplayMode;
+import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
+import com.teamabalone.abalone.Helpers.GameConstants;
+import com.teamabalone.abalone.Screens.TurnAnnouncer;
 
 public class Abalone implements Screen {
     final GameImpl game;
@@ -41,8 +38,15 @@ public class Abalone implements Screen {
     float mapHeight = 4.5f * 76;
     float screenWidth;
     float screenHeight;
+    // change
+    private Stage Stage;
+    //
 
     public Abalone(GameImpl game){
+        // change
+        Stage = new Stage();
+        Gdx.input.setInputProcessor(Stage);
+        //
         this.game = game;
         batch = game.getBatch();
 
@@ -141,6 +145,11 @@ public class Abalone implements Screen {
         boolean firstFingerTouching = Gdx.input.isTouched(0);
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
+        //change
+        //TurnAnnouncer nextPlayer = new TurnAnnouncer();
+        Skin skin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
+        TurnAnnouncerTwo nextOne = new TurnAnnouncerTwo("next Player!", skin);
+        //
 
         if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
             Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
@@ -150,6 +159,10 @@ public class Abalone implements Screen {
             if (currentSprite != null) {
                 currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             }
+            // change
+            //nextPlayer.show();
+            nextOne.show(Stage);
+            //
         }
 
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
