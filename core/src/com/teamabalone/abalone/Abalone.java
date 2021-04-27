@@ -42,7 +42,7 @@ public class Abalone implements Screen {
     float screenWidth;
     float screenHeight;
 
-    public Abalone(GameImpl game){
+    public Abalone(GameImpl game) {
         this.game = game;
         batch = game.getBatch();
 
@@ -52,11 +52,24 @@ public class Abalone implements Screen {
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
 
-        OrthographicCamera camera = new OrthographicCamera();
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+//        for (int i = 1; i < 60; i++) {
+//            System.out.println("----" + i);
+//            System.out.println(tiledMap.getTileSets().getTile(i).getOffsetX());
+//            System.out.println(tiledMap.getTileSets().getTile(i).getOffsetY());
+//        }
 
-        camera.setToOrtho(false, Gdx.graphics.getWidth() - mapWidth, Gdx.graphics.getHeight() - mapHeight);
-        camera.zoom = 0.5f;
+
+        System.out.println(tiledMap.getProperties().get("tilewidth", Integer.class));
+        System.out.println(tiledMap.getProperties().get("tileheight", Integer.class));
+        System.out.println(tiledMap.getProperties().get("width", Integer.class));
+        System.out.println(tiledMap.getProperties().get("height", Integer.class));
+
+
+        OrthographicCamera camera = new OrthographicCamera();
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); //sets worldWidth and worldHeight
+
+        camera.setToOrtho(false, 0, 0); //centers camera projection at width/2 and height/2
+        camera.zoom = 1;//0.5f;
 
 //        camera.zoom = 1 + (float) Gdx.graphics.getWidth() / 2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
         //TODO Warum zentriert das?
@@ -65,14 +78,16 @@ public class Abalone implements Screen {
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
 
-        textureWidth = blackBall.getWidth();
-        textureHeight = blackBall.getHeight();
 
         float[] positionsWhite = {
-                707, 908,
-                835, 908,
-                963, 908,
-                1091, 908,
+                //707, 908,
+                0, 0,
+                0, Gdx.graphics.getHeight(),
+                Gdx.graphics.getWidth(), 0,
+                Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+                //835, 908,
+               //963, 908,
+                //1091, 908,
                 1219, 908,
                 1155, 796,
                 1283, 796,
@@ -82,7 +97,7 @@ public class Abalone implements Screen {
                 643, 796,
                 835, 684,
                 963, 684,
-                Gdx.graphics.getWidth() / 2f - textureWidth / 2f, Gdx.graphics.getHeight() / 2f - textureHeight / 2f //showing center
+                Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f
 //                1091, 684
         };
 
@@ -114,11 +129,10 @@ public class Abalone implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera());
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //center option??
+        tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
 
@@ -150,6 +164,12 @@ public class Abalone implements Screen {
             if (currentSprite != null) {
                 currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
             }
+
+            //debugging shows coordinates
+            System.out.println("sx: " + Gdx.input.getX());
+            System.out.println("sx: " + Gdx.input.getY());
+            System.out.println("vx: " + viewport.getCamera().position.x);
+            System.out.println("vx: " + viewport.getCamera().position.y);
         }
 
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -168,13 +188,6 @@ public class Abalone implements Screen {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
 
-        //debugging shows coordinates
-        /*
-        System.out.println("sx: " + Gdx.input.getX());
-        System.out.println("sx: " + Gdx.input.getY());
-        System.out.println("vx: " + viewport.getCamera().position.x);
-        System.out.println("vx: " + viewport.getCamera().position.y);
-         */
     }
 
     @Override

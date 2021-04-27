@@ -13,9 +13,10 @@ public class StartPosition {
     public StartPosition(Texture texture, float... coordinates) {
         if (coordinates.length % 2 == 0) {
             Sprite sprite;
+
             for (int i = 0; i < coordinates.length; i += 2) {
                 sprite = new Sprite(texture);
-                sprite.setPosition(coordinates[i], coordinates[i + 1]);
+                sprite.setCenter(coordinates[i], coordinates[i + 1]);
                 sprites.add(sprite);
             }
         } else {
