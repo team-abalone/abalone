@@ -49,6 +49,7 @@ public class Abalone implements Screen {
 
     //changes
     boolean yourTurn = true;
+    boolean wasTouched = false;
     //TurnAnnouncerTwo nextPlayerCard = new TurnAnnouncerTwo("Next Players Turn", FactoryHelper.GetDefaultSkin());
     TurnAnnouncerTwo nextPlayerCard;
 
@@ -167,9 +168,12 @@ public class Abalone implements Screen {
                 }
                 if (currentSprite != null) {
                     currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                    wasTouched = true;
+                    Gdx.app.log("Click Listener", "Turn ended");
                 }
-                yourTurn = false;       //problem: wird ausgeführt auch wenn finger noch == touched
-                Gdx.app.log("Click Listener", "Turn ended");
+            }
+            if(Gdx.input.isTouched() != true && wasTouched == true){
+                yourTurn = false;
             }
         }
 
@@ -238,7 +242,7 @@ public class Abalone implements Screen {
                 if (currentSprite != null) {
                     currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
                 }
-
+                wasTouched = false;
                 yourTurn = true;
                 t.cancel();
                 playerTransition("Your");
