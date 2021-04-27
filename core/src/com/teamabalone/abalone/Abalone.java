@@ -19,7 +19,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Helpers.PotentialPositions;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,7 +49,8 @@ public class Abalone implements Screen {
 
     //changes
     boolean yourTurn = true;
-    TurnAnnouncerTwo nextPlayer = new TurnAnnouncerTwo("Next Players Turn", FactoryHelper.GetDefaultSkin());
+    //TurnAnnouncerTwo nextPlayerCard = new TurnAnnouncerTwo("Next Players Turn", FactoryHelper.GetDefaultSkin());
+    TurnAnnouncerTwo nextPlayerCard;
 
     private Stage stage;
     private TextButton next;
@@ -155,17 +158,19 @@ public class Abalone implements Screen {
         boolean firstFingerTouching = Gdx.input.isTouched(0);
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
-
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
-            Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-            if (potentialSprite != null) {
-                currentSprite = potentialSprite;
+        Gdx.app.log("Click Listener", "Your Turn = " + yourTurn);
+        if(yourTurn == true){      //solange true kann bewegt werden
+            if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
+                Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                if (potentialSprite != null) {
+                    currentSprite = potentialSprite;
+                }
+                if (currentSprite != null) {
+                    currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                }
+                yourTurn = false;       //problem: wird ausgeführt auch wenn finger noch == touched
+                Gdx.app.log("Click Listener", "Turn ended");
             }
-            if (currentSprite != null) {
-                currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-            }
-            yourTurn = false;
-            Gdx.app.log("Marble Movement","Turn ended");
         }
 
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -206,13 +211,8 @@ public class Abalone implements Screen {
             @Override
             public void clicked(final InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", next.toString() + " clicked");
-                nextPlayer.show(stage);
-                final Timer t = new Timer();
-                t.schedule(new TimerTask() {
-                    public void run() {
-                        nextPlayer.hide();
-                        t.cancel();
-                    }}, 1000);//time in milliseconds
+                playerTransition("Opponent");
+                simulatingOpponent();
             }
         });
 
@@ -224,6 +224,36 @@ public class Abalone implements Screen {
         Gdx.input.setInputProcessor(stage);
         //
 
+    }
+
+    public void simulatingOpponent(){
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            public void run() {
+                int randX = new Random().nextInt(15);
+                Sprite potentialSprite = whiteMarbleSet.getMarble(randX);
+                if (potentialSprite != null) {
+                    currentSprite = potentialSprite;
+                }
+                if (currentSprite != null) {
+                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
+                }
+
+                yourTurn = true;
+                t.cancel();
+                playerTransition("Your");
+            }}, 5000);//time in milliseconds
+    }
+
+    public void playerTransition(String sayWhichPlayerTransTo){
+        nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
+        nextPlayerCard.show(stage);
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            public void run() {
+                nextPlayerCard.hide();
+                t.cancel();
+            }}, 1000);//time in milliseconds
     }
 
     @Override
