@@ -2,6 +2,7 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 
@@ -20,8 +21,8 @@ public class GameSet { //singleton
         return gameSet;
     }
 
-    public MarbleSet register(Texture texture, float[] positions) {
-        StartPosition startPosition = new StartPosition(texture, positions);
+    public MarbleSet register(Viewport viewport, Texture texture, float[] positions) {
+        StartPosition startPosition = new StartPosition(viewport, texture, positions);
         MarbleSet marbleSet = new MarbleSet(startPosition.getSprites());
         marbleSets.add(marbleSet);
         return marbleSet;

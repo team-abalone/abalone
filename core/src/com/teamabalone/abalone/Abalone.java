@@ -51,8 +51,9 @@ public class Abalone implements Screen {
         screenHeight = Gdx.graphics.getHeight();
 
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
-        TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //gebraucht? TODO
-        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
+        TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
+//        tiledMap.getTileSets().getTile(7).setOffsetX(50);
+        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
 //        tileLayer.getCell(7,7).getTile().getTextureRegion();
 
 //        tiledMapRenderer.getViewBounds()
@@ -93,7 +94,8 @@ public class Abalone implements Screen {
                 //835, 908,
                 //963, 908,
                 //1091, 908,
-                1219, 908,
+                200, 200,
+//                1219, 908,
                 1155, 796,
                 1283, 796,
                 1027, 796,
@@ -124,8 +126,8 @@ public class Abalone implements Screen {
         };
 
         GameSet gameSet = GameSet.getInstance();
-        whiteMarbleSet = gameSet.register(whiteBall, positionsWhite);
-        blackMarbleSet = gameSet.register(blackBall, positionsBlack);
+        whiteMarbleSet = gameSet.register(viewport, whiteBall, positionsWhite);
+        blackMarbleSet = gameSet.register(viewport, blackBall, positionsBlack);
     }
 
     @Override
@@ -138,6 +140,8 @@ public class Abalone implements Screen {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+
 
         batch.begin();
 
@@ -149,6 +153,14 @@ public class Abalone implements Screen {
 
                 //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
                 //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
+
+//                Vector3 v = new Vector3(m.getMarble(i).getX(), m.getMarble(i).getY(), 0f);
+//                viewport.unproject(v);
+//                System.out.println(m.getMarble(i).getX() + " +++++ " + m.getMarble(i).getY());
+//                System.out.println(v.x + " ---- " + v.y);
+//                m.getMarble(i).setX(v.x);
+//                m.getMarble(i).setY(v.y);
+
                 m.getMarble(i).setScale((Gdx.graphics.getWidth() - mapWidth) / screenWidth, (Gdx.graphics.getWidth() - mapWidth) / screenWidth);
                 m.getMarble(i).draw(batch);
             }
@@ -161,44 +173,68 @@ public class Abalone implements Screen {
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
 
+        //move
         if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
-            Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+            viewport.unproject(v);
+            Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
             if (potentialSprite != null) {
                 currentSprite = potentialSprite;
             }
             if (currentSprite != null) {
-                currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                currentSprite.setCenter(v.x, v.y);
             }
 
             //debugging shows coordinates
-            System.out.println("sx: " + Gdx.input.getX());
-            System.out.println("sy: " + Gdx.input.getY());
-            System.out.println("vx: " + viewport.getCamera().position.x);
-            System.out.println("vy: " + viewport.getCamera().position.y);
+//            System.out.println("sx: " + Gdx.input.getX());
+//            System.out.println("sy: " + Gdx.input.getY());
+//            System.out.println("vx: " + viewport.getCamera().position.x);
+//            System.out.println("vy: " + viewport.getCamera().position.y);
+
+                    System.out.println(Gdx.input.getX() + " +++++ " + Gdx.input.getY());
+                    System.out.println(v.x + " ---- " + v.y);
+
         }
 
+        //zoom
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
             boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
             int indexLeftFinger = zeroLeftFinger ? 0 : 1;
             int indexRightFinger = !zeroLeftFinger ? 0 : 1;
             if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
                 ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
+
+//                for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+//                    for (int i = 0; i < m.size(); i++) {
+//                        m.getMarble(i).setSize(m.getMarble(i).getWidth() + 2, m.getMarble(i).getHeight() + 2);
+//                    }
+//                }
             }
             if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
                 ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
+
+//                for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+//                    for (int i = 0; i < m.size(); i++) {
+//                        Sprite marbel = m.getMarble(i);
+//                        m.getMarble(i).setSize(m.getMarble(i).getWidth() - 2, m.getMarble(i).getHeight() - 2);
+//
+//                    }
+//                }
             }
+
         }
 
+        //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
 
             //makes sprites stay on map position
-            for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
-                for (int i = 0; i < m.size(); i++) {
-                    m.getMarble(i).setX(m.getMarble(i).getX() + Gdx.input.getDeltaX(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
-                    m.getMarble(i).setY(m.getMarble(i).getY() - Gdx.input.getDeltaY(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
-                }
-            }
+//            for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+//                for (int i = 0; i < m.size(); i++) {
+//                    m.getMarble(i).setX(m.getMarble(i).getX() + Gdx.input.getDeltaX(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
+//                    m.getMarble(i).setY(m.getMarble(i).getY() - Gdx.input.getDeltaY(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
+//                }
+//            }
         }
 
     }
