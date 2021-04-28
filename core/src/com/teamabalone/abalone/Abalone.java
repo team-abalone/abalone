@@ -52,11 +52,7 @@ public class Abalone implements Screen {
 
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
-//        tiledMap.getTileSets().getTile(7).setOffsetX(50);
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
-//        tileLayer.getCell(7,7).getTile().getTextureRegion();
-
-//        tiledMapRenderer.getViewBounds()
 
         System.out.println(tiledMap.getProperties().get("tilewidth", Integer.class));
         System.out.println(tiledMap.getProperties().get("tileheight", Integer.class));
@@ -70,16 +66,15 @@ public class Abalone implements Screen {
         stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
 
+        float boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
         //height needs to take overlap in account (55,5 + 18,5 = 74)
-        camera.setToOrtho(false, tileLayer.getWidth() * tileLayer.getTileWidth(), 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight()); //centers camera projection at width/2 and height/2
+        float boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
+
+        camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
 
-//        camera.translate(tileLayer.getWidth() * tileLayer.getTileWidth(), tileLayer.getHeight() * tileLayer.getTileHeight());
-
-
-//        camera.zoom = 1 + (float) Gdx.graphics.getWidth() / 2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
-        //TODO Warum zentriert das?
-//        viewport.getCamera().translate(50,50, 0);
+        Board board = Board.getInstance(viewport, tileLayer);
+        board.get(0);
 
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
@@ -128,6 +123,8 @@ public class Abalone implements Screen {
         GameSet gameSet = GameSet.getInstance();
         whiteMarbleSet = gameSet.register(viewport, whiteBall, positionsWhite);
         blackMarbleSet = gameSet.register(viewport, blackBall, positionsBlack);
+        blackMarbleSet.getMarble(6).setCenter(board.get(1).x,board.get(1).y); //geschaft TODO !!
+        whiteMarbleSet.getMarble(13);
     }
 
     @Override
@@ -191,8 +188,8 @@ public class Abalone implements Screen {
 //            System.out.println("vx: " + viewport.getCamera().position.x);
 //            System.out.println("vy: " + viewport.getCamera().position.y);
 
-                    System.out.println(Gdx.input.getX() + " +++++ " + Gdx.input.getY());
-                    System.out.println(v.x + " ---- " + v.y);
+            System.out.println(Gdx.input.getX() + " +++++ " + Gdx.input.getY());
+            System.out.println(v.x + " ---- " + v.y);
 
         }
 
