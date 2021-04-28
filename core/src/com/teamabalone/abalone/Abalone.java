@@ -11,6 +11,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.files.FileHandle;
 
@@ -33,6 +36,8 @@ public class Abalone implements Screen {
     float mapHeight = 4.5f * 76;
     float screenWidth;
     float screenHeight;
+
+    Stage stage;
 
     public Abalone(GameImpl game) {
 
@@ -60,6 +65,9 @@ public class Abalone implements Screen {
 
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); //sets worldWidth and worldHeight
+
+        stage = new Stage(viewport, batch);
+        Gdx.input.setInputProcessor(stage);
 
         //height needs to take overlap in account (55,5 + 18,5 = 74)
         camera.setToOrtho(false, tileLayer.getWidth() * tileLayer.getTileWidth(), 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight()); //centers camera projection at width/2 and height/2
@@ -126,7 +134,7 @@ public class Abalone implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //center option??
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //would center the camera to the center of the world
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
@@ -183,6 +191,14 @@ public class Abalone implements Screen {
 
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
+
+            //makes sprites stay on map position
+            for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+                for (int i = 0; i < m.size(); i++) {
+                    m.getMarble(i).setX(m.getMarble(i).getX() + Gdx.input.getDeltaX(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
+                    m.getMarble(i).setY(m.getMarble(i).getY() - Gdx.input.getDeltaY(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
+                }
+            }
         }
 
     }
