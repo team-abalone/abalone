@@ -1,9 +1,6 @@
 package com.teamabalone.abalone;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -11,14 +8,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.awt.DisplayMode;
+import com.badlogic.gdx.files.FileHandle;
 
 public class Abalone implements Screen {
     final GameImpl game;
@@ -30,8 +24,6 @@ public class Abalone implements Screen {
 
     Texture blackBall;
     Texture whiteBall;
-    float textureWidth;
-    float textureHeight;
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
@@ -43,6 +35,10 @@ public class Abalone implements Screen {
     float screenHeight;
 
     public Abalone(GameImpl game) {
+
+//        MapCreater.createMap();
+        //Gdx.files.local("create_map.tmx");
+
         this.game = game;
         batch = game.getBatch();
 
@@ -50,14 +46,11 @@ public class Abalone implements Screen {
         screenHeight = Gdx.graphics.getHeight();
 
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
+        TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //gebraucht? TODO
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
+//        tileLayer.getCell(7,7).getTile().getTextureRegion();
 
-//        for (int i = 1; i < 60; i++) {
-//            System.out.println("----" + i);
-//            System.out.println(tiledMap.getTileSets().getTile(i).getOffsetX());
-//            System.out.println(tiledMap.getTileSets().getTile(i).getOffsetY());
-//        }
-
+//        tiledMapRenderer.getViewBounds()
 
         System.out.println(tiledMap.getProperties().get("tilewidth", Integer.class));
         System.out.println(tiledMap.getProperties().get("tileheight", Integer.class));
@@ -68,8 +61,12 @@ public class Abalone implements Screen {
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); //sets worldWidth and worldHeight
 
-        camera.setToOrtho(false, 0, 0); //centers camera projection at width/2 and height/2
-        camera.zoom = 1;//0.5f;
+        //height needs to take overlap in account (55,5 + 18,5 = 74)
+        camera.setToOrtho(false, tileLayer.getWidth() * tileLayer.getTileWidth(), 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight()); //centers camera projection at width/2 and height/2
+        camera.zoom = 0.5f;//0.5f;
+
+//        camera.translate(tileLayer.getWidth() * tileLayer.getTileWidth(), tileLayer.getHeight() * tileLayer.getTileHeight());
+
 
 //        camera.zoom = 1 + (float) Gdx.graphics.getWidth() / 2088; //Weiter durchtesten. TODO gleiche größe auf allen Geräten
         //TODO Warum zentriert das?
@@ -86,7 +83,7 @@ public class Abalone implements Screen {
                 Gdx.graphics.getWidth(), 0,
                 Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
                 //835, 908,
-               //963, 908,
+                //963, 908,
                 //1091, 908,
                 1219, 908,
                 1155, 796,
@@ -167,9 +164,9 @@ public class Abalone implements Screen {
 
             //debugging shows coordinates
             System.out.println("sx: " + Gdx.input.getX());
-            System.out.println("sx: " + Gdx.input.getY());
+            System.out.println("sy: " + Gdx.input.getY());
             System.out.println("vx: " + viewport.getCamera().position.x);
-            System.out.println("vx: " + viewport.getCamera().position.y);
+            System.out.println("vy: " + viewport.getCamera().position.y);
         }
 
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -217,6 +214,7 @@ public class Abalone implements Screen {
 
     @Override
     public void dispose() {
+        tiledMap.dispose();
         batch.dispose();
         blackBall.dispose();
         whiteBall.dispose();
