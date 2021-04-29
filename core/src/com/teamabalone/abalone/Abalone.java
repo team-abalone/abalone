@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Helpers.PotentialPositions;
 
 import java.util.Random;
 import java.util.Timer;
@@ -50,7 +49,6 @@ public class Abalone implements Screen {
     //changes
     boolean yourTurn = true;
     boolean wasTouched = false;
-    //TurnAnnouncerTwo nextPlayerCard = new TurnAnnouncerTwo("Next Players Turn", FactoryHelper.GetDefaultSkin());
     TurnAnnouncerTwo nextPlayerCard;
 
     private Stage stage;
