@@ -32,6 +32,7 @@ public class GameSet { //singleton
         return marbleSets;
     }
 
+    //TODO depending on order of set the first set will be searched first, making it dominating in selecting a marble and is drawn first
     public Sprite getMarble(float x, float y) {
         for (int i = 0; i < marbleSets.size(); i++) {
             MarbleSet marbleSet = marbleSets.get(i);

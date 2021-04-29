@@ -40,10 +40,6 @@ public class Abalone implements Screen {
     Stage stage;
 
     public Abalone(GameImpl game) {
-
-//        MapCreater.createMap();
-        //Gdx.files.local("create_map.tmx");
-
         this.game = game;
         batch = game.getBatch();
 
@@ -53,12 +49,6 @@ public class Abalone implements Screen {
         tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
-
-        System.out.println(tiledMap.getProperties().get("tilewidth", Integer.class));
-        System.out.println(tiledMap.getProperties().get("tileheight", Integer.class));
-        System.out.println(tiledMap.getProperties().get("width", Integer.class));
-        System.out.println(tiledMap.getProperties().get("height", Integer.class));
-
 
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); //sets worldWidth and worldHeight
@@ -73,58 +63,56 @@ public class Abalone implements Screen {
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
 
-        Board board = Board.getInstance(viewport, tileLayer);
+
+        Board board = Board.getInstance(viewport, tileLayer); //call after camera has been set!
         board.get(0);
 
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
 
-
         float[] positionsWhite = {
-                //707, 908,
-                0, 0,
-                0, Gdx.graphics.getHeight(),
-                Gdx.graphics.getWidth(), 0,
-                Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
-                //835, 908,
-                //963, 908,
-                //1091, 908,
-                200, 200,
-//                1219, 908,
-                1155, 796,
-                1283, 796,
-                1027, 796,
-                899, 796,
-                771, 796,
-                643, 796,
-                835, 684,
-                963, 684,
-                Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f
-//                1091, 684
+                board.get(1).x, board.get(1).y,
+                board.get(2).x, board.get(2).y,
+                board.get(3).x, board.get(3).y,
+                board.get(4).x, board.get(4).y,
+                board.get(5).x, board.get(5).y,
+                board.get(6).x, board.get(6).y,
+                board.get(7).x, board.get(7).y,
+                board.get(8).x, board.get(8).y,
+                board.get(9).x, board.get(9).y,
+                board.get(10).x, board.get(10).y,
+                board.get(11).x, board.get(11).y,
+                board.get(14).x, board.get(14).y,
+                board.get(15).x, board.get(15).y,
+                board.get(16).x, board.get(16).y
         };
 
         float[] positionsBlack = {
-                707, 18,
-                835, 18,
-                963, 18,
-                1091, 18,
-                1219, 18,
-                1155, 130,
-                1283, 130,
-                1027, 130,
-                899, 130,
-                771, 130,
-                643, 130,
-                835, 242,
-                963, 242,
-                1091, 242
+                board.get(61).x, board.get(61).y,
+                board.get(60).x, board.get(60).y,
+                board.get(59).x, board.get(59).y,
+                board.get(58).x, board.get(58).y,
+                board.get(57).x, board.get(57).y,
+                board.get(56).x, board.get(56).y,
+                board.get(55).x, board.get(55).y,
+                board.get(54).x, board.get(54).y,
+                board.get(53).x, board.get(53).y,
+                board.get(52).x, board.get(52).y,
+                board.get(51).x, board.get(51).y,
+                board.get(48).x, board.get(48).y,
+                board.get(47).x, board.get(47).y,
+                board.get(46).x, board.get(46).y
         };
 
         GameSet gameSet = GameSet.getInstance();
-        whiteMarbleSet = gameSet.register(viewport, whiteBall, positionsWhite);
         blackMarbleSet = gameSet.register(viewport, blackBall, positionsBlack);
-        blackMarbleSet.getMarble(6).setCenter(board.get(1).x,board.get(1).y); //geschaft TODO !!
-        whiteMarbleSet.getMarble(13);
+        whiteMarbleSet = gameSet.register(viewport, whiteBall, positionsWhite);
+    }
+
+    private Vector2 toMapCoordinates(float x, float y) {
+        Vector3 v = new Vector3(x, y, 0f);
+        viewport.unproject(v);
+        return new Vector2(Math.round(v.x), Math.round(v.y));
     }
 
     @Override
@@ -151,13 +139,6 @@ public class Abalone implements Screen {
                 //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
                 //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
 
-//                Vector3 v = new Vector3(m.getMarble(i).getX(), m.getMarble(i).getY(), 0f);
-//                viewport.unproject(v);
-//                System.out.println(m.getMarble(i).getX() + " +++++ " + m.getMarble(i).getY());
-//                System.out.println(v.x + " ---- " + v.y);
-//                m.getMarble(i).setX(v.x);
-//                m.getMarble(i).setY(v.y);
-
                 m.getMarble(i).setScale((Gdx.graphics.getWidth() - mapWidth) / screenWidth, (Gdx.graphics.getWidth() - mapWidth) / screenWidth);
                 m.getMarble(i).draw(batch);
             }
@@ -181,16 +162,6 @@ public class Abalone implements Screen {
             if (currentSprite != null) {
                 currentSprite.setCenter(v.x, v.y);
             }
-
-            //debugging shows coordinates
-//            System.out.println("sx: " + Gdx.input.getX());
-//            System.out.println("sy: " + Gdx.input.getY());
-//            System.out.println("vx: " + viewport.getCamera().position.x);
-//            System.out.println("vy: " + viewport.getCamera().position.y);
-
-            System.out.println(Gdx.input.getX() + " +++++ " + Gdx.input.getY());
-            System.out.println(v.x + " ---- " + v.y);
-
         }
 
         //zoom
@@ -200,23 +171,9 @@ public class Abalone implements Screen {
             int indexRightFinger = !zeroLeftFinger ? 0 : 1;
             if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
                 ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
-
-//                for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
-//                    for (int i = 0; i < m.size(); i++) {
-//                        m.getMarble(i).setSize(m.getMarble(i).getWidth() + 2, m.getMarble(i).getHeight() + 2);
-//                    }
-//                }
             }
             if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
                 ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
-
-//                for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
-//                    for (int i = 0; i < m.size(); i++) {
-//                        Sprite marbel = m.getMarble(i);
-//                        m.getMarble(i).setSize(m.getMarble(i).getWidth() - 2, m.getMarble(i).getHeight() - 2);
-//
-//                    }
-//                }
             }
 
         }
@@ -224,14 +181,6 @@ public class Abalone implements Screen {
         //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
-
-            //makes sprites stay on map position
-//            for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
-//                for (int i = 0; i < m.size(); i++) {
-//                    m.getMarble(i).setX(m.getMarble(i).getX() + Gdx.input.getDeltaX(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
-//                    m.getMarble(i).setY(m.getMarble(i).getY() - Gdx.input.getDeltaY(1) / ((OrthographicCamera) viewport.getCamera()).zoom);
-//                }
-//            }
         }
 
     }
