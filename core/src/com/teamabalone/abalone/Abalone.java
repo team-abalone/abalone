@@ -75,6 +75,7 @@ public class Abalone implements Screen {
 
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+        stage = new Stage(viewport, batch);
 
         float boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
         //height needs to take overlap in account (55,5 + 18,5 = 74)
@@ -148,10 +149,7 @@ public class Abalone implements Screen {
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
-        //changes
-        stage.act();
-        stage.draw();
-        //
+
 
         //TODO Ball resize! & Koordinaten rework!
 
@@ -167,6 +165,10 @@ public class Abalone implements Screen {
         }
 
         batch.end();
+        //changes
+        stage.act();
+        stage.draw();
+        //
 
 
         boolean firstFingerTouching = Gdx.input.isTouched(0);
@@ -228,12 +230,14 @@ public class Abalone implements Screen {
 
     @Override
     public void show() {
+
         // changes
+
         Table buttonTable = FactoryHelper.CreateTable(
                 15,
                 15,
-                Gdx.graphics.getWidth() - 250,
-                Gdx.graphics.getHeight() -100);
+                mapWidth - 250,
+                mapHeight -100);
         next = FactoryHelper.CreateButtonWithText("Next Player");
         next.addListener(new ClickListener() {
             @Override
@@ -244,13 +248,19 @@ public class Abalone implements Screen {
             }
         });
 
-        buttonTable.row().fillX().expandX();
-        buttonTable.add(next);
+        //buttonTable.row().fillX().expandX();
+        //buttonTable.add(next);
 
-        stage = new Stage(new ScreenViewport());
-        stage.addActor(buttonTable);
+        //Stage stage = new Stage(viewport, batch);
+        stage.addActor(next);
+
         Gdx.input.setInputProcessor(stage);
+
         //
+
+
+
+
 
     }
 
