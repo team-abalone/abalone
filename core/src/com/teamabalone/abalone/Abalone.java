@@ -14,8 +14,10 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -62,7 +64,7 @@ public class Abalone implements Screen {
     private TextButton next;
     //
 
-    public Abalone(GameImpl game){
+    public Abalone(GameImpl game) {
         this.game = game;
         batch = game.getBatch();
 
@@ -75,7 +77,8 @@ public class Abalone implements Screen {
 
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
-        stage = new Stage(viewport, batch);
+        //not attaching stage, so it moves with screen
+        stage = new Stage();
 
         float boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
         //height needs to take overlap in account (55,5 + 18,5 = 74)
@@ -233,12 +236,13 @@ public class Abalone implements Screen {
 
         // changes
 
-        Table buttonTable = FactoryHelper.CreateTable(
+        /*Table buttonTable = FactoryHelper.CreateTable(
                 15,
                 15,
                 mapWidth - 250,
-                mapHeight -100);
+                mapHeight -100);*/
         next = FactoryHelper.CreateButtonWithText("Next Player");
+
         next.addListener(new ClickListener() {
             @Override
             public void clicked(final InputEvent event, float x, float y) {
@@ -253,18 +257,19 @@ public class Abalone implements Screen {
 
         //Stage stage = new Stage(viewport, batch);
         stage.addActor(next);
+        Actor button = stage.getActors().get(0);
+        //set coordinates of actor/button
+        button.setX(Gdx.graphics.getWidth() - button.getWidth() - 10);
+        button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
 
         Gdx.input.setInputProcessor(stage);
 
         //
 
 
-
-
-
     }
 
-    public void simulatingOpponent(){
+    public void simulatingOpponent() {
         final Timer t = new Timer();
         t.schedule(new TimerTask() {
             public void run() {
@@ -280,10 +285,11 @@ public class Abalone implements Screen {
                 yourTurn = true;
                 t.cancel();
                 playerTransition("Your");
-            }}, 5000);//time in milliseconds
+            }
+        }, 5000);//time in milliseconds
     }
 
-    public void playerTransition(String sayWhichPlayerTransTo){
+    public void playerTransition(String sayWhichPlayerTransTo) {
         nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
         nextPlayerCard.show(stage);
         final Timer t = new Timer();
@@ -291,7 +297,8 @@ public class Abalone implements Screen {
             public void run() {
                 nextPlayerCard.hide();
                 t.cancel();
-            }}, 1000);//time in milliseconds
+            }
+        }, 1000);//time in milliseconds
     }
 
     @Override
