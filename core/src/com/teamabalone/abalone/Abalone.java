@@ -2,6 +2,7 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -64,7 +65,6 @@ public class Abalone implements Screen {
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
-
 
         Board board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
         board.get(0);
