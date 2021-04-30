@@ -38,6 +38,7 @@ public class Abalone implements Screen {
     float screenHeight;
 
     Stage stage;
+    int mapSize;
 
     public Abalone(GameImpl game) {
         this.game = game;
@@ -46,7 +47,8 @@ public class Abalone implements Screen {
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        tiledMap = new TmxMapLoader().load("abalone_map.tmx"); //set file paths accordingly
+        mapSize = 5; //make only setting valid value possible?
+        tiledMap = new TmxMapLoader().load("abalone_map" + mapSize + ".tmx"); //set file paths accordingly
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
 
@@ -64,7 +66,7 @@ public class Abalone implements Screen {
         camera.zoom = 0.5f;//0.5f;
 
 
-        Board board = Board.getInstance(viewport, tileLayer); //call after camera has been set!
+        Board board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
         board.get(0);
 
         blackBall = new Texture("ball.png");
@@ -76,32 +78,32 @@ public class Abalone implements Screen {
                 board.get(3).x, board.get(3).y,
                 board.get(4).x, board.get(4).y,
                 board.get(5).x, board.get(5).y,
-                board.get(6).x, board.get(6).y,
-                board.get(7).x, board.get(7).y,
-                board.get(8).x, board.get(8).y,
-                board.get(9).x, board.get(9).y,
-                board.get(10).x, board.get(10).y,
-                board.get(11).x, board.get(11).y,
-                board.get(14).x, board.get(14).y,
-                board.get(15).x, board.get(15).y,
-                board.get(16).x, board.get(16).y
+//                board.get(6).x, board.get(6).y,
+//                board.get(7).x, board.get(7).y,
+//                board.get(8).x, board.get(8).y,
+//                board.get(9).x, board.get(9).y,
+//                board.get(10).x, board.get(10).y,
+//                board.get(11).x, board.get(11).y,
+//                board.get(14).x, board.get(14).y,
+//                board.get(15).x, board.get(15).y,
+//                board.get(16).x, board.get(16).y
         };
 
         float[] positionsBlack = {
-                board.get(61).x, board.get(61).y,
-                board.get(60).x, board.get(60).y,
-                board.get(59).x, board.get(59).y,
-                board.get(58).x, board.get(58).y,
-                board.get(57).x, board.get(57).y,
-                board.get(56).x, board.get(56).y,
-                board.get(55).x, board.get(55).y,
-                board.get(54).x, board.get(54).y,
-                board.get(53).x, board.get(53).y,
-                board.get(52).x, board.get(52).y,
-                board.get(51).x, board.get(51).y,
-                board.get(48).x, board.get(48).y,
-                board.get(47).x, board.get(47).y,
-                board.get(46).x, board.get(46).y
+//                board.get(61).x, board.get(61).y,
+//                board.get(60).x, board.get(60).y,
+//                board.get(59).x, board.get(59).y,
+//                board.get(58).x, board.get(58).y,
+//                board.get(57).x, board.get(57).y,
+//                board.get(56).x, board.get(56).y,
+//                board.get(55).x, board.get(55).y,
+//                board.get(54).x, board.get(54).y,
+//                board.get(53).x, board.get(53).y,
+//                board.get(52).x, board.get(52).y,
+//                board.get(51).x, board.get(51).y,
+//                board.get(48).x, board.get(48).y,
+//                board.get(47).x, board.get(47).y,
+//                board.get(46).x, board.get(46).y
         };
 
         GameSet gameSet = GameSet.getInstance();
