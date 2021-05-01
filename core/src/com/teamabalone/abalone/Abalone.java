@@ -43,8 +43,6 @@ public class Abalone implements Screen {
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
 
-    float mapWidth = 15 * 64;
-    float mapHeight = 4.5f * 76;
     float screenWidth;
     float screenHeight;
 
@@ -105,6 +103,11 @@ public class Abalone implements Screen {
                 board.get(11).x, board.get(11).y,
                 board.get(14).x, board.get(14).y,
                 board.get(15).x, board.get(15).y,
+//                board.get(27).x, board.get(27).y,
+//                board.get(30).x, board.get(30).y,
+//                board.get(31).x, board.get(31).y,
+//                board.get(32).x, board.get(32).y,
+//                board.get(35).x, board.get(35).y,
                 board.get(16).x, board.get(16).y
         };
 
@@ -159,7 +162,7 @@ public class Abalone implements Screen {
 
                 //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
                 //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
-                m.getMarble(i).setScale((Gdx.graphics.getWidth() - mapWidth) / screenWidth, (Gdx.graphics.getWidth() - mapWidth) / screenWidth);
+                m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
             }
         }
@@ -254,10 +257,10 @@ public class Abalone implements Screen {
         }
 
         //makes one touch only one operation (-> select)
-        if(!justTouched && firstFingerTouching){
+        if (!justTouched && firstFingerTouching) {
             justTouched = true;
         }
-        if(justTouched && !firstFingerTouching){
+        if (justTouched && !firstFingerTouching) {
             justTouched = false;
         }
 
