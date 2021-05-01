@@ -34,13 +34,19 @@ public class GameSet { //singleton
 
     //TODO depending on order of set the first set will be searched first, making it dominating in selecting a marble and is drawn first
     public Sprite getMarble(float x, float y) {
+        System.out.println("x: " + x);
+        System.out.println("y: " + y);
         for (int i = 0; i < marbleSets.size(); i++) {
             MarbleSet marbleSet = marbleSets.get(i);
             for (int k = 0; k < marbleSet.size(); k++) {
                 Sprite sprite = marbleSet.getMarble(k);
                 float xdiff = x - sprite.getX();
                 float ydiff = y - sprite.getY();
-                if ( 0 <= xdiff && xdiff <= sprite.getWidth() && 0 <= ydiff && ydiff <= sprite.getHeight()) {
+
+                if (0 <= xdiff && xdiff <= sprite.getWidth() && 0 <= ydiff && ydiff <= sprite.getWidth()) {
+                    System.out.println("-------------------");
+                    System.out.println(xdiff + " = " + x + " - " + sprite.getX());
+                    System.out.println(ydiff + " = " + y + " - " + sprite.getY());
                     return sprite;
                 }
             }

@@ -1,10 +1,8 @@
 package com.teamabalone.abalone;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,15 +15,11 @@ import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
@@ -48,7 +42,6 @@ public class Abalone implements Screen {
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
-    Sprite currentSprite;
 
     float mapWidth = 15 * 64;
     float mapHeight = 4.5f * 76;
@@ -62,7 +55,11 @@ public class Abalone implements Screen {
 
     private Stage stage;
     private TextButton next;
-    //
+
+    Sprite currentSprite;
+    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+
+    boolean justTouched = false;
 
     public Abalone(GameImpl game) {
         this.game = game;
@@ -178,17 +175,44 @@ public class Abalone implements Screen {
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
 
-        //move
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
+        //select
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
+            //touch coordinates have to be translate to map coordinates
             Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
             viewport.unproject(v);
             Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
+
+//            if (potentialSprite != null) {
+//                currentSprite = potentialSprite;
+//            }
+//            if (currentSprite != null) {
+//                currentSprite.setCenter(v.x, v.y);
+//            }
+
             if (potentialSprite != null) {
-                currentSprite = potentialSprite;
+                if (selectedSprites.select(potentialSprite)) { //toggle
+                    potentialSprite.setColor(Color.GRAY);
+                } else {
+                    selectedSprites.unselect(potentialSprite);
+                    potentialSprite.setColor(Color.WHITE);
+                }
+            } else {
+                for (int i = 0; i < selectedSprites.size(); i++) {
+                    Sprite s = selectedSprites.get(i);
+                    if (s != null) {
+                        s.setColor(Color.WHITE);
+                    }
+                }
+                selectedSprites.unselectAll();
             }
-            if (currentSprite != null) {
-                currentSprite.setCenter(v.x, v.y);
-            }
+//            if (currentSprite != null) {
+//                currentSprite.setCenter(v.x, v.y);
+//            }
+        }
+
+        //moving
+        if (!selectedSprites.isEmpty() && (Gdx.input.getDeltaX() > 0.1 || Gdx.input.getDeltaY() > 0.1)) {
+            //do moving marbles
         }
 
         /*
@@ -227,6 +251,14 @@ public class Abalone implements Screen {
         //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
+        }
+
+        //makes one touch only one operation (-> select)
+        if(!justTouched && firstFingerTouching){
+            justTouched = true;
+        }
+        if(justTouched && !firstFingerTouching){
+            justTouched = false;
         }
 
     }
@@ -276,11 +308,11 @@ public class Abalone implements Screen {
                 int randX = new Random().nextInt(15);
                 Sprite potentialSprite = whiteMarbleSet.getMarble(randX);
                 if (potentialSprite != null) {
-                    currentSprite = potentialSprite;
+                    selectedSprites.select(potentialSprite);
                 }
-                if (currentSprite != null) {
-                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
-                }
+//                if (currentSprite != null) {
+//                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
+//                }
                 wasTouched = false;
                 yourTurn = true;
                 t.cancel();

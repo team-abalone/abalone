@@ -1,6 +1,7 @@
 package com.teamabalone.abalone;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ public class MarbleSet {
                 marbles.put(i, sprites.get(i));
             }
         } else {
-            //System.out.println("no sprites passed to marble set");
+            System.out.println("no sprites passed to marble set");
         }
     }
 
@@ -25,7 +26,7 @@ public class MarbleSet {
         return null;
     }
 
-    public int size(){
+    public int size() {
         return marbles.size();
     }
 }
