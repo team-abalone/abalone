@@ -37,8 +37,6 @@ public class Abalone implements Screen {
 
     Texture blackBall;
     Texture whiteBall;
-    float textureWidth;
-    float textureHeight;
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
@@ -54,7 +52,6 @@ public class Abalone implements Screen {
     private Stage stage;
     private TextButton next;
 
-    Sprite currentSprite;
     SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
 
     boolean justTouched = false;
@@ -103,11 +100,6 @@ public class Abalone implements Screen {
                 board.get(11).x, board.get(11).y,
                 board.get(14).x, board.get(14).y,
                 board.get(15).x, board.get(15).y,
-//                board.get(27).x, board.get(27).y,
-//                board.get(30).x, board.get(30).y,
-//                board.get(31).x, board.get(31).y,
-//                board.get(32).x, board.get(32).y,
-//                board.get(35).x, board.get(35).y,
                 board.get(16).x, board.get(16).y
         };
 
@@ -153,15 +145,8 @@ public class Abalone implements Screen {
 
         batch.begin();
 
-
-        //TODO Ball resize! & Koordinaten rework!
-
         for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
             for (int i = 0; i < m.size(); i++) {
-                //TODO Marble scaling Aufpassen:Minimal=0
-
-                //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
-                //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
                 m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
             }
@@ -171,7 +156,6 @@ public class Abalone implements Screen {
         //changes
         stage.act();
         stage.draw();
-        //
 
 
         boolean firstFingerTouching = Gdx.input.isTouched(0);
@@ -184,13 +168,6 @@ public class Abalone implements Screen {
             Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
             viewport.unproject(v);
             Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
-
-//            if (potentialSprite != null) {
-//                currentSprite = potentialSprite;
-//            }
-//            if (currentSprite != null) {
-//                currentSprite.setCenter(v.x, v.y);
-//            }
 
             if (potentialSprite != null) {
                 if (selectedSprites.select(potentialSprite)) { //toggle
@@ -208,9 +185,6 @@ public class Abalone implements Screen {
                 }
                 selectedSprites.unselectAll();
             }
-//            if (currentSprite != null) {
-//                currentSprite.setCenter(v.x, v.y);
-//            }
         }
 
         //moving
@@ -268,16 +242,7 @@ public class Abalone implements Screen {
 
     @Override
     public void show() {
-
-        // changes
-
-        /*Table buttonTable = FactoryHelper.CreateTable(
-                15,
-                15,
-                mapWidth - 250,
-                mapHeight -100);*/
         next = FactoryHelper.CreateButtonWithText("Next Player");
-
         next.addListener(new ClickListener() {
             @Override
             public void clicked(final InputEvent event, float x, float y) {
@@ -287,9 +252,6 @@ public class Abalone implements Screen {
             }
         });
 
-        //buttonTable.row().fillX().expandX();
-        //buttonTable.add(next);
-
         //Stage stage = new Stage(viewport, batch);
         stage.addActor(next);
         Actor button = stage.getActors().get(0);
@@ -298,10 +260,6 @@ public class Abalone implements Screen {
         button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
 
         Gdx.input.setInputProcessor(stage);
-
-        //
-
-
     }
 
     public void simulatingOpponent() {
@@ -315,7 +273,7 @@ public class Abalone implements Screen {
                 }
 //                if (currentSprite != null) {
 //                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
-//                }
+//                } TODO change to new selection mode
                 wasTouched = false;
                 yourTurn = true;
                 t.cancel();
