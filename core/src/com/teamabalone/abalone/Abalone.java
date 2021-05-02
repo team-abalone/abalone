@@ -1,6 +1,7 @@
 package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -48,6 +49,7 @@ public class Abalone implements Screen {
 
     //changes
     Music bgMusic;
+    Preferences settings;
     boolean yourTurn = true;
     boolean wasTouched = false;
     TurnAnnouncerTwo nextPlayerCard;
@@ -64,6 +66,7 @@ public class Abalone implements Screen {
 
     public Abalone(GameImpl game) {
         this.game = game;
+        settings = Gdx.app.getPreferences("UserSettings");
         batch = game.getBatch();
 
         screenWidth = Gdx.graphics.getWidth();
@@ -297,6 +300,7 @@ public class Abalone implements Screen {
         Gdx.input.setInputProcessor(stage);
         bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
+        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor"));
     }
 
     public void simulatingOpponent() {

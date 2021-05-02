@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Dialogs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,6 +28,7 @@ public class SettingsDialog extends Dialog {
     private ImageButton exitButton;
     float bgMusicVolumeFactor;
     boolean sfxSoundActive;
+    Preferences settings = Gdx.app.getPreferences("UserSettings");
 
     public SettingsDialog(String title, Skin skin) {
         super(title, skin);
@@ -52,12 +54,14 @@ public class SettingsDialog extends Dialog {
         // Music Controll setup
         Label  musicVolume = new Label("Music Volume:", skin);
         final Slider slider = new Slider(0, 100, 1, false, skin);
-        slider.setValue(100);
+        slider.setValue(settings.getFloat("bgMusicVolumeFactor")*100);
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 bgMusicVolumeFactor = slider.getValue() /100;
                 Gdx.app.log("ClickListener", bgMusicVolumeFactor + " was set");
+                settings.putFloat("bgMusicVolumeFactor", bgMusicVolumeFactor);
+                settings.flush();
             }
         });
 
