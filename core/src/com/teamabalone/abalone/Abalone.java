@@ -146,8 +146,8 @@ public class Abalone implements Screen {
 
         float backgroundWidth = background.getWidth();
         float backgroundHeight = background.getHeight();
-        float startX = boardWidth / 2 - backgroundWidth / 2;
-        float startY = boardHeight / 2 - backgroundHeight / 2;
+        float startX = boardWidth / 2 - backgroundWidth;
+        float startY = boardHeight / 2 - backgroundHeight;
 
         batch.begin();
         batch.draw(background, startX, startY);
