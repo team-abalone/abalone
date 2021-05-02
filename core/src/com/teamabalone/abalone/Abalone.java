@@ -2,6 +2,7 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -45,6 +46,7 @@ public class Abalone implements Screen {
     float screenHeight;
 
     //changes
+    Music bgMusic;
     boolean yourTurn = true;
     boolean wasTouched = false;
     TurnAnnouncerTwo nextPlayerCard;
@@ -260,6 +262,8 @@ public class Abalone implements Screen {
         button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
 
         Gdx.input.setInputProcessor(stage);
+        bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
+        bgMusic.play();
     }
 
     public void simulatingOpponent() {
@@ -320,6 +324,7 @@ public class Abalone implements Screen {
         batch.dispose();
         blackBall.dispose();
         whiteBall.dispose();
+        bgMusic.dispose();
     }
 
 }
