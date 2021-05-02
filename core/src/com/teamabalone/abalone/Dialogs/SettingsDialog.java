@@ -1,15 +1,15 @@
 package com.teamabalone.abalone.Dialogs;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 /**
@@ -18,7 +18,7 @@ import com.teamabalone.abalone.Helpers.FactoryHelper;
  * TODO: Not yet working properly.
  */
 public class SettingsDialog extends Dialog {
-    private ImageButton ExitButton;
+    private ImageButton exitButton;
 
     public SettingsDialog(String title, Skin skin) {
         super(title, skin);
@@ -26,22 +26,20 @@ public class SettingsDialog extends Dialog {
         contentTable.setDebug(true);
 
         contentTable.setWidth(Gdx.graphics.getWidth());
-        contentTable.setWidth(Gdx.graphics.getWidth());
+        contentTable.setHeight(Gdx.graphics.getHeight());
 
-        ExitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        ExitButton.setHeight(100);
-        ExitButton.setWidth(100);
+        exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
+        exitButton.setHeight(100);
+        exitButton.setWidth(100);
 
-        ExitButton.addListener(new ClickListener() {
+        exitButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    Gdx.app.log("ClickListener", ExitButton.toString() + " clicked");
+                    Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                     remove();
-
                 };
         });
-
-        contentTable.add(ExitButton);
+        contentTable.add(exitButton);
     }
 
     @Override
