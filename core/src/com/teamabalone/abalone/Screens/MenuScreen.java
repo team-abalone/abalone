@@ -46,8 +46,6 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.getHeight() / 3,
                 Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 8,
                 Gdx.graphics.getHeight() / 6);
-
-
         // Creating and adding buttons.
         CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
         CreateRoomButton.addListener(new ClickListener() {

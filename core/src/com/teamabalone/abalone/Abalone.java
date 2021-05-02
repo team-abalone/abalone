@@ -2,6 +2,9 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+
+import com.badlogic.gdx.audio.Music;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -12,11 +15,20 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.files.FileHandle;
+import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
+import com.teamabalone.abalone.Helpers.FactoryHelper;
+
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Abalone implements Screen {
     final GameImpl game;
@@ -26,20 +38,36 @@ public class Abalone implements Screen {
     HexagonalTiledMapRenderer tiledMapRenderer;
     FitViewport viewport;
 
+    Texture background;
     Texture blackBall;
     Texture whiteBall;
 
     MarbleSet whiteMarbleSet;
     MarbleSet blackMarbleSet;
-    Sprite currentSprite;
 
-    float mapWidth = 15 * 64;
-    float mapHeight = 4.5f * 76;
     float screenWidth;
     float screenHeight;
 
+
     Stage stage;
     int mapSize;
+
+    //changes
+    Music bgMusic;
+    boolean yourTurn = true;
+    boolean wasTouched = false;
+    TurnAnnouncerTwo nextPlayerCard;
+
+    private Stage stage;
+    private TextButton next;
+
+    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+
+    boolean justTouched = false;
+
+    private final float boardWidth;
+    private final float boardHeight;
+
 
     public Abalone(GameImpl game) {
         this.game = game;
@@ -54,14 +82,13 @@ public class Abalone implements Screen {
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
 
         OrthographicCamera camera = new OrthographicCamera();
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); //sets worldWidth and worldHeight
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+        //not attaching stage, so it moves with screen
+        stage = new Stage();
 
-        stage = new Stage(viewport, batch);
-        Gdx.input.setInputProcessor(stage);
-
-        float boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
+        boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
         //height needs to take overlap in account (55,5 + 18,5 = 74)
-        float boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
+        boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
@@ -69,6 +96,7 @@ public class Abalone implements Screen {
         Board board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
         board.get(0);
 
+        background = new Texture("wooden_table_background.png");
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
 
@@ -119,52 +147,112 @@ public class Abalone implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(120 / 255f, 120 / 255f, 120 / 255f, 1);
+        Gdx.gl.glClearColor(139 / 255f, 58 / 255f, 58 / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //would center the camera to the center of the world
+
+        float backgroundWidth = background.getWidth();
+        float backgroundHeight = background.getHeight();
+        float startX = boardWidth / 2 - backgroundWidth;
+        float startY = boardHeight / 2 - backgroundHeight;
+
+        batch.begin();
+        batch.draw(background, startX, startY);
+        batch.draw(background, startX, startY + backgroundHeight);
+        batch.draw(background, startX, startY + backgroundHeight * 2);
+        batch.draw(background, startX, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth, startY);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth * 2, startY);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
+
+        batch.draw(background, startX - backgroundWidth, startY);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
+        batch.end();
+
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
-
         batch.begin();
-
-        //TODO Ball resize! & Koordinaten rework!
 
         for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
             for (int i = 0; i < m.size(); i++) {
-                //TODO Marble scaling Aufpassen:Minimal=0
-
-                //Dividiert durch 2088 weil das Ausgangshandy diese Breite hat und somit wurde alles gescaled.
-                //-mapWidth wegen setProjectionMatrix und screenWidth handyspezifisch (?)
-
-                m.getMarble(i).setScale((Gdx.graphics.getWidth() - mapWidth) / screenWidth, (Gdx.graphics.getWidth() - mapWidth) / screenWidth);
+                m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
             }
         }
 
         batch.end();
+        //changes
+        stage.act();
+        stage.draw();
 
 
         boolean firstFingerTouching = Gdx.input.isTouched(0);
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
 
-        //move
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
+        //select
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
+            //touch coordinates have to be translate to map coordinates
             Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
             viewport.unproject(v);
             Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
+
             if (potentialSprite != null) {
-                currentSprite = potentialSprite;
-            }
-            if (currentSprite != null) {
-                currentSprite.setCenter(v.x, v.y);
+                if (selectedSprites.select(potentialSprite)) { //toggle
+                    potentialSprite.setColor(Color.GRAY);
+                } else {
+                    selectedSprites.unselect(potentialSprite);
+                    potentialSprite.setColor(Color.WHITE);
+                }
+            } else {
+                for (int i = 0; i < selectedSprites.size(); i++) {
+                    Sprite s = selectedSprites.get(i);
+                    if (s != null) {
+                        s.setColor(Color.WHITE);
+                    }
+                }
+                selectedSprites.unselectAll();
             }
         }
+
+        //moving
+        if (!selectedSprites.isEmpty() && (Gdx.input.getDeltaX() > 0.1 || Gdx.input.getDeltaY() > 0.1)) {
+            //do moving marbles
+        }
+
+        /*
+        Gdx.app.log("Click Listener", "Your Turn = " + yourTurn);
+        if(yourTurn == true){      //solange true kann bewegt werden
+            if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
+                Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                if (potentialSprite != null) {
+                    currentSprite = potentialSprite;
+                }
+                if (currentSprite != null) {
+                    currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                    wasTouched = true;
+                    Gdx.app.log("Click Listener", "Turn ended");
+                }
+            }
+            if(Gdx.input.isTouched() != true && wasTouched == true){
+                yourTurn = false;
+            }
+        }
+         */
 
         //zoom
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -177,7 +265,6 @@ public class Abalone implements Screen {
             if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
                 ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
             }
-
         }
 
         //translate
@@ -185,11 +272,70 @@ public class Abalone implements Screen {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
 
+        //makes one touch only one operation (-> select)
+        if (!justTouched && firstFingerTouching) {
+            justTouched = true;
+        }
+        if (justTouched && !firstFingerTouching) {
+            justTouched = false;
+        }
+
     }
 
     @Override
     public void show() {
+        next = FactoryHelper.CreateButtonWithText("Next Player");
+        next.addListener(new ClickListener() {
+            @Override
+            public void clicked(final InputEvent event, float x, float y) {
+                Gdx.app.log("ClickListener", next.toString() + " clicked");
+                playerTransition("Opponent");
+                simulatingOpponent();
+            }
+        });
 
+        //Stage stage = new Stage(viewport, batch);
+        stage.addActor(next);
+        Actor button = stage.getActors().get(0);
+        //set coordinates of actor/button
+        button.setX(Gdx.graphics.getWidth() - button.getWidth() - 10);
+        button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
+
+        Gdx.input.setInputProcessor(stage);
+        bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
+        bgMusic.play();
+    }
+
+    public void simulatingOpponent() {
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            public void run() {
+                int randX = new Random().nextInt(15);
+                Sprite potentialSprite = whiteMarbleSet.getMarble(randX);
+                if (potentialSprite != null) {
+                    selectedSprites.select(potentialSprite);
+                }
+//                if (currentSprite != null) {
+//                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
+//                } TODO change to new selection mode
+                wasTouched = false;
+                yourTurn = true;
+                t.cancel();
+                playerTransition("Your");
+            }
+        }, 5000);//time in milliseconds
+    }
+
+    public void playerTransition(String sayWhichPlayerTransTo) {
+        nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
+        nextPlayerCard.show(stage);
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            public void run() {
+                nextPlayerCard.hide();
+                t.cancel();
+            }
+        }, 1000);//time in milliseconds
     }
 
     @Override
@@ -218,6 +364,7 @@ public class Abalone implements Screen {
         batch.dispose();
         blackBall.dispose();
         whiteBall.dispose();
+        bgMusic.dispose();
     }
 
 }

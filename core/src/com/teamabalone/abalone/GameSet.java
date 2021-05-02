@@ -38,9 +38,10 @@ public class GameSet { //singleton
             MarbleSet marbleSet = marbleSets.get(i);
             for (int k = 0; k < marbleSet.size(); k++) {
                 Sprite sprite = marbleSet.getMarble(k);
-                float xdiff = x - sprite.getX();
-                float ydiff = y - sprite.getY();
-                if ( 0 <= xdiff && xdiff <= sprite.getWidth() && 0 <= ydiff && ydiff <= sprite.getHeight()) {
+                float xdiff = x - 32 - sprite.getX();
+                float ydiff = y - 32 - sprite.getY();
+
+                if (0 <= xdiff && xdiff <= sprite.getWidth() * sprite.getScaleX() && 0 <= ydiff && ydiff <= sprite.getHeight() * sprite.getScaleY()) {
                     return sprite;
                 }
             }
