@@ -48,8 +48,6 @@ public class Abalone implements Screen {
     float screenWidth;
     float screenHeight;
 
-
-    Stage stage;
     int mapSize;
 
     //changes
