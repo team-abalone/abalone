@@ -1,7 +1,7 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	Oswald-Bold-White: {
-		file: Oswald-Bold(1).fnt
+		file: Oswald-Bold1.fnt
 	}
 }
 com.badlogic.gdx.graphics.Color: {
@@ -15,6 +15,13 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 		down: button_down
 	}
 }
+com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+	default: {
+		checkboxOn: ticked
+		checkboxOff: not_ticked
+		font: Oswald-Bold-White
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	exit-btn: {
 		up: button_exit_up
@@ -25,10 +32,23 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		down: button_settings_down
 	}
 }
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: Oswald-Bold-White
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	default-horizontal: {
 		background: button_down
 		disabledBackground: button_up
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
+	default-horizontal: {
+		knobOver: slider_up
+		knobDown: slider_down
+		background: slider_bg
+		knob: slider_up
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
@@ -36,6 +56,11 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		font: Oswald-Bold-White
 		up: button_up
 		down: button_down
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
