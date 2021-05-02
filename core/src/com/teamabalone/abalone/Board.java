@@ -23,7 +23,7 @@ public class Board { //singleton
     private float tileHeight;
     private int numberEdgeTiles;
 
-    private Board(Viewport viewport, TiledMapTileLayer tileLayer) {
+    private Board(Viewport viewport, TiledMapTileLayer tileLayer, int mapSize) {
         this.viewport = viewport;
         this.tileLayer = tileLayer;
 
@@ -36,12 +36,12 @@ public class Board { //singleton
 
         tileWidth = tileLayer.getTileWidth();
         tileHeight = tileLayer.getTileHeight();
-        numberEdgeTiles = 5; //TODO generalize
+        numberEdgeTiles = mapSize; //TODO generalize
     }
 
-    public static Board getInstance(Viewport viewport, TiledMapTileLayer tileLayer) {
+    public static Board getInstance(Viewport viewport, TiledMapTileLayer tileLayer, int mapSize) {
         if (board == null) {
-            board = new Board(viewport, tileLayer);
+            board = new Board(viewport, tileLayer, mapSize);
             board.instantiate();
         }
         return board;
