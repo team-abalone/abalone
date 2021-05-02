@@ -36,6 +36,7 @@ public class Abalone implements Screen {
     HexagonalTiledMapRenderer tiledMapRenderer;
     FitViewport viewport;
 
+    Texture background;
     Texture blackBall;
     Texture whiteBall;
 
@@ -58,6 +59,9 @@ public class Abalone implements Screen {
 
     boolean justTouched = false;
 
+    private final float boardWidth;
+    private final float boardHeight;
+
     public Abalone(GameImpl game) {
         this.game = game;
         batch = game.getBatch();
@@ -74,9 +78,9 @@ public class Abalone implements Screen {
         //not attaching stage, so it moves with screen
         stage = new Stage();
 
-        float boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
+        boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
         //height needs to take overlap in account (55,5 + 18,5 = 74)
-        float boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
+        boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
@@ -85,6 +89,7 @@ public class Abalone implements Screen {
         Board board = Board.getInstance(viewport, tileLayer); //call after camera has been set!
         board.get(0);
 
+        background = new Texture("wooden_table_background.png");
         blackBall = new Texture("ball.png");
         whiteBall = new Texture("ball_white.png");
 
@@ -135,11 +140,39 @@ public class Abalone implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(120 / 255f, 120 / 255f, 120 / 255f, 1);
+        Gdx.gl.glClearColor(139 / 255f, 58 / 255f, 58 / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //would center the camera to the center of the world
+
+        float backgroundWidth = background.getWidth();
+        float backgroundHeight = background.getHeight();
+        float startX = boardWidth / 2 - backgroundWidth;
+        float startY = boardHeight / 2 - backgroundHeight;
+
+        batch.begin();
+        batch.draw(background, startX, startY);
+        batch.draw(background, startX, startY + backgroundHeight);
+        batch.draw(background, startX, startY + backgroundHeight * 2);
+        batch.draw(background, startX, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth, startY);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth * 2, startY);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
+
+        batch.draw(background, startX - backgroundWidth, startY);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
+        batch.end();
+
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
