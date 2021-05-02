@@ -4,73 +4,108 @@ size: 2048,2048
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
+Oswald-Bold1
+  rotate: false
+  xy: 1, 553
+  size: 506, 389
+  orig: 506, 389
+  offset: 0, 0
+  index: -1
 button_down
   rotate: false
-  xy: 1219, 1633
+  xy: 1219, 1642
   size: 476, 153
   orig: 476, 153
   offset: 0, 0
   index: -1
 button_exit_down
   rotate: false
-  xy: 509, 842
+  xy: 1, 305
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_exit_up
   rotate: false
-  xy: 1219, 1540
+  xy: 863, 1337
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_settings_down
   rotate: false
-  xy: 1697, 1696
+  xy: 509, 738
   size: 91, 90
   orig: 91, 90
   offset: 0, 0
   index: -1
 button_settings_up
   rotate: false
-  xy: 1, 296
+  xy: 623, 851
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_up
   rotate: false
-  xy: 1, 389
+  xy: 1, 398
   size: 476, 153
   orig: 476, 153
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 1, 1427
+  xy: 1, 1436
   size: 1216, 359
   orig: 1216, 359
   offset: 0, 0
   index: -1
+not_ticked
+  rotate: false
+  xy: 1219, 1540
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+slider_bg
+  rotate: false
+  xy: 863, 1430
+  size: 157, 4
+  orig: 157, 4
+  offset: 0, 0
+  index: -1
+slider_down
+  rotate: false
+  xy: 1321, 1540
+  size: 40, 100
+  orig: 40, 100
+  offset: 0, 0
+  index: -1
+slider_up
+  rotate: false
+  xy: 1219, 1438
+  size: 40, 100
+  orig: 40, 100
+  offset: 0, 0
+  index: -1
+ticked
+  rotate: false
+  xy: 1697, 1695
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 window_background
   rotate: false
-  xy: 863, 1313
+  xy: 509, 830
   size: 112, 112
   orig: 112, 112
   offset: 0, 0
   index: -1
 window_frame
   rotate: false
-  xy: 1, 935
+  xy: 1, 944
   size: 860, 490
   orig: 860, 490
-  offset: 0, 0
-  index: -1
-Oswald-Bold(1)
-  rotate: false
-  xy: 1, 544
-  size: 506, 389
-  orig: 506, 389
   offset: 0, 0
   index: -1
