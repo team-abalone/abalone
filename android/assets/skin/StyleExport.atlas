@@ -6,105 +6,112 @@ filter: Linear,Linear
 repeat: none
 Oswald-Bold1
   rotate: false
-  xy: 1, 553
+  xy: 1, 595
   size: 506, 389
   orig: 506, 389
   offset: 0, 0
   index: -1
+bg_scroll
+  rotate: false
+  xy: 509, 980
+  size: 126, 4
+  orig: 126, 4
+  offset: 0, 0
+  index: -1
 button_down
   rotate: false
-  xy: 1219, 1642
+  xy: 1219, 1684
   size: 476, 153
   orig: 476, 153
   offset: 0, 0
   index: -1
 button_exit_down
   rotate: false
-  xy: 1, 305
+  xy: 863, 1379
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_exit_up
   rotate: false
-  xy: 863, 1337
+  xy: 509, 887
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_settings_down
   rotate: false
-  xy: 509, 738
+  xy: 1219, 1478
   size: 91, 90
   orig: 91, 90
   offset: 0, 0
   index: -1
 button_settings_up
   rotate: false
-  xy: 623, 851
+  xy: 1333, 1591
   size: 91, 91
   orig: 91, 91
   offset: 0, 0
   index: -1
 button_up
   rotate: false
-  xy: 1, 398
+  xy: 1, 440
   size: 476, 153
   orig: 476, 153
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 1, 1436
+  xy: 1, 1478
   size: 1216, 359
   orig: 1216, 359
   offset: 0, 0
   index: -1
 not_ticked
   rotate: false
-  xy: 1219, 1540
+  xy: 1697, 1737
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 slider_bg
   rotate: false
-  xy: 863, 1430
+  xy: 863, 1472
   size: 157, 4
   orig: 157, 4
   offset: 0, 0
   index: -1
 slider_down
   rotate: false
-  xy: 1321, 1540
+  xy: 1, 236
   size: 40, 100
   orig: 40, 100
   offset: 0, 0
   index: -1
 slider_up
   rotate: false
-  xy: 1219, 1438
+  xy: 1799, 1737
   size: 40, 100
   orig: 40, 100
   offset: 0, 0
   index: -1
 ticked
   rotate: false
-  xy: 1697, 1695
+  xy: 1, 338
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 window_background
   rotate: false
-  xy: 509, 830
+  xy: 1219, 1570
   size: 112, 112
   orig: 112, 112
   offset: 0, 0
   index: -1
 window_frame
   rotate: false
-  xy: 1, 944
+  xy: 1, 986
   size: 860, 490
   orig: 860, 490
   offset: 0, 0

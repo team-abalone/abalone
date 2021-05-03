@@ -92,9 +92,9 @@ public class Abalone implements Screen {
         Board board = Board.getInstance(viewport, tileLayer); //call after camera has been set!
         board.get(0);
 
-        background = new Texture("wooden_table_background.png");
-        blackBall = new Texture("ball.png");
-        whiteBall = new Texture("ball_white.png");
+        background = new Texture("boards/"+settings.getString("boardSkin"));
+        blackBall = new Texture("marbles/"+settings.getString("marbleSkin"));
+        whiteBall = new Texture("marbles/ball_white.png");
 
         float[] positionsWhite = {
                 board.get(1).x, board.get(1).y,
@@ -300,6 +300,7 @@ public class Abalone implements Screen {
         Gdx.input.setInputProcessor(stage);
         bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
+        bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor"));
     }
 

@@ -82,7 +82,7 @@ public class MenuScreen implements Screen {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", SettingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("Settings", uiSkin);
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
                 settingsDialog.show(Stage);
             }
 
