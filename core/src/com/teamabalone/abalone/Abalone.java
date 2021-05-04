@@ -56,6 +56,14 @@ public class Abalone implements Screen {
     SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
 
     boolean justTouched = false;
+    float firstTouchX;
+    float firstTouchY;
+    float lastTouchX;
+    float lastTouchY;
+
+    enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+
+    Direction lastDirection = Direction.NOTSET;
 
     private final float boardWidth;
     private final float boardHeight;
@@ -266,11 +274,68 @@ public class Abalone implements Screen {
         //makes one touch only one operation (-> select)
         if (!justTouched && firstFingerTouching) {
             justTouched = true;
+            firstTouchX = Gdx.input.getX();
+            firstTouchY = Gdx.input.getY();
         }
         if (justTouched && !firstFingerTouching) {
             justTouched = false;
+            lastTouchX = Gdx.input.getX();
+            lastTouchY = Gdx.input.getY();
+            lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY);
+            System.out.println(lastDirection.toString());
         }
 
+    }
+
+    private Direction calculateDirection(float startX, float startY, float endX, float endY) {
+        float adjacentLeg = endX - startX;
+        float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
+
+        //to get 360°
+        boolean olneg = oppositeLeg < 0;
+        boolean alneg = adjacentLeg < 0;
+        double offset = 0;
+        if (alneg) {
+            offset = 180;
+        }
+        if (!alneg && olneg) {
+            offset = 360;
+        }
+
+        double degrees = Math.toDegrees(Math.atan(oppositeLeg / adjacentLeg)) + offset; //atan() returns only -pi/2 - pi/2 (circle half)
+        int index = ((int) ((degrees) / 30)); //get sector
+        Direction direction;
+
+        switch (index) {
+            case 0:
+            case 11:
+                direction = Direction.RIGHT;
+                break;
+            case 1:
+            case 2:
+                direction = Direction.RIGHTUP;
+                break;
+            case 3:
+            case 4:
+                direction = Direction.LEFTUP;
+                break;
+            case 5:
+            case 6:
+                direction = Direction.LEFT;
+                break;
+            case 7:
+            case 8:
+                direction = Direction.LEFTDOWN;
+                break;
+            case 9:
+            case 10:
+                direction = Direction.RIGHTDOWN;
+                break;
+            default:
+                direction = Direction.NOTSET;
+        }
+
+        return direction;
     }
 
     @Override
