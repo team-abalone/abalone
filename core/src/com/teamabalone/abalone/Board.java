@@ -64,6 +64,10 @@ public class Board { //singleton
     }
 
     //navigation methods
+    public Vector2 shiftLeftUp(Vector2 point) {
+        return shiftLeftUp(point, 1);
+    }
+
     public Vector2 shiftLeftUp(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
@@ -73,12 +77,21 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftLeft(Vector2 point) {
+        return shiftLeft(point, 1);
+    }
+
     public Vector2 shiftLeft(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
             vector.x -= tileWidth;
         }
         return vector;
+    }
+
+    public Vector2 shiftLeftDown(Vector2 point) {
+        return shiftLeftDown(point, 1);
+
     }
 
     public Vector2 shiftLeftDown(Vector2 point, int howManyTimes) {
@@ -90,6 +103,10 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftRightUp(Vector2 point) {
+        return shiftRightUp(point, 1);
+    }
+
     public Vector2 shiftRightUp(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
@@ -99,12 +116,20 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftRight(Vector2 point) {
+        return shiftRight(point, 1);
+    }
+
     public Vector2 shiftRight(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
             vector.x += tileWidth;
         }
         return vector;
+    }
+
+    public Vector2 shiftRightDown(Vector2 point) {
+        return shiftRightDown(point, 1);
     }
 
     public Vector2 shiftRightDown(Vector2 point, int howManyTimes) {

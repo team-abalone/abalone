@@ -64,6 +64,7 @@ public class Abalone implements Screen {
     enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
 
     Direction lastDirection = Direction.NOTSET;
+    int swipeSensitivity = 40;
 
     private final float boardWidth;
     private final float boardHeight;
@@ -203,35 +204,24 @@ public class Abalone implements Screen {
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
 
-        //select
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
-            //touch coordinates have to be translate to map coordinates
-            Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
-            viewport.unproject(v);
-            Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
-
-            if (potentialSprite != null) {
-                if (selectedSprites.select(potentialSprite)) { //toggle
-                    potentialSprite.setColor(Color.GRAY);
-                } else {
-                    selectedSprites.unselect(potentialSprite);
-                    potentialSprite.setColor(Color.WHITE);
-                }
-            } else {
-                for (int i = 0; i < selectedSprites.size(); i++) {
-                    Sprite s = selectedSprites.get(i);
-                    if (s != null) {
-                        s.setColor(Color.WHITE);
-                    }
-                }
-                selectedSprites.unselectAll();
+        //zoom
+        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
+            boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
+            int indexLeftFinger = zeroLeftFinger ? 0 : 1;
+            int indexRightFinger = !zeroLeftFinger ? 0 : 1;
+            if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
+                ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
+            }
+            if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
+                ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
             }
         }
 
-        //moving
-        if (!selectedSprites.isEmpty() && (Gdx.input.getDeltaX() > 0.1 || Gdx.input.getDeltaY() > 0.1)) {
-            //do moving marbles
+        //translate
+        if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
+            viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
+
 
         /*
         Gdx.app.log("Click Listener", "Your Turn = " + yourTurn);
@@ -253,22 +243,29 @@ public class Abalone implements Screen {
         }
          */
 
-        //zoom
-        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
-            boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
-            int indexLeftFinger = zeroLeftFinger ? 0 : 1;
-            int indexRightFinger = !zeroLeftFinger ? 0 : 1;
-            if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
-                ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
-            }
-            if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
-                ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
-            }
-        }
+        //select
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
+            //touch coordinates have to be translate to map coordinates
+            Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+            viewport.unproject(v);
+            Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
 
-        //translate
-        if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
-            viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
+            if (potentialSprite != null) {
+                if (selectedSprites.select(potentialSprite)) { //toggle
+                    potentialSprite.setColor(Color.GRAY);
+                } else {
+                    selectedSprites.unselect(potentialSprite);
+                    potentialSprite.setColor(Color.WHITE);
+                }
+            } else {
+                for (int i = 0; i < selectedSprites.size(); i++) {
+                    Sprite s = selectedSprites.get(i);
+                    if (s != null) {
+                        s.setColor(Color.WHITE);
+                    }
+                }
+
+            }
         }
 
         //makes one touch only one operation (-> select)
@@ -277,12 +274,22 @@ public class Abalone implements Screen {
             firstTouchX = Gdx.input.getX();
             firstTouchY = Gdx.input.getY();
         }
-        if (justTouched && !firstFingerTouching) {
+        if (justTouched && !firstFingerTouching) { //if touch ends
             justTouched = false;
             lastTouchX = Gdx.input.getX();
             lastTouchY = Gdx.input.getY();
+
             lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY);
-            System.out.println(lastDirection.toString());
+            //System.out.println(lastDirection.toString());
+
+            //move
+            if(lastDirection != Direction.NOTSET && !selectedSprites.isEmpty()){ //TODO provisorily
+                for(int i = 0; i < selectedSprites.size(); i++){
+                    selectedSprites.move(i, lastDirection);
+                }
+            } else{
+
+            }
         }
 
     }
@@ -290,6 +297,10 @@ public class Abalone implements Screen {
     private Direction calculateDirection(float startX, float startY, float endX, float endY) {
         float adjacentLeg = endX - startX;
         float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
+
+        if(Math.abs(adjacentLeg) < swipeSensitivity && Math.abs(oppositeLeg) < swipeSensitivity){ //continue selection mode
+            return Direction.NOTSET;
+        }
 
         //to get 360°
         boolean olneg = oppositeLeg < 0;

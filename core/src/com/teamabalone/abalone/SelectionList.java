@@ -1,5 +1,8 @@
 package com.teamabalone.abalone;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -15,7 +18,7 @@ public class SelectionList<t> {
         return arrayList.size();
     }
 
-    public t get(int index){
+    public t get(int index) {
         return arrayList.get(index);
     }
 
@@ -39,6 +42,39 @@ public class SelectionList<t> {
             }
         }
         return false;
+    }
+
+    public Vector2 getCenter(Sprite sprite) { //TODO method here?
+        return new Vector2(sprite.getX() + sprite.getWidth() / 2f, sprite.getY() + sprite.getHeight() / 2f);
+    }
+
+    public void move(int index, Abalone.Direction direction) { //not generic!
+        Sprite sprite = (Sprite) arrayList.get(index);
+        Board board = Board.getInstance(null, null); //TODO proper implementation of singleton?
+        Vector2 vector = getCenter(sprite);
+
+        switch (direction) {
+            case RIGHT:
+                vector = board.shiftRight(vector);
+                break;
+            case RIGHTUP:
+                vector = board.shiftRightUp(vector);
+                break;
+            case RIGHTDOWN:
+                vector = board.shiftRightDown(vector);
+                break;
+            case LEFT:
+                vector = board.shiftLeft(vector);
+                break;
+            case LEFTUP:
+                vector = board.shiftLeftUp(vector);
+                break;
+            case LEFTDOWN:
+                vector = board.shiftLeftDown(vector);
+                break;
+        }
+
+        sprite.setCenter(vector.x, vector.y);
     }
 
     public boolean unselect(t object) {
