@@ -34,7 +34,7 @@ public class SelectionList<t> {
         return arrayList.isEmpty();
     }
 
-    public boolean select(t object) {
+    public boolean select(t object) { //TODO only select marbles of specific color
         //TODO check if valid -> only marbles in a row, else unselect all | here?
         if (arrayList.size() < maximum) {
             if (!arrayList.contains(object)) {
