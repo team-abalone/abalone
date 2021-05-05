@@ -47,6 +47,10 @@ public class Board { //singleton
         return board;
     }
 
+    public static Board getInstance(){ //TODO proper implementation of singleton?
+        return board;
+    }
+
     private void instantiate() {
         fields.add(new Vector2(boardWidth / 2f + 1.5f, boardHeight / 2f - 0.5f)); //center; manually centered (+1.5f -0.5f)
         final Vector2 center = fields.get(0);
@@ -64,6 +68,10 @@ public class Board { //singleton
     }
 
     //navigation methods
+    public Vector2 shiftLeftUp(Vector2 point) {
+        return shiftLeftUp(point, 1);
+    }
+
     public Vector2 shiftLeftUp(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
@@ -73,12 +81,21 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftLeft(Vector2 point) {
+        return shiftLeft(point, 1);
+    }
+
     public Vector2 shiftLeft(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
             vector.x -= tileWidth;
         }
         return vector;
+    }
+
+    public Vector2 shiftLeftDown(Vector2 point) {
+        return shiftLeftDown(point, 1);
+
     }
 
     public Vector2 shiftLeftDown(Vector2 point, int howManyTimes) {
@@ -90,6 +107,10 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftRightUp(Vector2 point) {
+        return shiftRightUp(point, 1);
+    }
+
     public Vector2 shiftRightUp(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
@@ -99,12 +120,20 @@ public class Board { //singleton
         return vector;
     }
 
+    public Vector2 shiftRight(Vector2 point) {
+        return shiftRight(point, 1);
+    }
+
     public Vector2 shiftRight(Vector2 point, int howManyTimes) {
         Vector2 vector = new Vector2(point.x, point.y);
         for (int i = 0; i < howManyTimes; i++) {
             vector.x += tileWidth;
         }
         return vector;
+    }
+
+    public Vector2 shiftRightDown(Vector2 point) {
+        return shiftRightDown(point, 1);
     }
 
     public Vector2 shiftRightDown(Vector2 point, int howManyTimes) {

@@ -61,7 +61,16 @@ public class Abalone implements Screen {
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
 
-    boolean justTouched = false;
+    boolean justTouched = false; //makes one touch only one operation (-> select)
+    float firstTouchX;
+    float firstTouchY;
+    float lastTouchX;
+    float lastTouchY;
+
+    enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+
+    Direction lastDirection = Direction.NOTSET;
+    int swipeSensitivity = 40;
 
     private final float boardWidth;
     private final float boardHeight;
@@ -197,41 +206,6 @@ public class Abalone implements Screen {
         stage.act();
         stage.draw();
 
-
-        boolean firstFingerTouching = Gdx.input.isTouched(0);
-        boolean secondFingerTouching = Gdx.input.isTouched(1);
-        boolean thirdFingerTouching = Gdx.input.isTouched(2);
-
-        //select
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
-            //touch coordinates have to be translate to map coordinates
-            Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
-            viewport.unproject(v);
-            Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y);
-
-            if (potentialSprite != null) {
-                if (selectedSprites.select(potentialSprite)) { //toggle
-                    potentialSprite.setColor(Color.GRAY);
-                } else {
-                    selectedSprites.unselect(potentialSprite);
-                    potentialSprite.setColor(Color.WHITE);
-                }
-            } else {
-                for (int i = 0; i < selectedSprites.size(); i++) {
-                    Sprite s = selectedSprites.get(i);
-                    if (s != null) {
-                        s.setColor(Color.WHITE);
-                    }
-                }
-                selectedSprites.unselectAll();
-            }
-        }
-
-        //moving
-        if (!selectedSprites.isEmpty() && (Gdx.input.getDeltaX() > 0.1 || Gdx.input.getDeltaY() > 0.1)) {
-            //do moving marbles
-        }
-
         /*
         Gdx.app.log("Click Listener", "Your Turn = " + yourTurn);
         if(yourTurn == true){      //solange true kann bewegt werden
@@ -252,32 +226,157 @@ public class Abalone implements Screen {
         }
          */
 
-        //zoom
-        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
-            boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
-            int indexLeftFinger = zeroLeftFinger ? 0 : 1;
-            int indexRightFinger = !zeroLeftFinger ? 0 : 1;
-            if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
-                ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
-            }
-            if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
-                ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
-            }
-        }
+        boolean firstFingerTouching = Gdx.input.isTouched(0);
+        boolean secondFingerTouching = Gdx.input.isTouched(1);
+        boolean thirdFingerTouching = Gdx.input.isTouched(2);
 
         //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
             viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
         }
 
-        //makes one touch only one operation (-> select)
-        if (!justTouched && firstFingerTouching) {
-            justTouched = true;
-        }
-        if (justTouched && !firstFingerTouching) {
-            justTouched = false;
+        //zoom
+        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
+            zoom();
+            firstTouchX = Gdx.input.getX(); //set anew, since position might have changed due to zooming
+            firstTouchY = Gdx.input.getY();
         }
 
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {  //on touch begins
+            firstTouchX = Gdx.input.getX();
+            firstTouchY = Gdx.input.getY();
+            justTouched = true;
+        }
+
+        if (justTouched && !firstFingerTouching) { //on touch ends
+            lastTouchX = Gdx.input.getX();
+            lastTouchY = Gdx.input.getY();
+
+            lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+
+            if (lastDirection != Direction.NOTSET && !selectedSprites.isEmpty()) {
+                moveSelectedMarbles(); //move
+                unselectList();
+                lastDirection = Direction.NOTSET;
+            } else {
+                selectMarbleIfTouched(); //select
+            }
+
+            justTouched = false;
+        }
+    }
+
+    private void selectMarbleIfTouched() {
+        //touch coordinates have to be translate to map coordinates
+        Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+        viewport.unproject(v);
+        Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+
+        if (potentialSprite != null) {
+            boolean alreadySelected = !select(potentialSprite);
+            if (alreadySelected) {
+                unselect(potentialSprite);
+            }
+        } else {
+            unselectList();
+        }
+    }
+
+    private boolean select(Sprite sprite) {
+        if (selectedSprites.select(sprite)) {
+            sprite.setColor(Color.GRAY);
+            return true;
+        }
+        return false;
+    }
+
+    private void unselect(Sprite sprite) {
+        selectedSprites.unselect(sprite);
+        sprite.setColor(Color.WHITE);
+    }
+
+    private void unselectList() {
+        for (int i = 0; i < selectedSprites.size(); i++) {
+            Sprite s = selectedSprites.get(i);
+            if (s != null) {
+                s.setColor(Color.WHITE);
+            }
+        }
+        selectedSprites.unselectAll();
+    }
+
+    private void zoom() {
+        boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
+        int indexLeftFinger = zeroLeftFinger ? 0 : 1;
+        int indexRightFinger = !zeroLeftFinger ? 0 : 1;
+
+        if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
+            ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
+        }
+        if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
+            ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
+        }
+    }
+
+    private void moveSelectedMarbles() {
+        for (int i = 0; i < selectedSprites.size(); i++) {
+            selectedSprites.move(i, lastDirection);
+        }
+    }
+
+    private Direction calculateDirection(float startX, float startY, float endX, float endY) {
+        float adjacentLeg = endX - startX;
+        float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
+
+        if (Math.abs(adjacentLeg) < swipeSensitivity && Math.abs(oppositeLeg) < swipeSensitivity) { //continue selection mode
+            return Direction.NOTSET;
+        }
+
+        //to get 360°
+        boolean olneg = oppositeLeg < 0;
+        boolean alneg = adjacentLeg < 0;
+        double offset = 0;
+        if (alneg) {
+            offset = 180;
+        }
+        if (!alneg && olneg) {
+            offset = 360;
+        }
+
+        double degrees = Math.toDegrees(Math.atan(oppositeLeg / adjacentLeg)) + offset; //atan() returns only -pi/2 - pi/2 (circle half)
+        int index = ((int) ((degrees) / 30)); //get sector
+        Direction direction;
+
+        switch (index) {
+            case 0:
+            case 11:
+                direction = Direction.RIGHT;
+                break;
+            case 1:
+            case 2:
+                direction = Direction.RIGHTUP;
+                break;
+            case 3:
+            case 4:
+                direction = Direction.LEFTUP;
+                break;
+            case 5:
+            case 6:
+                direction = Direction.LEFT;
+                break;
+            case 7:
+            case 8:
+                direction = Direction.LEFTDOWN;
+                break;
+            case 9:
+            case 10:
+                direction = Direction.RIGHTDOWN;
+                break;
+            default:
+                direction = Direction.NOTSET;
+        }
+
+        return direction;
     }
 
     @Override
@@ -348,7 +447,7 @@ public class Abalone implements Screen {
 
     @Override
     public void resume() {
-
+        //TODO you get more murbles if you close the up and start it up again
     }
 
     @Override
