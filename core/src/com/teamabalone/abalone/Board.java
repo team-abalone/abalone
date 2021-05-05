@@ -47,6 +47,10 @@ public class Board { //singleton
         return board;
     }
 
+    public static Board getInstance(){ //TODO proper implementation of singleton?
+        return board;
+    }
+
     private void instantiate() {
         fields.add(new Vector2(boardWidth / 2f + 1.5f, boardHeight / 2f - 0.5f)); //center; manually centered (+1.5f -0.5f)
         final Vector2 center = fields.get(0);

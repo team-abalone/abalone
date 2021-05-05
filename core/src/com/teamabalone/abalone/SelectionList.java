@@ -50,7 +50,12 @@ public class SelectionList<t> {
 
     public void move(int index, Abalone.Direction direction) { //not generic!
         Sprite sprite = (Sprite) arrayList.get(index);
-        Board board = Board.getInstance(null, null); //TODO proper implementation of singleton?
+        Board board = Board.getInstance();
+
+        if(sprite == null || board == null){ //TODO proper handling
+            return;
+        }
+
         Vector2 vector = getCenter(sprite);
 
         switch (direction) {
