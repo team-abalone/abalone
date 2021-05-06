@@ -13,12 +13,44 @@ public class Field implements Iterable<Hexagon> {
 		this.radius = radius;
 		this.hexFields = getHexagonCount(radius);
 		this.field = new HashMap<>(this.hexFields);
-		int i = 0;
+		int i = 1;
 		for (HexCoordinate hex : iterateOverHexagons()) {
 			this.setHexagon(hex, new Hexagon(hex, i++));
 		}
 		System.out.println(iterateOverHexagons());
 	}
+
+	public int[] getWholeField(){
+		int[] arr = new int[this.hexFields];
+
+		//TODO getHexagons von 0-Hexfields in int[]
+
+		return null;
+	}
+
+	public boolean checkMove(int[]ids, Directions direction){
+		//TODO
+
+		return false;
+	}
+
+	public boolean isThereAMarble(){
+		//TODO kontrollieren ob da ein Marble ist
+
+		return false;
+	}
+
+	public int[] isPushable(){
+		//TODO
+
+		return null;
+	}
+
+	public boolean isPushedOutOfBound(){
+		//TODO ist die Kugel außerhalb?
+
+	}
+
 
 	public boolean isInLine(int[] ids) {
 		if (ids.length == 0) {
@@ -66,19 +98,6 @@ public class Field implements Iterable<Hexagon> {
 
 	public Iterable<HexCoordinate> iterateOverHexagons() {
 		ArrayList<HexCoordinate> resultList = new ArrayList<>(this.hexFields);
-		/*
-		for (int x = -radius + 1; x < radius; x++) {
-			for (int y = -radius + 1; y < radius; y++) {
-				for (int z = -radius + 1; z < radius; z++) {
-					if (x + y + z == 0) {
-						resultList.add(new HexCoordinate(x, y, z));
-					} else {
-
-					}
-				}
-			}
-		}
-		 */
 		for (int z = -radius + 1; z < radius; z++) {
 			for (int y = radius - 1; y > -radius; y--) {
 				for (int x = radius - 1; x > -radius; x--) {
