@@ -1,9 +1,9 @@
 package com.teamabalone.abalone.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,7 +18,6 @@ import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
-import com.teamabalone.abalone.Helpers.Helpers;
 
 
 /**
@@ -82,7 +81,7 @@ public class MenuScreen implements Screen {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", SettingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("Settings", uiSkin);
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
                 settingsDialog.show(Stage);
             }
 
