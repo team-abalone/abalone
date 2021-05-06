@@ -1,3 +1,5 @@
+package com.teamabalone.abalone.Gamelogic;
+
 public class Marble {
 	private Team team;
 

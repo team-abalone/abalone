@@ -1,3 +1,5 @@
+package com.teamabalone.abalone.Gamelogic;
+
 public class Hexagon {
 	private Marble marble;
 	private HexCoordinate position;

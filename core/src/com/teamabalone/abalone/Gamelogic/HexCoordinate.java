@@ -1,3 +1,5 @@
+package com.teamabalone.abalone.Gamelogic;
+
 import java.util.Objects;
 
 public class HexCoordinate {
