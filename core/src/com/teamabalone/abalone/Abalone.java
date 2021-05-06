@@ -1,6 +1,7 @@
 package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 
 import com.badlogic.gdx.audio.Music;
@@ -52,6 +53,7 @@ public class Abalone implements Screen {
 
     //changes
     Music bgMusic;
+    Preferences settings;
     boolean yourTurn = true;
     boolean wasTouched = false;
     TurnAnnouncerTwo nextPlayerCard;
@@ -78,6 +80,7 @@ public class Abalone implements Screen {
 
     public Abalone(GameImpl game) {
         this.game = game;
+        settings = Gdx.app.getPreferences("UserSettings");
         batch = game.getBatch();
 
         screenWidth = Gdx.graphics.getWidth();
@@ -103,9 +106,9 @@ public class Abalone implements Screen {
         Board board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
         board.get(0);
 
-        background = new Texture("wooden_table_background.png");
-        blackBall = new Texture("ball.png");
-        whiteBall = new Texture("ball_white.png");
+        background = new Texture("boards/"+settings.getString("boardSkin", "Laminat.png"));
+        blackBall = new Texture("marbles/"+settings.getString("marbleSkin", "ball.png"));
+        whiteBall = new Texture("marbles/ball_white.png");
 
         float[] positionsWhite = {
                 board.get(1).x, board.get(1).y,
@@ -401,6 +404,8 @@ public class Abalone implements Screen {
         Gdx.input.setInputProcessor(stage);
         bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
+        bgMusic.setLooping(true);
+        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
     public void simulatingOpponent() {

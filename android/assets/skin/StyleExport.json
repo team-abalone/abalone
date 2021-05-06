@@ -6,7 +6,7 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 }
 com.badlogic.gdx.graphics.Color: {
 	RGBA_255_255_255_255: {
-		hex: ffffffff
+		hex: f04b24ff
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
@@ -37,10 +37,38 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: Oswald-Bold-White
 	}
 }
+com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
+	default: {
+		font: Oswald-Bold-White
+		fontColorSelected: RGBA_255_255_255_255
+		fontColorUnselected: RGBA_255_255_255_255
+		selection: bg_scroll
+		background: window_background
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	default-horizontal: {
 		background: button_down
 		disabledBackground: button_up
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
+	default: {
+		corner: slider_up
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
+	default: {
+		font: Oswald-Bold-White
+		fontColor: RGBA_255_255_255_255
+		scrollStyle: default
+		listStyle: default
+	}
+	scrollCheckBox: {
+		font: Oswald-Bold-White
+		fontColor: RGBA_255_255_255_255
+		scrollStyle: default
+		listStyle: default
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
@@ -56,6 +84,10 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		font: Oswald-Bold-White
 		up: button_up
 		down: button_down
+	}
+	customStyle: {
+		font: Oswald-Bold-White
+		up: button_up
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
