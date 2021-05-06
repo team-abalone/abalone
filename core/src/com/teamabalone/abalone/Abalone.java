@@ -92,8 +92,8 @@ public class Abalone implements Screen {
         Board board = Board.getInstance(viewport, tileLayer); //call after camera has been set!
         board.get(0);
 
-        background = new Texture("boards/"+settings.getString("boardSkin"));
-        blackBall = new Texture("marbles/"+settings.getString("marbleSkin"));
+        background = new Texture("boards/"+settings.getString("boardSkin", "Laminat.png"));
+        blackBall = new Texture("marbles/"+settings.getString("marbleSkin", "ball.png"));
         whiteBall = new Texture("marbles/ball_white.png");
 
         float[] positionsWhite = {
@@ -301,7 +301,7 @@ public class Abalone implements Screen {
         bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
         bgMusic.setLooping(true);
-        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor"));
+        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
     public void simulatingOpponent() {

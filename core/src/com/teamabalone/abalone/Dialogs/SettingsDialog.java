@@ -26,10 +26,12 @@ import com.teamabalone.abalone.Helpers.FactoryHelper;
  */
 public class SettingsDialog extends Dialog {
     private ImageButton exitButton;
+    //settings variables
     float bgMusicVolumeFactor;
     boolean sfxSoundActive;
     String marbleSkin;
     String boardSkin;
+    //
     Preferences settings = Gdx.app.getPreferences("UserSettings");
 
     public SettingsDialog(String title, Skin skin) {
@@ -56,7 +58,7 @@ public class SettingsDialog extends Dialog {
         // Music Controll setup
         Label  musicVolume = new Label("Music Volume:", skin);
         final Slider slider = new Slider(0, 100, 1, false, skin);
-        slider.setValue(settings.getFloat("bgMusicVolumeFactor")*100);
+        slider.setValue(settings.getFloat("bgMusicVolumeFactor" , 1f)*100);
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -70,6 +72,7 @@ public class SettingsDialog extends Dialog {
         //SFX Controll setup
         Label sfxCheck = new Label("Disbale SFX?", skin);
         final CheckBox sfxBox = new CheckBox("", skin);
+        sfxBox.setChecked(settings.getBoolean("sfxSoundActive", false));
         sfxBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -78,6 +81,8 @@ public class SettingsDialog extends Dialog {
                  } else{
                      sfxSoundActive = true;
                  }
+                settings.putBoolean("sfxSoundActive", sfxSoundActive);
+                 settings.flush();
                 Gdx.app.log("ClickListener", "The SFX is: "+ sfxSoundActive);
             }
         });
@@ -102,7 +107,7 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        //Gameboard setup
+        //Gameboard visual setup
         Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
         FileHandle[] directoryBoard = Gdx.files.internal("boards/").list();          //fetches the files in this directory
         Array<String> boardSkinList = new Array<String>();
