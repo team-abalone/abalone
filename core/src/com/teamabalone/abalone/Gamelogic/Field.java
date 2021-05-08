@@ -20,12 +20,25 @@ public class Field implements Iterable<Hexagon> {
 		System.out.println(iterateOverHexagons());
 	}
 
+	//returns the whole field as an array. 0 = none, 1 = black, 2 = white;
 	public int[] getWholeField(){
 		int[] arr = new int[this.hexFields];
-
-		//TODO getHexagons von 0-Hexfields in int[]
-
-		return null;
+		for (int i = 1; i < hexFields ; i++) {
+			for (HexCoordinate hex : iterateOverHexagons()) {
+				if (getHexagon(hex).getId() == i) {
+					if(getHexagon(hex).getMarble() == null){
+						arr[i-1] = 0;
+					}
+					else if(getHexagon(hex).getMarble().getTeam()==Team.BLACK){
+						arr[i-1] = 1;
+					}
+					else if(getHexagon(hex).getMarble().getTeam()==Team.WHITE){
+						arr[i-1] = 2;
+					}
+				}
+			}
+		}
+		return arr;
 	}
 
 	public boolean checkMove(int[]ids, Directions direction){
@@ -49,8 +62,8 @@ public class Field implements Iterable<Hexagon> {
 	public boolean isPushedOutOfBound(){
 		//TODO ist die Kugel außerhalb?
 
+		return false;
 	}
-
 
 	public boolean isInLine(int[] ids) {
 		if (ids.length == 0) {
@@ -119,7 +132,7 @@ public class Field implements Iterable<Hexagon> {
 	}
 
 	private int getHexagonCount(int r) {
-		return 3*r*(r+1)+1;
+		return 3*r*(r-1)+1;
 	}
 
 	@Override
