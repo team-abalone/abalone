@@ -59,10 +59,13 @@ public class Field implements Iterable<Hexagon> {
 		return null;
 	}
 
-	public boolean isPushedOutOfBound(){
-		//TODO ist die Kugel außerhalb?
-
-		return false;
+	public boolean isPushedOutOfBound(ArrayList<HexCoordinate> coordinates){
+		for (int i = 0; i < coordinates.size(); i++) {
+			if(coordinates.get(i).getX()>=radius || coordinates.get(i).getY()>=radius || coordinates.get(i).getZ()>=radius){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public boolean isInLine(int[] ids) {
