@@ -301,7 +301,7 @@ public class Abalone implements Screen {
                     marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
                 }
 
-                if (/*checkMove(marblesToCheck, lastDirection)*/true) {
+                if (checkMove(marblesToCheck, lastDirection)) {
                     int[] enemyMarbles = isPushable();
                     boolean pushable = enemyMarbles != null;
 
@@ -316,7 +316,7 @@ public class Abalone implements Screen {
                         unselectList();
                         lastDirection = Direction.NOTSET;
 
-                        isPushedOutOfBound(); //TODO should disappear
+                        gameSet.captureMarble(gameSet, board, isPushedOutOfBound());//TODO should disappear
                     }
                 } else {
                     selectMarbleIfTouched(); //select
@@ -340,7 +340,7 @@ public class Abalone implements Screen {
             }
             marblesToCheck[marblesToCheck.length - 1] = Board.getInstance().getFieldId(potentialSprite);
 
-            if (/*isInLine(marblesToCheck)*/true) {
+            if (isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
                     unselect(potentialSprite);

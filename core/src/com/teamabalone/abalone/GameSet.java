@@ -2,6 +2,7 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
@@ -48,4 +49,26 @@ public class GameSet { //singleton
         }
         return null;
     }
+
+    public Sprite captureMarble(GameSet gameSet, Board board, int fieldId) {
+        if (fieldId == -1) {
+            return null;
+        }
+
+        Vector2 fieldCoordinates = board.get(fieldId);
+        Sprite sprite = gameSet.getMarble(fieldCoordinates.x, fieldCoordinates.y);
+        gameSet.removeMarble(sprite);
+        return sprite;
+    }
+
+    public boolean removeMarble(Sprite sprite) {
+        for (int i = 0; i < marbleSets.size(); i++) {
+            MarbleSet marbleSet = marbleSets.get(i);
+            for (int k = 0; k < marbleSet.size(); k++) {
+                return marbleSets.remove(sprite);
+            }
+        }
+        return false;
+    }
+
 }
