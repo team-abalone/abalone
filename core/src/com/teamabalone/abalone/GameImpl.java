@@ -17,6 +17,16 @@ public class GameImpl extends Game {
     }
 
     @Override
+    public void resume() {
+        super.resume();
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+    }
+
+    @Override
     public void render() {
         super.render();
     }
