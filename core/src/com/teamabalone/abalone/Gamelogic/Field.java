@@ -43,6 +43,10 @@ public class Field implements Iterable<Hexagon> {
 		return null;
 	}
 
+	//invalid move -> null
+	//valid move but empty field ahead -> array{}
+	//valid move and enemy marbles ahead -> array{enemy1, enemy2}
+
 	public int[] checkMove(int[]ids, Directions direction){  //return.length == 0 == false
 		//TODO
 		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
@@ -63,7 +67,7 @@ public class Field implements Iterable<Hexagon> {
 			if(getHexagon(neighbour) == null){
 				//in this case the neighbour field is not within the map and because we can't kill ourselves it's not legit
 				Gdx.app.log("Logic", "Method checkMove said out of bounds.");
-				return result;
+				return null;
 
 			}
 			if(getHexagon(neighbour).getMarble() == null ){
@@ -73,23 +77,24 @@ public class Field implements Iterable<Hexagon> {
 			}else if(getHexagon(neighbour).getMarble() != playersTeam){
 				//this case will call isPushable because there is a enemy marble in our way which we can possibly push away
 				result = isPushable(selectedItems);
-				if(result.length == 0){
-					return result;  //the is pushable returns an empty array if it's not possible so our move is not legit
+				if(result.length == 0){   //|| result == null
+					return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
+				} else {
+					//will push enemy marbles here
+					move(result, direction);
+					Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
 				}
-				//will push enemy marbles here
-				move(result, direction);
-				Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
 			} else{
 				Gdx.app.log("Logic", "Method checkMove said ally marble is blocking the way");
-				return result;  //this case will block the move because there is an allied non selected marble
+				return null;  //this case will block the move because there is an allied non selected marble
 			}
 		}
 		Gdx.app.log("Logic", "Method checkMove said the move can be done");
 		move(ids, direction);
-		return fuseIDS(ids, result);
+		return result;
 	}
 
-	public int[] fuseIDS(int[] first, int[] second){
+	/*public int[] fuseIDS(int[] first, int[] second){
 		int[] result = new int[first.length + second.length];
 		for (int i = 0; i < first.length; i++) {
 			result[i] = first[i];
@@ -98,7 +103,7 @@ public class Field implements Iterable<Hexagon> {
 			result[i + first.length] = first[i];
 		}
 		return result;
-	}
+	}*/
 
 	public void move(int[] marbleID, Directions direction){
 		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
