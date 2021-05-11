@@ -43,10 +43,11 @@ public class Field implements Iterable<Hexagon> {
 		return null;
 	}
 
-	public boolean checkMove(int[]ids, Directions direction){
+	public int[] checkMove(int[]ids, Directions direction){  //return.length == 0 == false
 		//TODO
 		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
 		Marble playersTeam;
+		int[] result = new int[0];
 		//get the hexCoordinates so it's easier to navigate
 		for (int i = 0; i < ids.length; i++) {
 			for (HexCoordinate hex: iterateOverHexagons()) {
@@ -62,7 +63,7 @@ public class Field implements Iterable<Hexagon> {
 			if(getHexagon(neighbour) == null){
 				//in this case the neighbour field is not within the map and because we can't kill ourselves it's not legit
 				Gdx.app.log("Logic", "Method checkMove said out of bounds.");
-				return false;
+				return result;
 
 			}
 			if(getHexagon(neighbour).getMarble() == null ){
@@ -71,18 +72,50 @@ public class Field implements Iterable<Hexagon> {
 				//this case is also ok because the blocking marble is in our selection and will be moved too
 			}else if(getHexagon(neighbour).getMarble() != playersTeam){
 				//this case will call isPushable because there is a enemy marble in our way which we can possibly push away
-				int[] result = isPushable(selectedItems);
-				if(result == null){
-					return false;  //the is pushable returns an empty array if it's not possible so our move is not legit
+				result = isPushable(selectedItems);
+				if(result.length == 0){
+					return result;  //the is pushable returns an empty array if it's not possible so our move is not legit
 				}
-				//TODO manage the push of the marbles
+				//will push enemy marbles here
+				move(result, direction);
+				Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
 			} else{
 				Gdx.app.log("Logic", "Method checkMove said ally marble is blocking the way");
-				return false;  //this case will block the move because there is an allied non selected marble
+				return result;  //this case will block the move because there is an allied non selected marble
 			}
 		}
 		Gdx.app.log("Logic", "Method checkMove said the move can be done");
-		return true;
+		move(ids, direction);
+		return fuseIDS(ids, result);
+	}
+
+	public int[] fuseIDS(int[] first, int[] second){
+		int[] result = new int[first.length + second.length];
+		for (int i = 0; i < first.length; i++) {
+			result[i] = first[i];
+		}
+		for (int i = 0; i < second.length; i++) {
+			result[i + first.length] = first[i];
+		}
+		return result;
+	}
+
+	public void move(int[] marbleID, Directions direction){
+		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
+		//get the hexCoordinates so it's easier to navigate
+		for (int i = 0; i < marbleID.length; i++) {
+			for (HexCoordinate hex: iterateOverHexagons()) {
+				if(getHexagon(hex).getId() == marbleID[i]){
+					selectedItems.add(hex);
+				}
+			}
+		}
+		//push them
+		for (HexCoordinate hex: selectedItems) {
+			HexCoordinate target = calcNeighbour(hex, direction);
+			getHexagon(target).setMarble(getHexagon(hex).getMarble());
+			getHexagon(hex).setMarble(null);
+		};
 	}
 
 	/*	//Allready handled in checkMove
