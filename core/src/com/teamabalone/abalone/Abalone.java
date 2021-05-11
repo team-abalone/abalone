@@ -25,7 +25,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
+import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Helpers.Directions;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -73,9 +75,10 @@ public class Abalone implements Screen {
     float lastTouchX;
     float lastTouchY;
 
-    enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+    //enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+    Field field;
 
-    Direction lastDirection = Direction.NOTSET;
+    Directions lastDirection = Directions.NOTSET;
     int swipeSensitivity = 40;
 
     private final float boardWidth;
@@ -118,7 +121,8 @@ public class Abalone implements Screen {
     }
 
     private void instantiateBoard() {
-        int[] fieldMatrix = getWholeField();
+        field = new Field(5);
+        int[] fieldMatrix = field.getWholeField();
         int[] teams = new int[MAX_TEAMS + 1]; //also storing empty field
 
         for (int initialPosition : fieldMatrix) { //get count of teams
@@ -294,38 +298,39 @@ public class Abalone implements Screen {
 
             lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
 
-            if (lastDirection != Direction.NOTSET && !selectedSprites.isEmpty()) {
+            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
 
                 int[] marblesToCheck = new int[selectedSprites.size()];
                 for (int i = 0; i < selectedSprites.size(); i++) {
                     marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
                 }
 
-                if (checkMove(marblesToCheck, lastDirection)) {
-                    int[] enemyMarbles = isPushable();
-                    boolean pushable = enemyMarbles != null;
+                int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
+                boolean validMove = enemyMarbles != null;
+                if (validMove) { //int[] return value
+                    boolean marblesToPush = enemyMarbles.length > 0;
 
-                    if (!isThereAMarble() || pushable) {
-                        if (pushable) {
-                            for (int i = 0; i < enemyMarbles.length; i++) { //add enemy marbles for move
-                                Vector2 field = Board.getInstance().get(i);
-                                selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
-                            }
+                    if (marblesToPush) {
+                        for (int i = 0; i < enemyMarbles.length; i++) { //add enemy marbles for move
+                            Vector2 field = Board.getInstance().get(i);
+                            selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                         }
-                        moveSelectedMarbles(); //move
-                        unselectList();
-                        lastDirection = Direction.NOTSET;
-
-                        gameSet.captureMarble(gameSet, board, isPushedOutOfBound());//TODO should disappear
                     }
-                } else {
-                    selectMarbleIfTouched(); //select
-                }
 
-                justTouched = false;
+                    moveSelectedMarbles(); //move
+                    unselectList();
+                    gameSet.captureMarble(gameSet, board, field.isPushedOutOfBound()); //lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
+                    lastDirection = Directions.NOTSET;
+                }
+            } else {
+                selectMarbleIfTouched(); //select
             }
+
+            justTouched = false;
         }
     }
+
+
 
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
@@ -340,7 +345,7 @@ public class Abalone implements Screen {
             }
             marblesToCheck[marblesToCheck.length - 1] = Board.getInstance().getFieldId(potentialSprite);
 
-            if (isInLine(marblesToCheck)) {
+            if (field.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
                     unselect(potentialSprite);
@@ -393,12 +398,12 @@ public class Abalone implements Screen {
         }
     }
 
-    private Direction calculateDirection(float startX, float startY, float endX, float endY) {
+    private Directions calculateDirection(float startX, float startY, float endX, float endY) {
         float adjacentLeg = endX - startX;
         float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
 
         if (Math.abs(adjacentLeg) < swipeSensitivity && Math.abs(oppositeLeg) < swipeSensitivity) { //continue selection mode
-            return Direction.NOTSET;
+            return Directions.NOTSET;
         }
 
         //to get 360°
@@ -414,35 +419,35 @@ public class Abalone implements Screen {
 
         double degrees = Math.toDegrees(Math.atan(oppositeLeg / adjacentLeg)) + offset; //atan() returns only -pi/2 - pi/2 (circle half)
         int index = ((int) ((degrees) / 30)); //get sector
-        Direction direction;
+        Directions direction;
 
         switch (index) {
             case 0:
             case 11:
-                direction = Direction.RIGHT;
+                direction = Directions.RIGHT;
                 break;
             case 1:
             case 2:
-                direction = Direction.RIGHTUP;
+                direction = Directions.RIGHTUP;
                 break;
             case 3:
             case 4:
-                direction = Direction.LEFTUP;
+                direction = Directions.LEFTUP;
                 break;
             case 5:
             case 6:
-                direction = Direction.LEFT;
+                direction = Directions.LEFT;
                 break;
             case 7:
             case 8:
-                direction = Direction.LEFTDOWN;
+                direction = Directions.LEFTDOWN;
                 break;
             case 9:
             case 10:
-                direction = Direction.RIGHTDOWN;
+                direction = Directions.RIGHTDOWN;
                 break;
             default:
-                direction = Direction.NOTSET;
+                direction = Directions.NOTSET;
         }
 
         return direction;
