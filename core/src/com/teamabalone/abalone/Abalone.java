@@ -143,8 +143,8 @@ public class Abalone implements Screen {
             int team = fieldMatrix[i];
             if (team > 0) {
                 int nextIndex = teamIndices[team];
-                positionArrays.get(team)[nextIndex] = board.get(i).x;
-                positionArrays.get(team)[nextIndex + 1] = board.get(i).y;
+                positionArrays.get(team - 1)[nextIndex] = board.get(i).x;
+                positionArrays.get(team - 1)[nextIndex + 1] = board.get(i).y;
                 teamIndices[team] += 2;
             }
         }
