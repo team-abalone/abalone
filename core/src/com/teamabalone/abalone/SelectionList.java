@@ -2,10 +2,9 @@ package com.teamabalone.abalone;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.teamabalone.abalone.Helpers.Directions;
+import com.teamabalone.abalone.Gamelogic.Directions;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class SelectionList<t> {
     private final ArrayList<t> arrayList = new ArrayList<>();

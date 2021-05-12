@@ -27,13 +27,12 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Helpers.Directions;
+import com.teamabalone.abalone.Gamelogic.Directions;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 public class Abalone implements Screen {
     final GameImpl game;
