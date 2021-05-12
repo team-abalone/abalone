@@ -10,6 +10,7 @@ public class Field implements Iterable<Hexagon> {
 	private HashMap<HexCoordinate, Hexagon> field;
 	private int radius;
 	private int hexFields;
+	private boolean gotPushedOut = false;
 
 	public Field(int radius) {
 		this.radius = radius;
@@ -51,6 +52,7 @@ public class Field implements Iterable<Hexagon> {
 		//TODO
 		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
 		Marble playersTeam;
+		gotPushedOut = false;
 		int[] result = new int[0];
 		//get the hexCoordinates so it's easier to navigate
 		for (int i = 0; i < ids.length; i++) {
@@ -125,6 +127,7 @@ public class Field implements Iterable<Hexagon> {
 		for (HexCoordinate hex: selectedItems) {
 			HexCoordinate target = calcNeighbour(hex, direction);		//calc target field
 			if(target == null){
+				gotPushedOut = true;
 				continue;									//target field is null -> it's out of bound so we skip this iteration
 			}
 			tempMoving = getHexagon(hex).getMarble();
@@ -149,8 +152,7 @@ public class Field implements Iterable<Hexagon> {
 	}
 
 	public boolean isPushedOutOfBound(){
-		//TODO ist die Kugel außerhalb?
-		return false;
+		return gotPushedOut;
 	}
 
 
