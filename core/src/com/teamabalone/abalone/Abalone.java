@@ -415,19 +415,19 @@ public class Abalone implements Screen {
             public void run() {
                 Sprite potentialSprite = null;
                 while(potentialSprite == null){
-                    int randX = new Random().nextInt((int) screenWidth);
-                    int randY = new Random().nextInt((int) screenHeight);
+                    int randX =  68; //new Random().nextInt((int) screenWidth);
+                    int randY =  68; //new Random().nextInt((int) screenHeight);
                     Vector3 v = new Vector3(randX, randY, 0f);
                     viewport.unproject(v);
                     potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
                 }
                 Gdx.app.log("Enemy", "Got "+ potentialSprite.getOriginX() + " "+ potentialSprite.getOriginY() );
                 selectedSprites.select(potentialSprite);
-                int dir = new Random().nextInt(2);
+                int dir = 1;    //new Random().nextInt(2);
                 switch (dir){
                     case 0: lastDirection = Direction.LEFTDOWN;
                         break;
-                    case 2: lastDirection = Direction.RIGHTDOWN;
+                    case 1: lastDirection = Direction.RIGHTDOWN;
                 }
                 moveSelectedMarbles();
                 unselectList();
