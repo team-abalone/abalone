@@ -125,8 +125,8 @@ public class Field implements Iterable<Hexagon> {
 			for (HexCoordinate hex: iterateOverHexagons()) {
 				if(getHexagon(hex).getId() == marbleID[i]){
 					selectedItems.add(hex);
+					break;
 				}
-				break;
 			}
 		}
 		//push them
