@@ -317,9 +317,14 @@ public class Abalone implements Screen {
                         }
                     }
 
+                    /*Sprite capturedMarble = null;
+                    if(field.isPushedOutOfBound()){
+                        capturedMarble = lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
+                    }*/
+
                     moveSelectedMarbles(); //move
                     unselectList();
-                    gameSet.captureMarble(gameSet, board, field.isPushedOutOfBound()); //lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
+                    //gameSet.captureMarble(gameSet, board, capturedMarble); //lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
                     lastDirection = Directions.NOTSET;
                 }
             } else {
