@@ -138,43 +138,75 @@ public class Field implements Iterable<Hexagon> {
         HexCoordinate temp;
         Team playersTeam;
         playersTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
+        int[] result = new int[3];
+        boolean flag = true;
 
-        for (int i = 0; i < radius; i++) {
+        for (int i = 0; i < radius * 2 && flag && counter <= 3; i++) {
             switch (direction) {
                 case LEFT:
                     temp = new HexCoordinate(selectedItems.get(0).getX() - i, selectedItems.get(0).getY() + i, selectedItems.get(0).getZ());
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
                     break;
                 case RIGHT:
                     temp = new HexCoordinate(selectedItems.get(0).getX() + i, selectedItems.get(0).getY() - i, selectedItems.get(0).getZ());
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
                     break;
                 case LEFTUP:
                     temp = new HexCoordinate(selectedItems.get(0).getX(), selectedItems.get(0).getY() + i, selectedItems.get(0).getZ() - i);
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
                     break;
                 case RIGHTUP:
                     temp = new HexCoordinate(selectedItems.get(0).getX() + i, selectedItems.get(0).getY(), selectedItems.get(0).getZ() - i);
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
                     break;
                 case LEFTDOWN:
                     temp = new HexCoordinate(selectedItems.get(0).getX() - i, selectedItems.get(0).getY(), selectedItems.get(0).getZ() + i);
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
 
                     break;
                 case RIGHTDOWN:
                     temp = new HexCoordinate(selectedItems.get(0).getX(), selectedItems.get(0).getY() - i, selectedItems.get(0).getZ() + i);
-                    if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                    if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
+                        flag = false;
+                    } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
+                        if (counter < 3) {
+                            result[counter] = getHexagon(temp).getId();
+                        }
                         counter++;
                     }
                     break;
@@ -182,7 +214,9 @@ public class Field implements Iterable<Hexagon> {
                     throw new IllegalStateException("Unexpected Direction: " + direction);
             }
         }
-
+        if (counter >= 3) {
+            return null;
+        }
         return null;
     }
 
