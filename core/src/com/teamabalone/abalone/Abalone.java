@@ -502,13 +502,13 @@ public class Abalone implements Screen {
                 selectedSprites.select(potentialSprite);
                 int dir = 1;    //new Random().nextInt(2);
                 switch (dir){
-                    case 0: lastDirection = Direction.LEFTDOWN;
+                    case 0: lastDirection = Directions.LEFTDOWN;
                         break;
-                    case 1: lastDirection = Direction.RIGHTDOWN;
+                    case 1: lastDirection = Directions.RIGHTDOWN;
                 }
                 moveSelectedMarbles();
                 unselectList();
-                lastDirection = Direction.NOTSET;
+                lastDirection = Directions.NOTSET;
 
                 wasTouched = false;
                 yourTurn = true;
