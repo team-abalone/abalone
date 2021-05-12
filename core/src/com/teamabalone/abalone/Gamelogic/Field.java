@@ -68,7 +68,6 @@ public class Field implements Iterable<Hexagon> {
 				//in this case the neighbour field is not within the map and because we can't kill ourselves it's not legit
 				Gdx.app.log("Logic", "Method checkMove said out of bounds.");
 				return null;
-
 			}
 			if(getHexagon(neighbour).getMarble() == null ){
 				//this case is ok so we look further
@@ -76,12 +75,12 @@ public class Field implements Iterable<Hexagon> {
 				//this case is also ok because the blocking marble is in our selection and will be moved too
 			}else if(getHexagon(neighbour).getMarble() != playersTeam){
 				//this case will call isPushable because there is a enemy marble in our way which we can possibly push away
-				result = isPushable(selectedItems);
+				result = isPushable(selectedItems, direction);
 				if(result.length == 0){   //|| result == null
 					return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
 				} else {
 					//will push enemy marbles here
-					move(result, direction);
+					move(result, direction); //enemy
 					Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
 				}
 			} else{
@@ -90,7 +89,7 @@ public class Field implements Iterable<Hexagon> {
 			}
 		}
 		Gdx.app.log("Logic", "Method checkMove said the move can be done");
-		move(ids, direction);
+		move(ids, direction);			//ally
 		return result;
 	}
 
@@ -108,18 +107,30 @@ public class Field implements Iterable<Hexagon> {
 	public void move(int[] marbleID, Directions direction){
 		ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
 		//get the hexCoordinates so it's easier to navigate
-		for (int i = 0; i < marbleID.length; i++) {
+		for (int i = 0; i < marbleID.length; i++) {					//sorts the selection
 			for (HexCoordinate hex: iterateOverHexagons()) {
 				if(getHexagon(hex).getId() == marbleID[i]){
 					selectedItems.add(hex);
 				}
+				break;
 			}
 		}
 		//push them
+		Marble tempTarget =  null;
+		Marble tempMoving;
+		//copy Marble to move in a safe var
+		//move target temp in to move field
+		//copy target marble into target temp
+		//move moving temp into target field
 		for (HexCoordinate hex: selectedItems) {
-			HexCoordinate target = calcNeighbour(hex, direction);
-			getHexagon(target).setMarble(getHexagon(hex).getMarble());
-			getHexagon(hex).setMarble(null);
+			HexCoordinate target = calcNeighbour(hex, direction);		//calc target field
+			if(target == null){
+				continue;									//target field is null -> it's out of bound so we skip this iteration
+			}
+			tempMoving = getHexagon(hex).getMarble();
+			getHexagon(hex).setMarble(tempTarget);
+			tempTarget = getHexagon(target).getMarble();
+			getHexagon(target).setMarble(tempMoving);
 		};
 	}
 
@@ -131,7 +142,7 @@ public class Field implements Iterable<Hexagon> {
 	}
 	 */
 
-	public int[] isPushable(ArrayList<HexCoordinate> selectedItems){
+	public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction){
 		//TODO
 
 		return null;
