@@ -1,5 +1,6 @@
 package com.teamabalone.abalone;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -47,7 +48,7 @@ public class Board { //singleton
         return board;
     }
 
-    public static Board getInstance(){ //TODO proper implementation of singleton?
+    public static Board getInstance() { //TODO proper implementation of singleton?
         return board;
     }
 
@@ -147,6 +148,20 @@ public class Board { //singleton
 
     public Vector2 get(int index) {
         return fields.get(index);
+    }
+
+    public int getFieldId(Sprite sprite) {
+        Vector2 center = getCenter(sprite);
+        for (int i = 1; i < fields.size(); i++) {
+            if (fields.get(i).x == center.x && fields.get(i).y == center.y) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public Vector2 getCenter(Sprite sprite) {
+        return new Vector2(sprite.getX() + sprite.getWidth() / 2, sprite.getY() + sprite.getHeight() / 2);
     }
 
     public void set(int index, Vector2 vector) {

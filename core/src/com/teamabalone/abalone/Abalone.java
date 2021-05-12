@@ -25,9 +25,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
-import com.teamabalone.abalone.Gamelogic.Directions;
-import com.teamabalone.abalone.Helpers.FactoryHelper;
 
+import com.teamabalone.abalone.Gamelogic.Field;
+import com.teamabalone.abalone.Gamelogic.Directions;
+
+import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Gamelogic.Directions;
+
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,13 +49,15 @@ public class Abalone implements Screen {
     Texture blackBall;
     Texture whiteBall;
 
-    MarbleSet whiteMarbleSet;
-    MarbleSet blackMarbleSet;
+    GameSet gameSet;
+    Board board;
 
     float screenWidth;
     float screenHeight;
 
     int mapSize;
+
+    final int MAX_TEAMS = 6;
 
     //changes
     Music bgMusic;
@@ -70,9 +77,10 @@ public class Abalone implements Screen {
     float lastTouchX;
     float lastTouchY;
 
-    enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+    //enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
+    Field field;
 
-    Direction lastDirection = Direction.NOTSET;
+    Directions lastDirection = Directions.NOTSET;
     int swipeSensitivity = 40;
 
     private final float boardWidth;
@@ -104,19 +112,49 @@ public class Abalone implements Screen {
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
 
-        Board board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
+        board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
         board.get(0);
 
-        background = new Texture("boards/"+settings.getString("boardSkin", "Laminat.png"));
-        blackBall = new Texture("marbles/"+settings.getString("marbleSkin", "ball.png"));
+        background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
+        blackBall = new Texture("marbles/" + settings.getString("marbleSkin", "ball.png"));
         whiteBall = new Texture("marbles/ball_white.png");
 
-        float[] positionsWhite = {
-                board.get(1).x, board.get(1).y,
-                board.get(2).x, board.get(2).y,
-                board.get(3).x, board.get(3).y,
-                board.get(4).x, board.get(4).y,
-                board.get(5).x, board.get(5).y,
+        instantiateBoard();
+    }
+
+    private void instantiateBoard() {
+        field = new Field(5);
+        int[] fieldMatrix = field.getWholeField();
+        int[] teams = new int[MAX_TEAMS + 1]; //also storing empty field
+
+        for (int initialPosition : fieldMatrix) { //get count of teams
+            teams[initialPosition]++;
+        }
+
+        ArrayList<float[]> positionArrays = new ArrayList<>();
+        for (int i = 1; i < teams.length; i++) { //initialize position arrays
+            if (teams[i] > 0) {
+                positionArrays.add(new float[teams[i] * 2]); //size of team x2 for x and y float
+            }
+        }
+
+        int[] teamIndices = new int[MAX_TEAMS + 1]; //for looping to fill id arrays
+        for (int i = 0; i < fieldMatrix.length; i++) {
+            int team = fieldMatrix[i];
+            if (team > 0) {
+                int nextIndex = teamIndices[team];
+                positionArrays.get(team - 1)[nextIndex] = board.get(i).x;
+                positionArrays.get(team - 1)[nextIndex + 1] = board.get(i).y;
+                teamIndices[team] += 2;
+            }
+        }
+
+//        float[] positionsWhite = {
+//                board.get(1).x, board.get(1).y,
+//                board.get(2).x, board.get(2).y,
+//                board.get(3).x, board.get(3).y,
+//                board.get(4).x, board.get(4).y,
+//                board.get(5).x, board.get(5).y,
 //                board.get(6).x, board.get(6).y,
 //                board.get(7).x, board.get(7).y,
 //                board.get(8).x, board.get(8).y,
@@ -126,9 +164,9 @@ public class Abalone implements Screen {
 //                board.get(14).x, board.get(14).y,
 //                board.get(15).x, board.get(15).y,
 //                board.get(16).x, board.get(16).y
-        };
-
-        float[] positionsBlack = {
+//        };
+//
+//        float[] positionsBlack = {
 //                board.get(61).x, board.get(61).y,
 //                board.get(60).x, board.get(60).y,
 //                board.get(59).x, board.get(59).y,
@@ -143,14 +181,18 @@ public class Abalone implements Screen {
 //                board.get(48).x, board.get(48).y,
 //                board.get(47).x, board.get(47).y,
 //                board.get(46).x, board.get(46).y
-        };
+//        };
 
-        GameSet gameSet = GameSet.getInstance();
-        blackMarbleSet = gameSet.register(viewport, blackBall, positionsBlack);
-        whiteMarbleSet = gameSet.register(viewport, whiteBall, positionsWhite);
+        gameSet = GameSet.getInstance();
+        for (int i = 0; i < positionArrays.size(); i++) {
+            gameSet.register(viewport, whiteBall, positionArrays.get(i)); //TODO set chosen color
+        }
+
+//        gameSet.register(viewport, blackBall, positionsBlack);
+//        gameSet.register(viewport, whiteBall, positionsWhite);
     }
 
-    private Vector2 toMapCoordinates(float x, float y) {
+    private Vector2 toMapCoordinates(float x, float y) { //TODO needed?
         Vector3 v = new Vector3(x, y, 0f);
         viewport.unproject(v);
         return new Vector2(Math.round(v.x), Math.round(v.y));
@@ -258,10 +300,38 @@ public class Abalone implements Screen {
 
             lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
 
-            if (lastDirection != Direction.NOTSET && !selectedSprites.isEmpty()) {
-                moveSelectedMarbles(); //move
-                unselectList();
-                lastDirection = Direction.NOTSET;
+            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+
+                int[] marblesToCheck = new int[selectedSprites.size()];
+                for (int i = 0; i < selectedSprites.size(); i++) {
+                    marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+                }
+
+                int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
+                boolean validMove = enemyMarbles != null;
+                if (validMove) { //int[] return value
+                    boolean marblesToPush = enemyMarbles.length > 0;
+
+                    if (marblesToPush) {
+                        for (int i = 0; i < enemyMarbles.length; i++) { //add enemy marbles for move
+                            Vector2 field = Board.getInstance().get(i);
+                            selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                        }
+                    }
+
+                    Sprite capturedMarble = null;
+                    if (field.isPushedOutOfBound()) {
+                        capturedMarble = lastDirection == Directions.LEFTDOWN ||
+                                lastDirection == Directions.RIGHTDOWN ||
+                                lastDirection == Directions.RIGHT
+                                ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length) : selectedSprites.get(selectedSprites.size());
+                    }
+
+                    moveSelectedMarbles(); //move
+                    unselectList();
+                    gameSet.removeMarble(capturedMarble);
+                    lastDirection = Directions.NOTSET;
+                }
             } else {
                 selectMarbleIfTouched(); //select
             }
@@ -270,6 +340,7 @@ public class Abalone implements Screen {
         }
     }
 
+
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
@@ -277,9 +348,17 @@ public class Abalone implements Screen {
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
 
         if (potentialSprite != null) {
-            boolean alreadySelected = !select(potentialSprite);
-            if (alreadySelected) {
-                unselect(potentialSprite);
+            int[] marblesToCheck = new int[selectedSprites.size() + 1];
+            for (int i = 0; i < selectedSprites.size(); i++) {
+                marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+            }
+            marblesToCheck[marblesToCheck.length - 1] = Board.getInstance().getFieldId(potentialSprite);
+
+            if (field.isInLine(marblesToCheck)) {
+                boolean alreadySelected = !select(potentialSprite);
+                if (alreadySelected) {
+                    unselect(potentialSprite);
+                }
             }
         } else {
             unselectList();
@@ -328,12 +407,12 @@ public class Abalone implements Screen {
         }
     }
 
-    private Direction calculateDirection(float startX, float startY, float endX, float endY) {
+    private Directions calculateDirection(float startX, float startY, float endX, float endY) {
         float adjacentLeg = endX - startX;
         float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
 
         if (Math.abs(adjacentLeg) < swipeSensitivity && Math.abs(oppositeLeg) < swipeSensitivity) { //continue selection mode
-            return Direction.NOTSET;
+            return Directions.NOTSET;
         }
 
         //to get 360°
@@ -349,35 +428,35 @@ public class Abalone implements Screen {
 
         double degrees = Math.toDegrees(Math.atan(oppositeLeg / adjacentLeg)) + offset; //atan() returns only -pi/2 - pi/2 (circle half)
         int index = ((int) ((degrees) / 30)); //get sector
-        Direction direction;
+        Directions direction;
 
         switch (index) {
             case 0:
             case 11:
-                direction = Direction.RIGHT;
+                direction = Directions.RIGHT;
                 break;
             case 1:
             case 2:
-                direction = Direction.RIGHTUP;
+                direction = Directions.RIGHTUP;
                 break;
             case 3:
             case 4:
-                direction = Direction.LEFTUP;
+                direction = Directions.LEFTUP;
                 break;
             case 5:
             case 6:
-                direction = Direction.LEFT;
+                direction = Directions.LEFT;
                 break;
             case 7:
             case 8:
-                direction = Direction.LEFTDOWN;
+                direction = Directions.LEFTDOWN;
                 break;
             case 9:
             case 10:
-                direction = Direction.RIGHTDOWN;
+                direction = Directions.RIGHTDOWN;
                 break;
             default:
-                direction = Direction.NOTSET;
+                direction = Directions.NOTSET;
         }
 
         return direction;
@@ -403,7 +482,7 @@ public class Abalone implements Screen {
         button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
 
         Gdx.input.setInputProcessor(stage);
-        bgMusic  = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
+        bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
@@ -414,24 +493,26 @@ public class Abalone implements Screen {
         t.schedule(new TimerTask() {
             public void run() {
                 Sprite potentialSprite = null;
-                while(potentialSprite == null){
-                    int randX =  68; //new Random().nextInt((int) screenWidth);
-                    int randY =  68; //new Random().nextInt((int) screenHeight);
+                while (potentialSprite == null) {
+                    int randX = 68; //new Random().nextInt((int) screenWidth);
+                    int randY = 68; //new Random().nextInt((int) screenHeight);
                     Vector3 v = new Vector3(randX, randY, 0f);
                     viewport.unproject(v);
                     potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
                 }
-                Gdx.app.log("Enemy", "Got "+ potentialSprite.getOriginX() + " "+ potentialSprite.getOriginY() );
+                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
                 selectedSprites.select(potentialSprite);
                 int dir = 1;    //new Random().nextInt(2);
-                switch (dir){
-                    case 0: lastDirection = Direction.LEFTDOWN;
+                switch (dir) {
+                    case 0:
+                        lastDirection = Directions.LEFTDOWN;
                         break;
-                    case 1: lastDirection = Direction.RIGHTDOWN;
+                    case 1:
+                        lastDirection = Directions.RIGHTDOWN;
                 }
                 moveSelectedMarbles();
                 unselectList();
-                lastDirection = Direction.NOTSET;
+                lastDirection = Directions.NOTSET;
 
                 wasTouched = false;
                 yourTurn = true;
@@ -460,7 +541,6 @@ public class Abalone implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override
