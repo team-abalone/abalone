@@ -25,6 +25,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
+import com.teamabalone.abalone.Gamelogic.Directions;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.util.Random;
@@ -412,14 +413,26 @@ public class Abalone implements Screen {
         final Timer t = new Timer();
         t.schedule(new TimerTask() {
             public void run() {
-                int randX = new Random().nextInt(15);
-                Sprite potentialSprite = whiteMarbleSet.getMarble(randX);
-                if (potentialSprite != null) {
-                    selectedSprites.select(potentialSprite);
+                Sprite potentialSprite = null;
+                while(potentialSprite == null){
+                    int randX = new Random().nextInt((int) screenWidth);
+                    int randY = new Random().nextInt((int) screenHeight);
+                    Vector3 v = new Vector3(randX, randY, 0f);
+                    viewport.unproject(v);
+                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
                 }
-//                if (currentSprite != null) {
-//                    currentSprite.setCenter(new Random().nextInt((int) screenWidth), new Random().nextInt((int) screenHeight));
-//                } TODO change to new selection mode
+                Gdx.app.log("Enemy", "Got "+ potentialSprite.getOriginX() + " "+ potentialSprite.getOriginY() );
+                selectedSprites.select(potentialSprite);
+                int dir = new Random().nextInt(2);
+                switch (dir){
+                    case 0: lastDirection = Direction.LEFTDOWN;
+                        break;
+                    case 2: lastDirection = Direction.RIGHTDOWN;
+                }
+                moveSelectedMarbles();
+                unselectList();
+                lastDirection = Direction.NOTSET;
+
                 wasTouched = false;
                 yourTurn = true;
                 t.cancel();
