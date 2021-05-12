@@ -240,7 +240,7 @@ public class Field implements Iterable<Hexagon> {
             }
         }
         if (counter >= 3) {
-            return null;
+            return result;
         }
         return null;
     }

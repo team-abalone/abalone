@@ -50,7 +50,7 @@ public class GameSet { //singleton
         return null;
     }
 
-    public Sprite captureMarble(GameSet gameSet, Board board, int fieldId) {
+    public Sprite captureMarble(GameSet gameSet, Board board, int fieldId) { //TODO necessary?
         if (fieldId == -1) {
             return null;
         }
@@ -62,13 +62,13 @@ public class GameSet { //singleton
     }
 
     public boolean removeMarble(Sprite sprite) {
-        for (int i = 0; i < marbleSets.size(); i++) {
-            MarbleSet marbleSet = marbleSets.get(i);
-            for (int k = 0; k < marbleSet.size(); k++) {
+//        for (int i = 0; i < marbleSets.size(); i++) {
+//            MarbleSet marbleSet = marbleSets.get(i);
+//            for (int k = 0; k < marbleSet.size(); k++) {
                 return marbleSets.remove(sprite);
-            }
-        }
-        return false;
+//            }
+//        }
+//        return false;
     }
 
 }

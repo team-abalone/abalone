@@ -319,14 +319,17 @@ public class Abalone implements Screen {
                         }
                     }
 
-                    /*Sprite capturedMarble = null;
-                    if(field.isPushedOutOfBound()){
-                        capturedMarble = lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
-                    }*/
+                    Sprite capturedMarble = null;
+                    if (field.isPushedOutOfBound()) {
+                        capturedMarble = lastDirection == Directions.LEFTDOWN ||
+                                lastDirection == Directions.RIGHTDOWN ||
+                                lastDirection == Directions.RIGHT
+                                ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length) : selectedSprites.get(selectedSprites.size());
+                    }
 
                     moveSelectedMarbles(); //move
                     unselectList();
-                    //gameSet.captureMarble(gameSet, board, capturedMarble); //lastdirection.ordinal() <3 ? enemyMarbles.get(0)... : enemyMarbles.get(enemyMarbles.size())
+                    gameSet.removeMarble(capturedMarble);
                     lastDirection = Directions.NOTSET;
                 }
             } else {
@@ -336,7 +339,6 @@ public class Abalone implements Screen {
             justTouched = false;
         }
     }
-
 
 
     private void selectMarbleIfTouched() {
@@ -491,20 +493,22 @@ public class Abalone implements Screen {
         t.schedule(new TimerTask() {
             public void run() {
                 Sprite potentialSprite = null;
-                while(potentialSprite == null){
-                    int randX =  68; //new Random().nextInt((int) screenWidth);
-                    int randY =  68; //new Random().nextInt((int) screenHeight);
+                while (potentialSprite == null) {
+                    int randX = 68; //new Random().nextInt((int) screenWidth);
+                    int randY = 68; //new Random().nextInt((int) screenHeight);
                     Vector3 v = new Vector3(randX, randY, 0f);
                     viewport.unproject(v);
                     potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
                 }
-                Gdx.app.log("Enemy", "Got "+ potentialSprite.getOriginX() + " "+ potentialSprite.getOriginY() );
+                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
                 selectedSprites.select(potentialSprite);
                 int dir = 1;    //new Random().nextInt(2);
-                switch (dir){
-                    case 0: lastDirection = Directions.LEFTDOWN;
+                switch (dir) {
+                    case 0:
+                        lastDirection = Directions.LEFTDOWN;
                         break;
-                    case 1: lastDirection = Directions.RIGHTDOWN;
+                    case 1:
+                        lastDirection = Directions.RIGHTDOWN;
                 }
                 moveSelectedMarbles();
                 unselectList();
