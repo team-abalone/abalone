@@ -38,7 +38,7 @@ public class Field implements Iterable<Hexagon> {
 	//method for view that returns the content for all fields
 	public int[] getWholeField(){
 		int[] arr = new int[this.hexFields];
-		for (int i = 1; i < hexFields ; i++) {
+		for (int i = 1; i <= hexFields ; i++) {
 			for (HexCoordinate hex : iterateOverHexagons()) {
 				if (getHexagon(hex).getId() == i) {
 					if(getHexagon(hex).getMarble() == null){
@@ -240,9 +240,9 @@ public class Field implements Iterable<Hexagon> {
             }
         }
         if (counter >= 3) {
-            return result;
+            return new int[]{};
         }
-        return null;
+        return result;
     }
 
 	public boolean isPushedOutOfBound(){
