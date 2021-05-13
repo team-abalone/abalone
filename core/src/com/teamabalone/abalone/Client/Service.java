@@ -35,7 +35,7 @@ public class Service extends Thread{
     /**
      * Builds JSON to send to api (as string, in the end)
      * Receives String from api. We will convert that to a JSONObject by simply using new JSONObject(string response)
-     * Will later return that JSONObject - this structure is provided to build standardized requests and responses
+     * TODO:Will later return that JSONObject - this structure is provided to build standardized requests and responses
      */
     @Override
     public void run() {
