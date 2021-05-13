@@ -312,12 +312,24 @@ public class Abalone implements Screen {
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
 
+        int marbleCounter = 0;
         if (potentialSprite != null) {
-            int[] marblesToCheck = new int[selectedSprites.size() + 1];
+            int[] buffer = new int[selectedSprites.size() + 1]; //previously selected + 1
             for (int i = 0; i < selectedSprites.size(); i++) {
-                marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+                buffer[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+                marbleCounter++;
             }
-            marblesToCheck[marblesToCheck.length - 1] = Board.getInstance().getFieldId(potentialSprite);
+            if (!selectedSprites.contains(potentialSprite)) {
+                buffer[buffer.length - 1] = Board.getInstance().getFieldId(potentialSprite);
+                marbleCounter++;
+            }
+
+            int[] marblesToCheck = new int[marbleCounter];
+            for (int i = 0, k = 0; i < buffer.length; i++) { //don't deliver zeros
+                if(buffer[i] != 0){
+                    marblesToCheck[k++] = buffer[i];
+                }
+            }
 
             if (field.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);

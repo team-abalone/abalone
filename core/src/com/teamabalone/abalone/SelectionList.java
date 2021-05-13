@@ -90,4 +90,8 @@ public class SelectionList<t> {
         arrayList.clear();
     }
 
+    public boolean contains(Sprite sprite){
+        return arrayList.contains(sprite);
+    }
+
 }
