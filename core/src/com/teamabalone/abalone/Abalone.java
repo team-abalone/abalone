@@ -151,7 +151,7 @@ public class Abalone implements Screen {
 
         gameSet = GameSet.getInstance();
         for (int i = 0; i < positionArrays.size(); i++) {
-            gameSet.register(viewport, whiteBall, positionArrays.get(i)); //TODO set chosen color
+            gameSet.register(viewport, i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
         }
 
     }
@@ -273,12 +273,12 @@ public class Abalone implements Screen {
 
                 int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
                 boolean validMove = enemyMarbles != null;
-                if (validMove) { //int[] return value
+                if (validMove) {
                     boolean marblesToPush = enemyMarbles.length > 0;
 
                     if (marblesToPush) {
-                        for (int i = 0; i < enemyMarbles.length; i++) { //add enemy marbles for move
-                            Vector2 field = Board.getInstance().get(i);
+                        for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
+                            Vector2 field = Board.getInstance().get(enemyMarble);
                             selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                         }
                     }
@@ -288,7 +288,8 @@ public class Abalone implements Screen {
                         capturedMarble = lastDirection == Directions.LEFTDOWN ||
                                 lastDirection == Directions.RIGHTDOWN ||
                                 lastDirection == Directions.RIGHT
-                                ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length) : selectedSprites.get(selectedSprites.size());
+                                ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length)
+                                : selectedSprites.get(selectedSprites.size());
                     }
 
                     moveSelectedMarbles(); //move
