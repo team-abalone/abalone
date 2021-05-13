@@ -20,7 +20,7 @@ public class Client {
      * Constructor, Builds socket and instanciates neccasary classes for further actions
      * @param userId - May be of use, if we do not decide to automatically generate the user's id
      */
-    public Client(String userId) /*throws JSONException*/{
+    public Client(String userId) throws JSONException{
         this.userId = userId;
         try{
             //Socket is built here
