@@ -40,8 +40,8 @@ public class Client {
     }
 
     public void sendRequest(int commandCode, JSONObject props) throws JSONException, IOException {
-        Service service = new Service();
-        service.call(commandCode,this.userId,props);
+        Service service = new Service(commandCode,this.userId,props);
+        service.call();
     }
 
     public void closeSocket() throws IOException {
