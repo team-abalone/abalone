@@ -2,11 +2,7 @@ package com.teamabalone.abalone.Client;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -21,7 +17,6 @@ public class Client {
      * @param userId - May be of use, if we do not decide to automatically generate the user's id
      */
     public Client(String userId) throws JSONException{
-        this.userId = userId;
         try{
             //Socket is built here
             this.socket = new Socket("abaloneapi.germanywestcentral.cloudapp.azure.com", 5001);
@@ -39,13 +34,15 @@ public class Client {
         }
     }
 
-    public void sendRequest(int commandCode, JSONObject props) throws JSONException, IOException {
+    public JSONObject sendRequest(int commandCode, JSONObject props) throws Exception {
         Service service = new Service(commandCode,this.userId,props);
-        service.call();
+        return service.call();
     }
 
+    //Depending on how client/socket will be global, this may be redundant
+    //TODO: remove in case of redundancy
     public void closeSocket() throws IOException {
-        this.socket.close();
+        Client.socket.close();
     }
 
 }

@@ -36,10 +36,10 @@ public class Service implements Callable<JSONObject> {
     /**
      * Builds JSON to send to api (as string, in the end)
      * Receives String from api. We will convert that to a JSONObject by simply using new JSONObject(string response)
-     * 
+     *
      */
     @Override
-    public JSONObject call() {
+    public JSONObject call() throws Exception{
         JSONObject req = new JSONObject();
         try {
             req.put("userId", this.userId);
