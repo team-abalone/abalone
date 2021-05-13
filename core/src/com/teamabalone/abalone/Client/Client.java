@@ -33,7 +33,8 @@ public class Client {
             e.printStackTrace();
         }
     }
-
+    //Here the Client calls our service, which then proceeds by sending the request
+    //TODO: Maybe deal with possible timeouts etc. later on
     public JSONObject sendRequest(int commandCode, JSONObject props) throws Exception {
         Service service = new Service(commandCode,this.userId,props);
         return service.call();
