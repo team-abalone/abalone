@@ -19,7 +19,7 @@ public class Client {
     public Client(String userId) throws JSONException{
         try{
             //Socket is built here
-            this.socket = new Socket("abaloneapi.germanywestcentral.cloudapp.azure.com", 5001);
+            Client.socket = new Socket("abaloneapi.germanywestcentral.cloudapp.azure.com", 5001);
             this.userId=userId;
         }
         //TODO: Deal with different Exceptions accordingly
