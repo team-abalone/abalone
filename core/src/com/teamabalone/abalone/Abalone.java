@@ -326,7 +326,7 @@ public class Abalone implements Screen {
 
             int[] marblesToCheck = new int[marbleCounter];
             for (int i = 0, k = 0; i < buffer.length; i++) { //don't deliver zeros
-                if(buffer[i] != 0){
+                if (buffer[i] != 0) {
                     marblesToCheck[k++] = buffer[i];
                 }
             }

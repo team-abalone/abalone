@@ -145,16 +145,7 @@ public class Field implements Iterable<Hexagon> {
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
         }
-        ;
     }
-
-	/*	//Allready handled in checkMove
-	public boolean isThereAMarble(){
-		//TODO kontrollieren ob da ein Marble ist
-
-		return false;
-	}
-	 */
 
     public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction) {
         //takes direction and selected items, looks for otherTeamMarbles in the direction
@@ -182,7 +173,7 @@ public class Field implements Iterable<Hexagon> {
 
         int[] result = new int[marbleCounter];
         for (int i = 0, k = 0; i < buffer.length; i++) { //don't return zeros
-            if(buffer[i] != 0){
+            if (buffer[i] != 0) {
                 result[k++] = buffer[i];
             }
         }
