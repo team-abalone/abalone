@@ -42,6 +42,7 @@ public class Service implements Callable<JSONObject> {
     public JSONObject call() throws Exception{
         JSONObject req = new JSONObject();
         try {
+            //This is just to ensure that our String will be build correctly
             req.put("userId", this.userId);
             req.put("commandCode", this.commandCode);
             req.put("props", this.props);
