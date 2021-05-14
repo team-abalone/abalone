@@ -153,9 +153,9 @@ public class Abalone implements Screen {
             }
         }
 
-        gameSet = com.teamabalone.abalone.View.GameSet.getInstance();
+        gameSet = GameSet.getInstance();
         for (int i = 0; i < positionArrays.size(); i++) {
-            gameSet.register(viewport, i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            gameSet.register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
         }
 
     }
@@ -208,7 +208,7 @@ public class Abalone implements Screen {
 
         batch.begin();
 
-        for (MarbleSet m : com.teamabalone.abalone.View.GameSet.getInstance().getMarbleSets()) {
+        for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
             for (int i = 0; i < m.size(); i++) {
                 m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
@@ -283,7 +283,7 @@ public class Abalone implements Screen {
                     if (marblesToPush) {
                         for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
                             Vector2 field = board.get(enemyMarble);
-                            selectedSprites.select(com.teamabalone.abalone.View.GameSet.getInstance().getMarble(field.x, field.y));
+                            selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                         }
                     }
 
@@ -315,8 +315,8 @@ public class Abalone implements Screen {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
-        Sprite potentialSprite = com.teamabalone.abalone.View.GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-        if (gameSet.getTeam(potentialSprite) != currentPlayer) {
+        Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+        if (gameSet.getTeamIndex(potentialSprite) != currentPlayer) {
             return;
         }
 

@@ -3,22 +3,19 @@ package com.teamabalone.abalone.View;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Class representing a set of marbles of one team holding all it's marble sprites
  */
 public class MarbleSet {
-    private final HashMap<Integer, Sprite> marbles = new HashMap<>();
+    private final ArrayList<Sprite> marbles = new ArrayList<>();
 
     public MarbleSet(ArrayList<Sprite> sprites) {
         if (sprites == null) {
             throw new IllegalArgumentException("no sprites were passed to marble set");
         }
 
-        for (int i = 0; i < sprites.size(); i++) {
-            marbles.put(i, sprites.get(i));
-        }
+        marbles.addAll(sprites);
     }
 
     /**
@@ -36,7 +33,11 @@ public class MarbleSet {
     }
 
     public boolean contains(Sprite sprite) {
-        return marbles.containsValue(sprite);
+        return marbles.contains(sprite);
+    }
+
+    public boolean remove(Sprite sprite) {
+        return marbles.remove(sprite);
     }
 
     public int size() {
