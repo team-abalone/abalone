@@ -26,6 +26,10 @@ public class MarbleSet {
         return null;
     }
 
+    public boolean contains(Sprite sprite) {
+        return marbles.containsValue(sprite);
+    }
+
     public int size() {
         return marbles.size();
     }

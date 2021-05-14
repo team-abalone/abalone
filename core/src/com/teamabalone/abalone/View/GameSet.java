@@ -33,6 +33,15 @@ public class GameSet { //singleton
         return marbleSets;
     }
 
+    public int getTeam(Sprite sprite) {
+        for (int i = 0; i < marbleSets.size(); i++) {
+            if (marbleSets.get(i).contains(sprite)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     //TODO depending on order of set the first set will be searched first, making it dominating in selecting a marble and is drawn first
     public Sprite getMarble(float x, float y) {
         for (int i = 0; i < marbleSets.size(); i++) {
@@ -65,7 +74,7 @@ public class GameSet { //singleton
 //        for (int i = 0; i < marbleSets.size(); i++) {
 //            MarbleSet marbleSet = marbleSets.get(i);
 //            for (int k = 0; k < marbleSet.size(); k++) {
-                return marbleSets.remove(sprite);
+        return marbleSets.remove(sprite);
 //            }
 //        }
 //        return false;

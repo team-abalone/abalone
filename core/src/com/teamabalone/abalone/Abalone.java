@@ -88,6 +88,8 @@ public class Abalone implements Screen {
     private final float boardWidth;
     private final float boardHeight;
 
+    private final int numberPlayers = 2;
+    private int currentPlayer = 0;
 
     public Abalone(GameImpl game) {
         this.game = game;
@@ -298,6 +300,7 @@ public class Abalone implements Screen {
                     unselectList();
                     gameSet.removeMarble(capturedMarble);
                     lastDirection = Directions.NOTSET;
+                    nextPlayer();
                 }
             } else {
                 selectMarbleIfTouched(); //select
@@ -313,6 +316,9 @@ public class Abalone implements Screen {
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
         Sprite potentialSprite = com.teamabalone.abalone.View.GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+        if (gameSet.getTeam(potentialSprite) != currentPlayer) {
+            return;
+        }
 
         int marbleCounter = 0;
         if (potentialSprite != null) {
@@ -439,6 +445,10 @@ public class Abalone implements Screen {
         }
 
         return direction;
+    }
+
+    public int nextPlayer() {
+        return currentPlayer = (currentPlayer + 1) % numberPlayers;
     }
 
     @Override
