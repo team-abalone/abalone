@@ -1,29 +1,38 @@
 package com.teamabalone.abalone.View;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Class representing a set of marbles of one team holding all it's marble sprites
+ */
 public class MarbleSet {
     private final HashMap<Integer, Sprite> marbles = new HashMap<>();
 
     public MarbleSet(ArrayList<Sprite> sprites) {
-        if (sprites != null) {
-            for (int i = 0; i < sprites.size(); i++) {
-                marbles.put(i, sprites.get(i));
-            }
-        } else {
-            System.out.println("no sprites passed to marble set");
+        if (sprites == null) {
+            throw new IllegalArgumentException("no sprites were passed to marble set");
+        }
+
+        for (int i = 0; i < sprites.size(); i++) {
+            marbles.put(i, sprites.get(i));
         }
     }
 
+    /**
+     * Get marble of marble set
+     *
+     * @param key hash map key to finde mable
+     * @return marble
+     */
     public Sprite getMarble(int key) {
         if (key >= 0 && key < marbles.size()) {
             return marbles.get(key);
         }
-        return null;
+
+        throw new IllegalArgumentException("key for marble out of range");
     }
 
     public boolean contains(Sprite sprite) {
