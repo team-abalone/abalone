@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * ArrayList with a maximum capacity
@@ -62,5 +63,10 @@ public class SelectionList<T> {
 
     public void unselectAll() {
         arrayList.clear();
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(arrayList.toArray());
     }
 }
