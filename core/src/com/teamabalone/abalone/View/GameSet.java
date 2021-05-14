@@ -23,10 +23,29 @@ public class GameSet { //singleton
     }
 
     public MarbleSet register(Viewport viewport, Texture texture, float[] positions) {
-        StartPosition startPosition = new StartPosition(viewport, texture, positions);
-        MarbleSet marbleSet = new MarbleSet(startPosition.getSprites());
+        MarbleSet marbleSet = new MarbleSet(forgeMarbles(texture, positions));
         marbleSets.add(marbleSet);
         return marbleSet;
+    }
+
+
+    //coordinates are read alternately x1, y1, x2, y2, x3...
+    //screen coordinates have to be converted to map coordinates
+    public ArrayList<Sprite> forgeMarbles(Texture texture, float... coordinates) {
+        if (coordinates.length % 2 != 0) {
+            throw new IllegalArgumentException("field coordinates not an even number");
+        }
+
+        ArrayList<Sprite> sprites = new ArrayList<>();
+        Sprite sprite;
+
+        for (int i = 0; i < coordinates.length; i += 2) {
+            sprite = new Sprite(texture);
+            sprite.setCenter(coordinates[i], coordinates[i + 1]);
+            sprites.add(sprite);
+        }
+
+        return sprites;
     }
 
     public ArrayList<MarbleSet> getMarbleSets() {
