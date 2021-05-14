@@ -104,7 +104,7 @@ public class Abalone implements Screen {
         instantiateBoard();
     }
 
-    private void textures(){
+    private void textures() {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
         blackBall = new Texture("marbles/" + settings.getString("marbleSkin", "ball.png"));
         whiteBall = new Texture("marbles/ball_white.png");
@@ -318,7 +318,7 @@ public class Abalone implements Screen {
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-        if (GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
+        if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
             return;
         }
 
