@@ -36,7 +36,13 @@ public class GameSet { //singleton
         return marbleSet;
     }
 
-
+    /**
+     * Creates sprite instances with given texture and center coordinates. The coordinates are read successively in pairs (x1, y1, x2, y2, x3...) each providing the x and teh y-coordinate for the center of a marble.
+     *
+     * @param texture     texture for sprites
+     * @param coordinates coordinates to center the sprites
+     * @return list of created sprites
+     */
     public ArrayList<Sprite> createMarbles(Texture texture, float... coordinates) {
         if (texture == null) {
             throw new IllegalArgumentException("no texture passed");
@@ -49,8 +55,6 @@ public class GameSet { //singleton
         ArrayList<Sprite> sprites = new ArrayList<>();
         Sprite sprite;
 
-        //coordinates are read alternately x1, y1, x2, y2, x3...
-        //screen coordinates have to be converted to map coordinates
         for (int i = 0; i < coordinates.length; i += 2) {
             sprite = new Sprite(texture);
             sprite.setCenter(coordinates[i], coordinates[i + 1]);
@@ -64,6 +68,12 @@ public class GameSet { //singleton
         return marbleSets;
     }
 
+    /**
+     * Get index of marble set that contains the specified sprite.
+     *
+     * @param sprite sprite  of interest
+     * @return marble set index
+     */
     public int getTeamIndex(Sprite sprite) {
         for (int i = 0; i < marbleSets.size(); i++) {
             if (marbleSets.get(i).contains(sprite)) {
@@ -73,6 +83,13 @@ public class GameSet { //singleton
         return -1;
     }
 
+    /**
+     * Find marble at specific coordinates (should be map coordinates)
+     *
+     * @param x x-component
+     * @param y y-component
+     * @return sprite in GameSet
+     */
     public Sprite getMarble(float x, float y) {
         Sprite sprite;
 
@@ -81,7 +98,7 @@ public class GameSet { //singleton
 
             for (int k = 0; k < marbleSet.size(); k++) {
                 sprite = marbleSet.getMarble(k);
-                float xdiff = x - (sprite.getX() + 32);
+                float xdiff = x - (sprite.getX() + 32); //32 = half of tile width
                 float ydiff = y - (sprite.getY() + 32);
 
                 if (0 <= xdiff && xdiff <= sprite.getWidth() * sprite.getScaleX() &&
@@ -93,6 +110,12 @@ public class GameSet { //singleton
         return null;
     }
 
+    /**
+     * Remove marble from it's marble set
+     *
+     * @param sprite marble to remove
+     * @return true on success
+     */
     public boolean removeMarble(Sprite sprite) {
         for (MarbleSet marbleSet : marbleSets) {
             if (marbleSet.remove(sprite)) {
@@ -101,5 +124,4 @@ public class GameSet { //singleton
         }
         return false;
     }
-
 }
