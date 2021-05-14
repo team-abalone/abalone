@@ -2,15 +2,18 @@ package com.teamabalone.abalone.View;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
+/**
+ * Singleton instance containing all marble sets of a game in one collection.
+ */
 public class GameSet { //singleton
     private static GameSet gameSet;
     private final ArrayList<MarbleSet> marbleSets = new ArrayList<>();
 
     private GameSet() {
+        //private Constructor
     }
 
     public static GameSet getInstance() {
@@ -20,6 +23,13 @@ public class GameSet { //singleton
         return gameSet;
     }
 
+    /**
+     * Create and add a new marble set to GameSet instance
+     *
+     * @param texture   marble team texture
+     * @param positions center coordinates of marbles
+     * @return created marble set
+     */
     public MarbleSet register(Texture texture, float[] positions) {
         MarbleSet marbleSet = new MarbleSet(createMarbles(texture, positions));
         marbleSets.add(marbleSet);
