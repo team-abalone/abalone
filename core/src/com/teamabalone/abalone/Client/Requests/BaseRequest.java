@@ -2,8 +2,7 @@ package com.teamabalone.abalone.Client.Requests;
 
 import java.util.UUID;
 
-public class BaseUserIdRequest {
+public class BaseRequest {
     private UUID UserId;
-
-
+    private int CommandCode;
 }

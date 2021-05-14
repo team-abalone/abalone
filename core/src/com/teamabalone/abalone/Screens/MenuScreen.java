@@ -14,11 +14,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Abalone;
+import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
+
 import com.teamabalone.abalone.View.GameSet;
+import com.teamabalone.abalone.Helpers.Helpers;
+
 
 
 /**
@@ -53,8 +57,10 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open create room overlay.
                 Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
-                GameImpl.abalone = new Abalone(Game);
-                Game.setScreen(GameImpl.abalone);
+
+                //Game.setScreen(new Abalone(Game));
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin());
+                createRoomDialog.show(Stage);
             }
 
             ;
