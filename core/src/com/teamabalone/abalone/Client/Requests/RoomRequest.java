@@ -1,5 +1,8 @@
 package com.teamabalone.abalone.Client.Requests;
 
-public class CloseRoomRequest extends BaseRequest {
+/**
+ * Can either be used for joining, closing room or starting game.
+ */
+public class RoomRequest extends BaseRequest {
     private String RoomKey;
 }

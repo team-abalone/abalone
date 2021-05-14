@@ -1,59 +1,53 @@
 package com.teamabalone.abalone.Client;
 
+import com.google.gson.Gson;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.concurrent.Callable;
 
-public class Service implements Callable<JSONObject> {
-    //Needed to send request
-    private int commandCode;
-    private String userId;
-    private JSONObject props;
+public class Service implements Callable<BaseResponse> {
+    private final BaseRequest request;
     private PrintWriter writer;
     private BufferedReader br;
 
-    /**
-     * Prepares everything needed for our requests
-     * @param commandCode - will provide the corresponding server-action
-     * @param userId - still unsure, but let's keep it in for now
-     * @param props - further information regarding the request
-     * @throws IOException - can occur due to InputStream and OutputStream
-     */
-    public Service(int commandCode, String userId, JSONObject props) throws IOException {
-        this.commandCode = commandCode;
-        this.userId = userId;
-        this.props = props;
 
-        this.writer = new PrintWriter(Client.socket.getOutputStream());
-        this.br = new BufferedReader(new InputStreamReader(Client.socket.getInputStream(), "UTF-8"));
+    /**
+     * Sends the given request to the api and returns the response as BaseResponse,
+     * which can then outside be parsed depending on the commandCode parameter.
+     *
+     * @param request
+     * @throws IOException
+     */
+    public Service(Socket socket, BaseRequest request) throws IOException {
+        this.request = request;
+
+        this.writer = new PrintWriter(socket.getOutputStream());
+        this.br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
     }
 
     /**
      * Builds JSON to send to api (as string, in the end)
      * Receives String from api. We will convert that to a JSONObject by simply using new JSONObject(string response)
-     *
      */
     @Override
-    public JSONObject call() throws Exception{
-        JSONObject req = new JSONObject();
-        try {
-            //This is just to ensure that our String will be build correctly
-            req.put("userId", this.userId);
-            req.put("commandCode", this.commandCode);
-            req.put("props", this.props);
+    public BaseResponse call() throws Exception {
 
-            this.writer.println(req.toString());
+        try {
+            Gson gson = new Gson();
+
+            this.writer.println(gson.toJson(request));
             this.writer.flush();
 
-            return new JSONObject(this.br.readLine());
-
-        }
-        catch (JSONException | IOException e) {
+            return gson.fromJson(this.br.readLine(), BaseResponse.class);
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
             return null;
         }
