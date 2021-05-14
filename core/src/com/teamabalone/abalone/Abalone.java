@@ -40,30 +40,30 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Abalone implements Screen {
-    final GameImpl game;
-    SpriteBatch batch;
+    private final int MAX_TEAMS = 6;
+    private final int SWIPE_SENSITIVITY = 40;
+    private final int NUMBER_PLAYERS = 2;
+    private final int MAP_SIZE = 5; //TODO make only setting valid value possible?
 
-    TiledMap tiledMap;
-    HexagonalTiledMapRenderer tiledMapRenderer;
-    FitViewport viewport;
+    private Music bgMusic;
+    private Preferences settings;
 
-    Texture background;
-    Texture blackBall;
-    Texture whiteBall;
+    private final GameImpl game;
+    private final SpriteBatch batch;
 
-    GameSet gameSet;
-    Board board;
+    private TiledMap tiledMap;
+    private HexagonalTiledMapRenderer tiledMapRenderer;
+    private FitViewport viewport;
 
-    float screenWidth;
-    float screenHeight;
+    private Texture background;
+    private Texture blackBall;
+    private Texture whiteBall;
 
-    int mapSize;
+    private Board board;
 
-    final int MAX_TEAMS = 6;
+    private final float screenWidth = Gdx.graphics.getWidth();
+    private final float screenHeight = Gdx.graphics.getHeight();
 
-    //changes
-    Music bgMusic;
-    Preferences settings;
     boolean yourTurn = true;
     boolean wasTouched = false;
     TurnAnnouncerTwo nextPlayerCard;
@@ -83,47 +83,50 @@ public class Abalone implements Screen {
     Field field;
 
     Directions lastDirection = Directions.NOTSET;
-    int swipeSensitivity = 40;
 
-    private final float boardWidth;
-    private final float boardHeight;
+    private float boardWidth;
+    private float boardHeight;
 
-    private final int numberPlayers = 2;
     private int currentPlayer = 0;
 
     public Abalone(GameImpl game) {
-        this.game = game;
         settings = Gdx.app.getPreferences("UserSettings");
+
+        this.game = game;
         batch = game.getBatch();
 
-        screenWidth = Gdx.graphics.getWidth();
-        screenHeight = Gdx.graphics.getHeight();
+        stage = new Stage(); //stage not attached, so it moves with screen
 
-        mapSize = 5; //TODO make only setting valid value possible?
-        tiledMap = new TmxMapLoader().load("abalone_map" + mapSize + ".tmx"); //set file paths accordingly
-        TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
-        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
+        board();
+        camera();
+        textures();
 
-        OrthographicCamera camera = new OrthographicCamera();
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
-        //not attaching stage, so it moves with screen
-        stage = new Stage();
+        instantiateBoard();
+    }
 
-        boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
-        //height needs to take overlap in account (55,5 + 18,5 = 74)
-        boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight();
-
-        camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
-        camera.zoom = 0.5f;//0.5f;
-
-        board = new Board(tileLayer, mapSize); //call after camera has been set!
-        board.get(0);
-
+    private void textures(){
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
         blackBall = new Texture("marbles/" + settings.getString("marbleSkin", "ball.png"));
         whiteBall = new Texture("marbles/ball_white.png");
+    }
 
-        instantiateBoard();
+    private void board() {
+        tiledMap = new TmxMapLoader().load("abalone_map" + MAP_SIZE + ".tmx");
+        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
+
+        TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
+        boardHeight = 55.5f * (tileLayer.getHeight() - 1) + tileLayer.getTileHeight(); //take overlap into account (55,5 + 18,5 = 74)
+
+        board = new Board(tileLayer, MAP_SIZE, boardWidth, boardHeight); //call after camera has been set!
+    }
+
+    private void camera() {
+        OrthographicCamera camera = new OrthographicCamera();
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+
+        camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
+        camera.zoom = 0.5f;
     }
 
     private void instantiateBoard() {
@@ -153,9 +156,8 @@ public class Abalone implements Screen {
             }
         }
 
-        gameSet = GameSet.getInstance();
         for (int i = 0; i < positionArrays.size(); i++) {
-            gameSet.register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            GameSet.getInstance().register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
         }
 
     }
@@ -298,7 +300,7 @@ public class Abalone implements Screen {
 
                     moveSelectedMarbles(); //move
                     unselectList();
-                    gameSet.removeMarble(capturedMarble);
+                    GameSet.getInstance().removeMarble(capturedMarble);
                     lastDirection = Directions.NOTSET;
                     nextPlayer();
                 }
@@ -316,7 +318,7 @@ public class Abalone implements Screen {
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-        if (gameSet.getTeamIndex(potentialSprite) != currentPlayer) {
+        if (GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
             return;
         }
 
@@ -396,7 +398,7 @@ public class Abalone implements Screen {
         float adjacentLeg = endX - startX;
         float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
 
-        if (Math.abs(adjacentLeg) < swipeSensitivity && Math.abs(oppositeLeg) < swipeSensitivity) { //continue selection mode
+        if (Math.abs(adjacentLeg) < SWIPE_SENSITIVITY && Math.abs(oppositeLeg) < SWIPE_SENSITIVITY) { //continue selection mode
             return Directions.NOTSET;
         }
 
@@ -448,11 +450,16 @@ public class Abalone implements Screen {
     }
 
     public int nextPlayer() {
-        return currentPlayer = (currentPlayer + 1) % numberPlayers;
+        return currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
     }
 
     @Override
     public void show() {
+        button();
+        music();
+    }
+
+    public void button() {
         next = FactoryHelper.CreateButtonWithText("Next Player");
         next.addListener(new ClickListener() {
             @Override
@@ -463,14 +470,14 @@ public class Abalone implements Screen {
             }
         });
 
-        //Stage stage = new Stage(viewport, batch);
         stage.addActor(next);
         Actor button = stage.getActors().get(0);
-        //set coordinates of actor/button
         button.setX(Gdx.graphics.getWidth() - button.getWidth() - 10);
         button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
-
         Gdx.input.setInputProcessor(stage);
+    }
+
+    public void music() {
         bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
         bgMusic.setLooping(true);
@@ -543,15 +550,11 @@ public class Abalone implements Screen {
     }
 
     @Override
-    public void dispose() {
+    public void dispose() { //TODO dispose of everything
         tiledMap.dispose();
         batch.dispose();
         blackBall.dispose();
         whiteBall.dispose();
         bgMusic.dispose();
     }
-
 }
-
-
-//rendering tile map: https://www.youtube.com/watch?v=0RGdjnHtpXg

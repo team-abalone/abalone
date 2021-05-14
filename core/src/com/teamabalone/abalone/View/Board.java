@@ -22,7 +22,7 @@ public class Board {
     private final float tileHeight;
     private final int numberEdgeTiles;
 
-    public Board(TiledMapTileLayer tileLayer, int mapSize) {
+    public Board(TiledMapTileLayer tileLayer, int mapSize, float boardWidth, float boardHeight) {
         if (tileLayer == null) {
             throw new IllegalArgumentException("no tileLayer has been passed to board");
         }
@@ -36,9 +36,8 @@ public class Board {
 
         topHeight = (float) Math.round(Math.tan(Math.toRadians(30)) * tileWidth / 2f * 10f) / 10f;
         bottomHeight = tileHeight - topHeight;
-        boardWidth = tileLayer.getWidth() * tileWidth;
-        //height needs to take vertical overlap into account (55,5 + 18,5 = 74)
-        boardHeight = bottomHeight * (tileLayer.getHeight() - 1) + tileHeight;
+        this.boardWidth = boardWidth;
+        this.boardHeight = boardHeight;
 
         this.instantiate();
     }
