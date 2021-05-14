@@ -79,7 +79,6 @@ public class Abalone implements Screen {
     float lastTouchX;
     float lastTouchY;
 
-    //enum Direction {RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET} //index starts with 0 (?)
     Field field;
 
     Directions lastDirection = Directions.NOTSET;
@@ -176,32 +175,7 @@ public class Abalone implements Screen {
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false); //would center the camera to the center of the world
 
-        float backgroundWidth = background.getWidth();
-        float backgroundHeight = background.getHeight();
-        float startX = boardWidth / 2 - backgroundWidth;
-        float startY = boardHeight / 2 - backgroundHeight;
-
-        batch.begin();
-        batch.draw(background, startX, startY);
-        batch.draw(background, startX, startY + backgroundHeight);
-        batch.draw(background, startX, startY + backgroundHeight * 2);
-        batch.draw(background, startX, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth, startY);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth * 2, startY);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
-
-        batch.draw(background, startX - backgroundWidth, startY);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
-        batch.end();
+        background();
 
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
@@ -218,7 +192,7 @@ public class Abalone implements Screen {
         }
 
         batch.end();
-        //changes
+
         stage.act();
         stage.draw();
 
@@ -268,50 +242,81 @@ public class Abalone implements Screen {
             lastTouchX = Gdx.input.getX();
             lastTouchY = Gdx.input.getY();
 
-            lastDirection = calculateDirection(firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+            lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
 
             if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
-
-                int[] marblesToCheck = new int[selectedSprites.size()];
-                for (int i = 0; i < selectedSprites.size(); i++) {
-                    marblesToCheck[i] = board.getTileId(selectedSprites.get(i));
-                }
-
-                int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
-                boolean validMove = enemyMarbles != null;
-                if (validMove) {
-                    boolean marblesToPush = enemyMarbles.length > 0;
-
-                    if (marblesToPush) {
-                        for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
-                            Vector2 field = board.get(enemyMarble);
-                            selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
-                        }
-                    }
-
-                    Sprite capturedMarble = null;
-                    if (field.isPushedOutOfBound()) {
-                        capturedMarble = lastDirection == Directions.LEFTDOWN ||
-                                lastDirection == Directions.RIGHTDOWN ||
-                                lastDirection == Directions.RIGHT
-                                ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length)
-                                : selectedSprites.get(selectedSprites.size());
-                    }
-
-                    moveSelectedMarbles(); //move
-                    unselectList();
-                    GameSet.getInstance().removeMarble(capturedMarble);
-                    lastDirection = Directions.NOTSET;
-                    nextPlayer();
-                }
+                makeMove();
             } else {
-                selectMarbleIfTouched(); //select
+                selectMarbleIfTouched();
             }
 
             justTouched = false;
         }
     }
 
+    public void background() {
+        float backgroundWidth = background.getWidth();
+        float backgroundHeight = background.getHeight();
+        float startX = boardWidth / 2 - backgroundWidth;
+        float startY = boardHeight / 2 - backgroundHeight;
+
+        batch.begin();
+        batch.draw(background, startX, startY);
+        batch.draw(background, startX, startY + backgroundHeight);
+        batch.draw(background, startX, startY + backgroundHeight * 2);
+        batch.draw(background, startX, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth, startY);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
+
+        batch.draw(background, startX + backgroundWidth * 2, startY);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
+        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
+        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
+
+        batch.draw(background, startX - backgroundWidth, startY);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
+        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
+        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
+        batch.end();
+    }
+
+    private void makeMove() {
+        int[] marblesToCheck = new int[selectedSprites.size()];
+        for (int i = 0; i < selectedSprites.size(); i++) {
+            marblesToCheck[i] = board.getTileId(selectedSprites.get(i));
+        }
+
+        int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
+        boolean validMove = enemyMarbles != null;
+        if (validMove) {
+            boolean marblesToPush = enemyMarbles.length > 0;
+
+            if (marblesToPush) {
+                for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
+                    Vector2 field = board.get(enemyMarble);
+                    selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                }
+            }
+
+            Sprite capturedMarble = null;
+            if (field.isPushedOutOfBound()) {
+                capturedMarble = lastDirection == Directions.LEFTDOWN ||
+                        lastDirection == Directions.RIGHTDOWN ||
+                        lastDirection == Directions.RIGHT
+                        ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length)
+                        : selectedSprites.get(selectedSprites.size());
+            }
+
+            moveSelectedMarbles(); //move
+            unselectList();
+            GameSet.getInstance().removeMarble(capturedMarble);
+            lastDirection = Directions.NOTSET;
+            nextPlayer();
+        }
+    }
 
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
@@ -352,7 +357,7 @@ public class Abalone implements Screen {
         }
     }
 
-    private boolean select(Sprite sprite) { //TODO only select marbles of specific color
+    private boolean select(Sprite sprite) {
         if (selectedSprites.select(sprite)) {
             sprite.setColor(Color.GRAY);
             return true;
@@ -392,61 +397,6 @@ public class Abalone implements Screen {
         for (int i = 0; i < selectedSprites.size(); i++) {
             board.move(selectedSprites.get(i), lastDirection);
         }
-    }
-
-    private Directions calculateDirection(float startX, float startY, float endX, float endY) {
-        float adjacentLeg = endX - startX;
-        float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
-
-        if (Math.abs(adjacentLeg) < SWIPE_SENSITIVITY && Math.abs(oppositeLeg) < SWIPE_SENSITIVITY) { //continue selection mode
-            return Directions.NOTSET;
-        }
-
-        //to get 360°
-        boolean olneg = oppositeLeg < 0;
-        boolean alneg = adjacentLeg < 0;
-        double offset = 0;
-        if (alneg) {
-            offset = 180;
-        }
-        if (!alneg && olneg) {
-            offset = 360;
-        }
-
-        double degrees = Math.toDegrees(Math.atan(oppositeLeg / adjacentLeg)) + offset; //atan() returns only -pi/2 - pi/2 (circle half)
-        int index = ((int) ((degrees) / 30)); //get sector
-        Directions direction;
-
-        switch (index) {
-            case 0:
-            case 11:
-                direction = Directions.RIGHT;
-                break;
-            case 1:
-            case 2:
-                direction = Directions.RIGHTUP;
-                break;
-            case 3:
-            case 4:
-                direction = Directions.LEFTUP;
-                break;
-            case 5:
-            case 6:
-                direction = Directions.LEFT;
-                break;
-            case 7:
-            case 8:
-                direction = Directions.LEFTDOWN;
-                break;
-            case 9:
-            case 10:
-                direction = Directions.RIGHTDOWN;
-                break;
-            default:
-                direction = Directions.NOTSET;
-        }
-
-        return direction;
     }
 
     public int nextPlayer() {
@@ -551,10 +501,16 @@ public class Abalone implements Screen {
 
     @Override
     public void dispose() { //TODO dispose of everything
-        tiledMap.dispose();
+        bgMusic.dispose();
+
         batch.dispose();
+        stage.dispose();
+
+        tiledMap.dispose();
+        tiledMapRenderer.dispose();
+
+        background.dispose();
         blackBall.dispose();
         whiteBall.dispose();
-        bgMusic.dispose();
     }
 }
