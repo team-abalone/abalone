@@ -30,10 +30,12 @@ import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Gamelogic.Directions;
+import com.teamabalone.abalone.View.Board;
+import com.teamabalone.abalone.View.GameSet;
+import com.teamabalone.abalone.View.MarbleSet;
+import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -69,7 +71,7 @@ public class Abalone implements Screen {
     private Stage stage;
     private TextButton next;
 
-    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+    com.teamabalone.abalone.View.SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
 
     boolean justTouched = false; //makes one touch only one operation (-> select)
     float firstTouchX;
@@ -95,7 +97,7 @@ public class Abalone implements Screen {
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        mapSize = 5; //make only setting valid value possible?
+        mapSize = 5; //TODO make only setting valid value possible?
         tiledMap = new TmxMapLoader().load("abalone_map" + mapSize + ".tmx"); //set file paths accordingly
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0); //instantiate tiled layer
         tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap); //additional parameter unitScale possible
@@ -112,7 +114,7 @@ public class Abalone implements Screen {
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;//0.5f;
 
-        board = Board.getInstance(viewport, tileLayer, mapSize); //call after camera has been set!
+        board = new Board(tileLayer, mapSize); //call after camera has been set!
         board.get(0);
 
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
@@ -149,7 +151,7 @@ public class Abalone implements Screen {
             }
         }
 
-        gameSet = GameSet.getInstance();
+        gameSet = com.teamabalone.abalone.View.GameSet.getInstance();
         for (int i = 0; i < positionArrays.size(); i++) {
             gameSet.register(viewport, i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
         }
@@ -204,7 +206,7 @@ public class Abalone implements Screen {
 
         batch.begin();
 
-        for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+        for (MarbleSet m : com.teamabalone.abalone.View.GameSet.getInstance().getMarbleSets()) {
             for (int i = 0; i < m.size(); i++) {
                 m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
@@ -268,7 +270,7 @@ public class Abalone implements Screen {
 
                 int[] marblesToCheck = new int[selectedSprites.size()];
                 for (int i = 0; i < selectedSprites.size(); i++) {
-                    marblesToCheck[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+                    marblesToCheck[i] = board.getTileId(selectedSprites.get(i));
                 }
 
                 int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
@@ -278,8 +280,8 @@ public class Abalone implements Screen {
 
                     if (marblesToPush) {
                         for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
-                            Vector2 field = Board.getInstance().get(enemyMarble);
-                            selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                            Vector2 field = board.get(enemyMarble);
+                            selectedSprites.select(com.teamabalone.abalone.View.GameSet.getInstance().getMarble(field.x, field.y));
                         }
                     }
 
@@ -310,17 +312,17 @@ public class Abalone implements Screen {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
-        Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+        Sprite potentialSprite = com.teamabalone.abalone.View.GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
 
         int marbleCounter = 0;
         if (potentialSprite != null) {
             int[] buffer = new int[selectedSprites.size() + 1]; //previously selected + 1
             for (int i = 0; i < selectedSprites.size(); i++) {
-                buffer[i] = Board.getInstance().getFieldId(selectedSprites.get(i));
+                buffer[i] = board.getTileId(selectedSprites.get(i));
                 marbleCounter++;
             }
             if (!selectedSprites.contains(potentialSprite)) {
-                buffer[buffer.length - 1] = Board.getInstance().getFieldId(potentialSprite);
+                buffer[buffer.length - 1] = board.getTileId(potentialSprite);
                 marbleCounter++;
             }
 
@@ -380,7 +382,7 @@ public class Abalone implements Screen {
 
     private void moveSelectedMarbles() {
         for (int i = 0; i < selectedSprites.size(); i++) {
-            selectedSprites.move(i, lastDirection);
+            selectedSprites.move(board, i, lastDirection);
         }
     }
 

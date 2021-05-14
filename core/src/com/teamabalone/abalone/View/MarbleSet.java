@@ -1,4 +1,4 @@
-package com.teamabalone.abalone;
+package com.teamabalone.abalone.View;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.viewport.Viewport;

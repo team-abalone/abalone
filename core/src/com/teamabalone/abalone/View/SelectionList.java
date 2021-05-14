@@ -1,4 +1,4 @@
-package com.teamabalone.abalone;
+package com.teamabalone.abalone.View;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -48,9 +48,8 @@ public class SelectionList<t> {
         return new Vector2(sprite.getX() + sprite.getWidth() / 2f, sprite.getY() + sprite.getHeight() / 2f);
     }
 
-    public void move(int index, Directions direction) { //not generic!
+    public void move(Board board, int index, Directions direction) { //not generic!
         Sprite sprite = (Sprite) arrayList.get(index);
-        Board board = Board.getInstance();
 
         if(sprite == null || board == null){ //TODO proper handling
             return;
