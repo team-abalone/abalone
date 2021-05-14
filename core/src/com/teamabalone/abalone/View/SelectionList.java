@@ -1,13 +1,14 @@
 package com.teamabalone.abalone.View;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
-import com.teamabalone.abalone.Gamelogic.Directions;
-
 import java.util.ArrayList;
 
-public class SelectionList<t> {
-    private final ArrayList<t> arrayList = new ArrayList<>();
+/**
+ * ArrayList with a maximum capacity
+ *
+ * @param <T> type the Array list is supposed to manage
+ */
+public class SelectionList<T> {
+    private final ArrayList<T> arrayList = new ArrayList<>();
     private final int maximum;
 
     public SelectionList(int maximum) {
@@ -18,15 +19,15 @@ public class SelectionList<t> {
         return arrayList.size();
     }
 
-    public t get(int index) {
-        return arrayList.get(index);
-    }
-
-    public ArrayList<t> getArrayList() {
+    public ArrayList<T> getArrayList() {
         return arrayList;
     }
 
-    public boolean isSelected(t object) {
+    public T get(int index) {
+        return arrayList.get(index);
+    }
+
+    public boolean contains(T object) {
         return arrayList.contains(object);
     }
 
@@ -34,8 +35,13 @@ public class SelectionList<t> {
         return arrayList.isEmpty();
     }
 
-    public boolean select(t object) { //TODO only select marbles of specific color
-        //TODO check if valid -> only marbles in a row, else unselect all | here?
+    /**
+     * Add an object to list, if list not full and object not already contained.
+     *
+     * @param object object to add
+     * @return true if successful
+     */
+    public boolean select(T object) {
         if (arrayList.size() < maximum) {
             if (!arrayList.contains(object)) {
                 return arrayList.add(object);
@@ -44,53 +50,17 @@ public class SelectionList<t> {
         return false;
     }
 
-    public Vector2 getCenter(Sprite sprite) { //TODO method here?
-        return new Vector2(sprite.getX() + sprite.getWidth() / 2f, sprite.getY() + sprite.getHeight() / 2f);
-    }
-
-    public void move(Board board, int index, Directions direction) { //not generic!
-        Sprite sprite = (Sprite) arrayList.get(index);
-
-        if(sprite == null || board == null){ //TODO proper handling
-            return;
-        }
-
-        Vector2 vector = getCenter(sprite);
-
-        switch (direction) {
-            case RIGHT:
-                vector = board.shiftRight(vector);
-                break;
-            case RIGHTUP:
-                vector = board.shiftRightUp(vector);
-                break;
-            case RIGHTDOWN:
-                vector = board.shiftRightDown(vector);
-                break;
-            case LEFT:
-                vector = board.shiftLeft(vector);
-                break;
-            case LEFTUP:
-                vector = board.shiftLeftUp(vector);
-                break;
-            case LEFTDOWN:
-                vector = board.shiftLeftDown(vector);
-                break;
-        }
-
-        sprite.setCenter(vector.x, vector.y);
-    }
-
-    public boolean unselect(t object) {
+    /**
+     * Remove an object from the list.
+     *
+     * @param object object to remove
+     * @return true if successful
+     */
+    public boolean unselect(T object) {
         return getArrayList().remove(object);
     }
 
     public void unselectAll() {
         arrayList.clear();
     }
-
-    public boolean contains(Sprite sprite){
-        return arrayList.contains(sprite);
-    }
-
 }

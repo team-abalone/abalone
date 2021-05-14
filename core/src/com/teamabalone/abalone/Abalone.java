@@ -71,7 +71,7 @@ public class Abalone implements Screen {
     private Stage stage;
     private TextButton next;
 
-    com.teamabalone.abalone.View.SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
 
     boolean justTouched = false; //makes one touch only one operation (-> select)
     float firstTouchX;
@@ -344,7 +344,7 @@ public class Abalone implements Screen {
         }
     }
 
-    private boolean select(Sprite sprite) {
+    private boolean select(Sprite sprite) { //TODO only select marbles of specific color
         if (selectedSprites.select(sprite)) {
             sprite.setColor(Color.GRAY);
             return true;
@@ -382,7 +382,7 @@ public class Abalone implements Screen {
 
     private void moveSelectedMarbles() {
         for (int i = 0; i < selectedSprites.size(); i++) {
-            selectedSprites.move(board, i, lastDirection);
+            board.move(selectedSprites.get(i), lastDirection);
         }
     }
 

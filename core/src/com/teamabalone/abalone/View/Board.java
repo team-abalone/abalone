@@ -3,6 +3,7 @@ package com.teamabalone.abalone.View;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import com.teamabalone.abalone.Gamelogic.Directions;
 
 import java.util.ArrayList;
 
@@ -154,6 +155,7 @@ public class Board {
 
     /**
      * Null check
+     *
      * @param point old Vector2
      * @return new Vector2
      */
@@ -196,5 +198,40 @@ public class Board {
         }
 
         return new Vector2(sprite.getX() + sprite.getWidth() / 2, sprite.getY() + sprite.getHeight() / 2);
+    }
+
+    /**
+     * Move Sprite one tile in any direction by setting it's center to the center of the target tile
+     * @param sprite sprite to move
+     * @param direction direction to move in
+     */
+    public void move(Sprite sprite, Directions direction) {
+        if (sprite == null || direction == Directions.NOTSET) {
+            throw new IllegalArgumentException("no sprite and/or direction passed");
+        }
+
+        Vector2 center = getCenter(sprite);
+
+        switch (direction) {
+            case RIGHT:
+                center = shiftRight(center);
+                break;
+            case RIGHTUP:
+                center = shiftRightUp(center);
+                break;
+            case RIGHTDOWN:
+                center = shiftRightDown(center);
+                break;
+            case LEFT:
+                center = shiftLeft(center);
+                break;
+            case LEFTUP:
+                center = shiftLeftUp(center);
+                break;
+            case LEFTDOWN:
+                center = shiftLeftDown(center);
+        }
+
+        sprite.setCenter(center.x, center.y);
     }
 }
