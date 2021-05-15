@@ -2,6 +2,8 @@ package com.teamabalone.abalone.Gamelogic;
 
 import com.badlogic.gdx.Gdx;
 
+import org.omg.CORBA.MARSHAL;
+
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -24,6 +26,21 @@ public class Field implements Iterable<Hexagon> {
         System.out.println(iterateOverHexagons());
     }
 
+    public List<Team> getMarbles(){
+        List<Team> result = new ArrayList<Team>();
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            if(getHexagon(hex).getMarble() == null){
+                result.add(null);
+            } else {
+                result.add(getHexagon(hex).getMarble().getTeam());
+            }
+        }
+        return result;
+    }
+
+    public void setGotPushedOut(){
+        gotPushedOut = false;
+    }
     //loads default marble positions into the hashmap for the game start
     public void fieldSetUp() {
         for (HexCoordinate hex : iterateOverHexagons()) {
@@ -136,7 +153,7 @@ public class Field implements Iterable<Hexagon> {
         //move moving temp into target field
         for (HexCoordinate hex : selectedItems) {
             HexCoordinate target = calcNeighbour(hex, direction);        //calc target field
-            if (target == null) {
+            if (getHexagon(target) == null) {
                 gotPushedOut = true;
                 continue;                                    //target field is null -> it's out of bound so we skip this iteration
             }
@@ -144,6 +161,9 @@ public class Field implements Iterable<Hexagon> {
             getHexagon(hex).setMarble(tempTarget);
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
+            if(gotPushedOut){
+                getHexagon(hex).setMarble(null);
+            }
         }
     }
 
