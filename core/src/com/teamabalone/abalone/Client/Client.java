@@ -3,9 +3,6 @@ package com.teamabalone.abalone.Client;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 
-import org.json.JSONException;
-
-
 //TODO: Make Client Singleton Class (after testing), make Client be global
 public class Client {
     public static SocketManager SocketManager;
@@ -14,7 +11,7 @@ public class Client {
      * Constructor, Builds socket and instanciates neccasary classes for further actions
      * @param userId - May be of use, if we do not decide to automatically generate the user's id
      */
-    public Client() throws JSONException {
+    public Client() {
         try {
             SocketManager = SocketManager.newInstance();
         } catch (Exception e) {
