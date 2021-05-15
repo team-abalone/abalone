@@ -28,6 +28,10 @@ public class SelectionList<T> {
         return arrayList.get(index);
     }
 
+    public int indexOf(T object){
+        return arrayList.indexOf(object);
+    }
+
     public boolean contains(T object) {
         return arrayList.contains(object);
     }

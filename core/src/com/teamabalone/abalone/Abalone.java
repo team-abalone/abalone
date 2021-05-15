@@ -349,6 +349,10 @@ public class Abalone implements Screen {
             if (field.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
+                    int spriteIndex = selectedSprites.indexOf(potentialSprite);
+                    if (spriteIndex != 0 && spriteIndex != selectedSprites.size() - 1) {
+                        unselectList();
+                    }
                     unselect(potentialSprite);
                 }
             }
