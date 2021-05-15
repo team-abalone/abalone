@@ -4,13 +4,14 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.teamabalone.abalone.Client.ICoreLauncher;
+import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
-import com.teamabalone.abalone.Client.Responses.BaseResponse;
-import com.teamabalone.abalone.Client.Service;
+import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Screens.MenuScreen;
 
-import java.net.Socket;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,16 +19,37 @@ import java.util.concurrent.Future;
 
 public class GameImpl extends Game {
 
+
     public static Abalone abalone;
 
+
+    private ICoreLauncher Launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;
+
+    public GameImpl(ICoreLauncher launcher) {
+        Launcher = launcher;
+    }
 
     @Override
     public void create() {
         // Ensuring the app has a UserId stored.
         EnsureUserIdCreated();
-        InitSocket();
+
+
+        // Initializing our response handler, which is called from Service.
+        ResponseHandler rh = new ResponseHandler();
+        Launcher.setICoreResponseMessageHandler(rh);
+
+        try {
+            SocketManager sm = SocketManager.newInstance();
+            Launcher.setSocket(sm.getSocket());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        TestMessage();
 
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this);
@@ -80,17 +102,12 @@ public class GameImpl extends Game {
      * Making sure the socket is created.
      * TODO: Move or change to do before sending requests.
      */
-    private void InitSocket() {
+    private void TestMessage() {
         try {
-            SocketManager sm = SocketManager.newInstance();
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            Future future1 = executorService.submit(sm);
-            executorService.shutdown();
-
             // Test request for now.
-            ExecutorService executorService2 = Executors.newSingleThreadExecutor();
-            Service ts = new Service(SocketManager.newInstance().getSocket(), new CreateRoomRequest(2));
-            Future future2 = executorService2.submit(ts);
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            RequestSender ts = new RequestSender(SocketManager.newInstance().getSocket(), new CreateRoomRequest(UUID.randomUUID(), 2));
+            Future future = executorService.submit(ts);
             executorService.shutdown();
         }
         catch (Exception ex) {
