@@ -6,6 +6,8 @@ import com.teamabalone.abalone.Screens.MenuScreen;
 
 public class GameImpl extends Game {
 
+    public static Abalone abalone;
+
     public SpriteBatch batch;
     public MenuScreen menuScreen;
 
@@ -19,6 +21,7 @@ public class GameImpl extends Game {
     @Override
     public void resume() {
         super.resume();
+        this.setScreen(abalone);
     }
 
     @Override
@@ -32,9 +35,10 @@ public class GameImpl extends Game {
     }
 
     @Override
-    public void dispose() {
+    public void dispose() {/*
+        super.dispose();
         menuScreen.dispose();
-        batch.dispose();
+        batch.dispose();*/
     }
 
     public SpriteBatch getBatch() {
