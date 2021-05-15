@@ -14,12 +14,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Abalone;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
+import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 import com.teamabalone.abalone.Helpers.Helpers;
+
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
@@ -67,6 +76,16 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open join game overlay.
+                // Test request for now.
+                try {
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    RequestSender ts = new RequestSender(SocketManager.newInstance().getSocket(), new CreateRoomRequest(UUID.randomUUID(), 2));
+                    Future future = executorService.submit(ts);
+                    executorService.shutdown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
             };
         });

@@ -7,14 +7,16 @@ import com.teamabalone.abalone.Helpers.GameConstants;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 
-public class SocketManager implements Callable {
+public class SocketManager {
     private Socket Socket;
     private InputStream InputStream;
     private OutputStream OutputStream;
@@ -33,32 +35,7 @@ public class SocketManager implements Callable {
         return SocketManager;
     }
 
-    // TODO: Test, error handling, restart after message to handle next message.
-    private void InitMessageHandler() throws IOException {
-
-        String responseString = IOUtils.toString(InputStream, "UTF-8");
-
-        while(responseString.equals("")) {
-            Gson gson = new Gson();
-            BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
-
-            //TODO: Handle responses here.
-            Gdx.app.log("message received: ", "message received: " + response.toString());
-        }
-    }
-
-    private void HandleMessage(BaseResponse response) {
-
-    }
-
     public java.net.Socket getSocket() {
         return Socket;
-    }
-
-    @Override
-    public Object call() throws Exception {
-        InitMessageHandler();
-
-        return null;
     }
 }
