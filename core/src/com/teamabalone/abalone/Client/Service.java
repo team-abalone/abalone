@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.Callable;
 
-public class Service implements Callable<BaseResponse> {
+public class Service implements Callable<Object> {
     private final BaseRequest request;
     private PrintWriter writer;
     private BufferedReader br;
@@ -38,7 +38,7 @@ public class Service implements Callable<BaseResponse> {
      * Receives String from api. We will convert that to a JSONObject by simply using new JSONObject(string response)
      */
     @Override
-    public BaseResponse call() throws Exception {
+    public Object call() throws Exception {
 
         try {
             Gson gson = new Gson();
@@ -46,8 +46,9 @@ public class Service implements Callable<BaseResponse> {
             this.writer.println(gson.toJson(request));
             this.writer.flush();
 
-            return gson.fromJson(this.br.readLine(), BaseResponse.class);
-        } catch (JSONException | IOException e) {
+            //return gson.fromJson(this.br.readLine(), BaseResponse.class);
+            return null;
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
