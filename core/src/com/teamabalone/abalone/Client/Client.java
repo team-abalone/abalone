@@ -1,7 +1,6 @@
 package com.teamabalone.abalone.Client;
 
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
-import com.teamabalone.abalone.Client.Responses.BaseResponse;
 
 //TODO: Make Client Singleton Class (after testing), make Client be global
 public class Client {
@@ -21,7 +20,7 @@ public class Client {
 
     //Here the Client calls our service, which then proceeds by sending the request
     //TODO: Maybe deal with possible timeouts etc. later on
-    public BaseResponse sendRequest(BaseRequest request) throws Exception {
+    public Object sendRequest(BaseRequest request) throws Exception {
         Service service = new Service(SocketManager.getSocket(), request);
         return service.call();
     }

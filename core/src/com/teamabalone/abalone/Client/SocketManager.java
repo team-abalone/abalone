@@ -1,5 +1,6 @@
 package com.teamabalone.abalone.Client;
 
+import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Helpers.GameConstants;
@@ -25,7 +26,7 @@ public class SocketManager implements Callable {
         OutputStream = Socket.getOutputStream();
     }
 
-    public SocketManager newInstance() throws UnknownHostException, IOException {
+    public static SocketManager newInstance() throws UnknownHostException, IOException {
         if(SocketManager == null) {
             SocketManager = new SocketManager();
         }
@@ -34,11 +35,16 @@ public class SocketManager implements Callable {
 
     // TODO: Test, error handling, restart after message to handle next message.
     private void InitMessageHandler() throws IOException {
-        String responseString = IOUtils.toString(InputStream, "UTF-8");
-        Gson gson = new Gson();
 
-        BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
-        // TODO: Test, Handle responses here accodingly.
+        String responseString = IOUtils.toString(InputStream, "UTF-8");
+
+        while(responseString.equals("")) {
+            Gson gson = new Gson();
+            BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
+
+            //TODO: Handle responses here.
+            Gdx.app.log("message received: ", "message received: " + response.toString());
+        }
     }
 
     private void HandleMessage(BaseResponse response) {
