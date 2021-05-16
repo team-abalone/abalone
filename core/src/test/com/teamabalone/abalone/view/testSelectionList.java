@@ -19,4 +19,9 @@ public class testSelectionList {
         list.unselectAll();
         Assert.assertTrue(list.isEmpty());
     }
+
+    @Test
+    public void test(){
+        Assert.assertEquals(true,true);
+    }
 }
