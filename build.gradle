@@ -1,5 +1,4 @@
 buildscript {
-    
 
     repositories {
         mavenLocal()
@@ -8,6 +7,7 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         google()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.4'
     }
@@ -64,7 +64,6 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
-        
     }
 }
 
@@ -73,31 +72,11 @@ project(":core") {
 
     sourceSets.test.java.srcDirs = ["test/"]
 
-
-    task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
-
-        reports {
-            xml.enabled = true
-            html.enabled = true
-        }
-
-        def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
-        def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug", excludes: fileFilter)
-        def mainSrc = "${project.projectDir}/src/main/java"
-
-        sourceDirectories.from = files([mainSrc])
-        classDirectories.from = files([debugTree])
-        executionData.from = files("${buildDir}/jacoco/testDebugUnitTest.exec")
-    }
-
-
     dependencies {
 
         testImplementation "junit:junit:4.13.2"
-//        testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
 
         testImplementation 'org.mockito:mockito-core:3.10.0'
-
 
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
