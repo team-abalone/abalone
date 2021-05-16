@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'jacoco'
 }
 
 android {
@@ -99,23 +98,6 @@ task run(type: Exec) {
 }
 
 eclipse.project.name = appName + "-android"
-
-
-task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
-
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-
-    def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
-    def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug", excludes: fileFilter)
-    def mainSrc = "${project.projectDir}/src/main/java"
-
-    sourceDirectories.from = files([mainSrc])
-    classDirectories.from = files([debugTree])
-    executionData.from = files("${buildDir}/jacoco/testDebugUnitTest.exec")
-}
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
