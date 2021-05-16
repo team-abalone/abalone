@@ -28,6 +28,7 @@ allprojects {
     }
 
     repositories {
+        jcenter()
         mavenLocal()
         mavenCentral()
         google()
@@ -72,9 +73,31 @@ project(":core") {
 
     sourceSets.test.java.srcDirs = ["test/"]
 
+
+    task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
+
+        reports {
+            xml.enabled = true
+            html.enabled = true
+        }
+
+        def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
+        def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug", excludes: fileFilter)
+        def mainSrc = "${project.projectDir}/src/main/java"
+
+        sourceDirectories.from = files([mainSrc])
+        classDirectories.from = files([debugTree])
+        executionData.from = files("${buildDir}/jacoco/testDebugUnitTest.exec")
+    }
+
+
     dependencies {
 
         testImplementation "junit:junit:4.13.2"
+//        testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
+
+        testImplementation 'org.mockito:mockito-core:3.10.0'
+
 
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
