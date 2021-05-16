@@ -37,4 +37,26 @@ public class testSelectionList {
     public void testMaximum() {
         Assert.assertEquals(maximum, list.size());
     }
+
+//    @Test
+//    public void testUnselect() {
+//        list.unselect(list.get(0));
+//        Assert.assertEquals(maximum - 1, list.size());
+//    }
+
+//    @Test
+//    public void testCreate() {
+//        Assert.assertFalse(list.isEmpty());
+//        Assert.assertEquals("[0, 6]", list.toString());
+//        Assert.assertEquals(6, (long) list.get(1));updat
+//        list.unselectAll();
+//        Assert.assertTrue(list.isEmpty());
+//    }
+
+//    @Test
+//    public void testUnselectAll() {
+//        list.unselectAll();
+//        Assert.assertEquals(0, list.size());
+//    }
+
 }

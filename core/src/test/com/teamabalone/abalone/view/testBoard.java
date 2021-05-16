@@ -1,7 +1,6 @@
 package com.teamabalone.abalone.view;
 
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
@@ -41,7 +40,9 @@ public class testBoard {
 
     @Test
     public void testGetCenter() {
-        Vector2 vector2 = new Vector2(88,88);
+        Vector2 vector2 = new Vector2(88, 88);
         Assert.assertEquals(vector2, board.getCenter(sprite));
     }
+
+
 }

@@ -13,6 +13,12 @@ jacocoTestReport {
     }
 }
 
+task coverage {
+    dependsOn 'test'
+    dependsOn 'jacocoTestReport'
+    tasks.findByName('jacocoTestReport').mustRunAfter('test')
+}
+
 repositories {
     jcenter()
 }
