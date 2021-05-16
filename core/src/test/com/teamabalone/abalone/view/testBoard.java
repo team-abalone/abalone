@@ -31,8 +31,8 @@ public class testBoard {
     @Before
     public void setup() {
         board = new Board(tileLayerMock, MAP_SIZE, 122, 130);
-        when(tileLayerMock.getTileWidth()).thenReturn(64);
-        when(tileLayerMock.getTileHeight()).thenReturn(74);
+//        when(tileLayerMock.getTileWidth()).thenReturn(64);
+//        when(tileLayerMock.getTileHeight()).thenReturn(74);
         when(sprite.getX()).thenReturn((float) 20);
         when(sprite.getY()).thenReturn((float) 20);
         when(sprite.getWidth()).thenReturn((float) 136);
