@@ -3,25 +3,38 @@ package com.teamabalone.abalone.view;
 import com.teamabalone.abalone.View.SelectionList;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class testSelectionList {
+    private SelectionList<Integer> list;
+    private final int maximum = 2;
+    private final int overflow = 2;
 
-    @Test
-    public void createSelectionList() {
-        SelectionList<Integer> list = new SelectionList<>(2);
-        list.select(2);
-        list.select(6);
-        list.select(-2);
-        Assert.assertFalse(list.isEmpty());
-        Assert.assertEquals("[2, 6]", list.toString());
-        Assert.assertEquals(6, (long) list.get(1));
-        list.unselectAll();
-        Assert.assertTrue(list.isEmpty());
+    @Before
+    public void setup() {
+        list = new SelectionList<>(maximum);
+
+        for (int i = 0; i < maximum + overflow; i++) {
+            list.select((int) ((Math.random() - 0.5) * 1000));
+        }
     }
 
     @Test
-    public void test(){
-        Assert.assertEquals(true,true);
+    public void testSelectDuplicate() {
+        list.unselectAll();
+
+        boolean returnValue = list.select(2);
+        Assert.assertTrue(returnValue);
+
+        returnValue = list.select(2);
+        Assert.assertFalse(returnValue);
+
+        Assert.assertEquals(1, list.size());
+    }
+
+    @Test
+    public void testMaximum() {
+        Assert.assertEquals(maximum, list.size());
     }
 }
