@@ -1,3 +1,4 @@
+/*
 package com.teamabalone.abalone.view;
 
 
@@ -56,3 +57,4 @@ public class testBoard {
 
 
 }
+*/

@@ -134,6 +134,7 @@ public class Field implements Iterable<Hexagon> {
 	}*/
 
     public void move(int[] marbleID, Directions direction) {
+        boolean localPushedOut = false;
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         //get the hexCoordinates so it's easier to navigate
         for (int i = 0; i < marbleID.length; i++) {                    //sorts the selection
@@ -155,13 +156,17 @@ public class Field implements Iterable<Hexagon> {
             HexCoordinate target = calcNeighbour(hex, direction);        //calc target field
             if (getHexagon(target) == null) {
                 gotPushedOut = true;
+                localPushedOut = true;
+                if (marbleID.length == 1){                          //in this case only one marble is pushed out and we just delete it
+                    getHexagon(hex).setMarble(null);
+                }
                 continue;                                    //target field is null -> it's out of bound so we skip this iteration
             }
             tempMoving = getHexagon(hex).getMarble();
             getHexagon(hex).setMarble(tempTarget);
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
-            if(gotPushedOut){
+            if(localPushedOut){                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
         }
