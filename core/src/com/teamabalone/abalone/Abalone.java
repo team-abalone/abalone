@@ -29,6 +29,7 @@ import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
+import com.teamabalone.abalone.Gamelogic.Team;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
@@ -36,6 +37,7 @@ import com.teamabalone.abalone.View.MarbleSet;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -316,6 +318,111 @@ public class Abalone implements Screen {
             nextPlayer();
         }
     }
+
+   /* private void print() {
+        printArrayAsField(field.getMarbles());
+    }
+
+    public void printArrayAsField(List<Team> array) {
+        System.out.print("            ");
+        for (int i = 0; i < 5; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("      \n");
+        System.out.print("         ");
+        for (int i = 5; i < 11; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("      \n");
+        System.out.print("      ");
+        for (int i = 11; i < 18; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("    \n");
+        System.out.print("   ");
+        for (int i = 18; i < 26; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print(" \n");
+        for (int i = 26; i < 35; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("  \n");
+        System.out.print("   ");
+        for (int i = 35; i < 43; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("      \n");
+        System.out.print("      ");
+        for (int i = 43; i < 50; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("      \n");
+        System.out.print("         ");
+        for (int i = 50; i < 56; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("          \n");
+        System.out.print("            ");
+        for (int i = 56; i < 61; i++) {
+            if (array.get(i) == null) {
+                System.out.print("#" + "    ");
+            } else if (array.get(i) == Team.BLACK) {
+                System.out.print("B" + "    ");
+            } else {
+                System.out.print("W" + "    ");
+            }
+        }
+        System.out.print("\n\n");
+    }*/
 
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
