@@ -18,6 +18,7 @@ import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
+import com.teamabalone.abalone.View.GameSet;
 
 
 /**
@@ -52,7 +53,8 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open create room overlay.
                 Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
-                Game.setScreen(new Abalone(Game));
+                GameImpl.abalone = new Abalone(Game);
+                Game.setScreen(GameImpl.abalone);
             }
 
             ;
