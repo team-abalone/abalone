@@ -402,6 +402,7 @@ public class testCheckMove {
     @Test
     public void moveThreeAllyIntoAlly(){
         field = setUpAsWanted(1, 6, 12, 19);
+        printArrayAsField(field.getMarbles());
         Assert.assertNull(field.checkMove(new int[]{6, 12, 19}, Directions.RIGHTUP));
     }
 
