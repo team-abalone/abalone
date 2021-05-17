@@ -257,21 +257,21 @@ public class testCheckMove {
         Assert.assertNull(field.checkMove(new int[]{1, 7, 14}, Directions.LEFTUP));
     }
 
-    @Test
-    public void moveIntoOneEnemyWithOne(){
-        field = setUpAsWanted(15);
-        field = setUpEnemyAsWanted(field,16);
-        printArrayAsField(field.getMarbles());
-        Assert.assertNull(field.checkMove(new int[]{15}, Directions.RIGHT));
-    }
+//    @Test
+//    public void moveIntoOneEnemyWithOne(){
+//        field = setUpAsWanted(15);
+//        field = setUpEnemyAsWanted(field,16);
+//        printArrayAsField(field.getMarbles());
+//        Assert.assertNull(field.checkMove(new int[]{15}, Directions.RIGHT));
+//    }
 
-    @Test
-    public void moveIntoMoreEnemyWithOne(){
-        field = setUpAsWanted(15);
-        field = setUpEnemyAsWanted(field,16, 17);
-        printArrayAsField(field.getMarbles());
-        Assert.assertNull(field.checkMove(new int[]{15}, Directions.RIGHT));
-    }
+//    @Test
+//    public void moveIntoMoreEnemyWithOne(){
+//        field = setUpAsWanted(15);
+//        field = setUpEnemyAsWanted(field,16, 17);
+//        printArrayAsField(field.getMarbles());
+//        Assert.assertNull(field.checkMove(new int[]{15}, Directions.RIGHT));
+//    }
 
     @Test
     public void moveIntoOneEnemyWithTwo(){
@@ -285,13 +285,13 @@ public class testCheckMove {
         Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
     }
 
-    @Test
-    public void moveIntoTwoEnemyWithTwo(){
-        field = setUpAsWanted(14,15);
-        field = setUpEnemyAsWanted(field,16, 17);
-        printArrayAsField(field.getMarbles());
-        Assert.assertNull(field.checkMove(new int[]{14, 15}, Directions.RIGHT));
-    }
+//    @Test
+//    public void moveIntoTwoEnemyWithTwo(){
+//        field = setUpAsWanted(14,15);
+//        field = setUpEnemyAsWanted(field,16, 17);
+//        printArrayAsField(field.getMarbles());
+//        Assert.assertNull(field.checkMove(new int[]{14, 15}, Directions.RIGHT));
+//    }
 
     @Test
     public void moveIntoOneEnemyWithThree(){
