@@ -97,6 +97,15 @@ public class testCheckMove {
         return test;
     }
 
+    public Field setUpEnemyAsWanted(Field test, int one, int two ,int three, int four){
+        for (HexCoordinate hex : test.iterateOverHexagons()) {
+            if (test.getHexagon(hex).getId() == one || test.getHexagon(hex).getId() == two || test.getHexagon(hex).getId() == three || test.getHexagon(hex).getId() == four) {
+                test.getHexagon(hex).setMarble(new Marble(Team.BLACK));
+            }
+        }
+        return test;
+    }
+
     public Field cleanDefaultField(Field test){
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if(test.getHexagon(hex).getMarble() != null){
@@ -274,6 +283,54 @@ public class testCheckMove {
         int[] result = field.checkMove(new int[]{14, 15}, Directions.RIGHT);
         Assert.assertArrayEquals(new int[]{16}, result);
         Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
+    }
+
+    @Test
+    public void moveIntoTwoEnemyWithTwo(){
+        field = setUpAsWanted(14,15);
+        field = setUpEnemyAsWanted(field,16, 17);
+        printArrayAsField(field.getMarbles());
+        Assert.assertNull(field.checkMove(new int[]{14, 15}, Directions.RIGHT));
+    }
+
+    @Test
+    public void moveIntoOneEnemyWithThree(){
+        Field wanted = setUpAsWanted(15,16, 17);
+        wanted = setUpEnemyAsWanted(wanted, 18);
+        field = setUpAsWanted(14,15, 16);
+        field = setUpEnemyAsWanted(field,17);
+        printArrayAsField(field.getMarbles());
+        int[] result = field.checkMove(new int[]{14, 15, 16}, Directions.RIGHT);
+        Assert.assertArrayEquals(new int[]{17}, result);
+        Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
+    }
+
+    @Test
+    public void moveIntoTwoEnemyWithThree(){
+        Field wanted = setUpAsWanted(14, 15,16 );
+        wanted = setUpEnemyAsWanted(wanted, 17, 18);
+        field = setUpAsWanted(13,14,15 );
+        field = setUpEnemyAsWanted(field,16, 17);
+        printArrayAsField(field.getMarbles());
+        int[] result = field.checkMove(new int[]{13 ,14, 15}, Directions.RIGHT);
+        Assert.assertArrayEquals(new int[]{16, 17}, result);
+        Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
+    }
+
+    @Test
+    public void moveIntoThreeEnemyWithThree(){
+        field = setUpAsWanted(13, 14,15);
+        field = setUpEnemyAsWanted(field,16, 17, 18);
+        printArrayAsField(field.getMarbles());
+        Assert.assertNull(field.checkMove(new int[]{13, 14, 15}, Directions.RIGHT));
+    }
+
+    @Test
+    public void moveIntoMoreEnemyWithThree(){
+        field = setUpAsWanted(1, 7,14);
+        field = setUpEnemyAsWanted(field,22, 31, 40, 48);
+        printArrayAsField(field.getMarbles());
+        Assert.assertNull(field.checkMove(new int[]{1, 7, 14}, Directions.RIGHTDOWN));
     }
 
 
