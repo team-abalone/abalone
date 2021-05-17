@@ -2,6 +2,8 @@ package com.teamabalone.abalone.Gamelogic;
 
 import com.badlogic.gdx.Gdx;
 
+import org.omg.CORBA.MARSHAL;
+
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -24,6 +26,21 @@ public class Field implements Iterable<Hexagon> {
         System.out.println(iterateOverHexagons());
     }
 
+    public List<Team> getMarbles(){
+        List<Team> result = new ArrayList<Team>();
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            if(getHexagon(hex).getMarble() == null){
+                result.add(null);
+            } else {
+                result.add(getHexagon(hex).getMarble().getTeam());
+            }
+        }
+        return result;
+    }
+
+    public void setGotPushedOut(){
+        gotPushedOut = false;
+    }
     //loads default marble positions into the hashmap for the game start
     public void fieldSetUp() {
         for (HexCoordinate hex : iterateOverHexagons()) {
@@ -78,7 +95,7 @@ public class Field implements Iterable<Hexagon> {
             HexCoordinate neighbour = calcNeighbour(selectedItems.get(i), direction);
             if (getHexagon(neighbour) == null) {
                 //in this case the neighbour field is not within the map and because we can't kill ourselves it's not legit
-                Gdx.app.log("Logic", "Method checkMove said out of bounds.");
+                //Gdx.app.log("Logic", "Method checkMove said out of bounds.");
                 return null;
             }
             if (getHexagon(neighbour).getMarble() == null) {
@@ -88,19 +105,19 @@ public class Field implements Iterable<Hexagon> {
             } else if (getHexagon(neighbour).getMarble() != playersTeam) {
                 //this case will call isPushable because there is a enemy marble in our way which we can possibly push away
                 result = isPushable(selectedItems, direction);
-                if (result.length == 0) {   //|| result == null
+                if (result.length == 0 || result == null) {   //|| result == null
                     return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
                 } else {
                     //will push enemy marbles here
                     move(result, direction); //enemy
-                    Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
+                    //Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
                 }
             } else {
-                Gdx.app.log("Logic", "Method checkMove said ally marble is blocking the way");
+                //Gdx.app.log("Logic", "Method checkMove said ally marble is blocking the way");
                 return null;  //this case will block the move because there is an allied non selected marble
             }
         }
-        Gdx.app.log("Logic", "Method checkMove said the move can be done");
+        //Gdx.app.log("Logic", "Method checkMove said the move can be done");
         move(ids, direction);            //ally
         return result;
     }
@@ -136,7 +153,7 @@ public class Field implements Iterable<Hexagon> {
         //move moving temp into target field
         for (HexCoordinate hex : selectedItems) {
             HexCoordinate target = calcNeighbour(hex, direction);        //calc target field
-            if (target == null) {
+            if (getHexagon(target) == null) {
                 gotPushedOut = true;
                 continue;                                    //target field is null -> it's out of bound so we skip this iteration
             }
@@ -144,6 +161,9 @@ public class Field implements Iterable<Hexagon> {
             getHexagon(hex).setMarble(tempTarget);
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
+            if(gotPushedOut){
+                getHexagon(hex).setMarble(null);
+            }
         }
     }
 
