@@ -205,7 +205,7 @@ public class Board {
      * @param direction direction to move in
      */
     public void move(Sprite sprite, Directions direction) {
-        if (sprite == null || direction == Directions.NOTSET) {
+        if (sprite == null || direction == null || direction == Directions.NOTSET) {
             throw new IllegalArgumentException("no sprite and/or direction passed");
         }
 
