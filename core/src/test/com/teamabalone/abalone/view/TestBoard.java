@@ -15,7 +15,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class testBoard {
+public class TestBoard {
 
     private static final int MAP_SIZE = 5;
     private Board board;
@@ -169,7 +169,7 @@ public class testBoard {
     }
 
     @Test
-    public void getCenterOfNUll() {
+    public void testGetCenterOfNUll() {
         Assert.assertThrows(IllegalArgumentException.class, () -> board.getCenter(null));
     }
 

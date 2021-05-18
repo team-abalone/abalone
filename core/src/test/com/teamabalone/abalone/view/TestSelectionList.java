@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testSelectionList {
+public class TestSelectionList {
     private SelectionList<Integer> list;
     private final int maximum = 2;
     private final int overflow = 2;
