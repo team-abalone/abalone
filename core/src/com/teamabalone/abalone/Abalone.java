@@ -17,10 +17,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -29,7 +27,6 @@ import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
-import com.teamabalone.abalone.Gamelogic.Team;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
@@ -37,7 +34,6 @@ import com.teamabalone.abalone.View.MarbleSet;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -309,7 +305,7 @@ public class Abalone implements Screen {
             moveSelectedMarbles(selectedEnemySprites);
             playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
 
-            unselectList();
+            unselectCompleteList();
 
             if (field.isPushedOutOfBound()) {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
@@ -352,15 +348,28 @@ public class Abalone implements Screen {
             if (field.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
-                    int spriteIndex = selectedSprites.indexOf(potentialSprite);
-                    if (spriteIndex != 0 && spriteIndex != selectedSprites.size() - 1) {
-                        unselectList();
+                    int tileIndexPotentialSprite = board.getTileId(potentialSprite);
+                    boolean isMax = true;
+                    boolean isMin = true;
+                    for (int i = 0; i < selectedSprites.size(); i++) {
+                        Sprite currentSprite = selectedSprites.get(i);
+                        if (board.getTileId(currentSprite) > tileIndexPotentialSprite) {
+                            isMax = false;
+                        }
+                        if (board.getTileId(currentSprite) < tileIndexPotentialSprite) {
+                            isMin = false;
+                        }
                     }
-                    unselect(potentialSprite);
+
+                    if (isMax || isMin) { //first or last marble
+                        unselect(potentialSprite);
+                    } else {
+                        unselectCompleteList();
+                    }
                 }
             }
         } else {
-            unselectList();
+            unselectCompleteList();
         }
     }
 
@@ -377,7 +386,7 @@ public class Abalone implements Screen {
         sprite.setColor(Color.WHITE);
     }
 
-    private void unselectList() {
+    private void unselectCompleteList() {
         for (int i = 0; i < selectedSprites.size(); i++) {
             Sprite s = selectedSprites.get(i);
             if (s != null) {
