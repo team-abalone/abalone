@@ -1,9 +1,5 @@
 package com.teamabalone.abalone.Gamelogic;
 
-import com.badlogic.gdx.Gdx;
-
-import org.omg.CORBA.MARSHAL;
-
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -78,7 +74,7 @@ public class Field implements Iterable<Hexagon> {
     public int[] checkMove(int[] ids, Directions direction) {  //return.length == 0 == false
         //TODO
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
-        Marble playersTeam;
+        Team playersTeam;
         gotPushedOut = false;
         int[] result = new int[0];
         //get the hexCoordinates so it's easier to navigate
@@ -90,7 +86,7 @@ public class Field implements Iterable<Hexagon> {
             }
         }
         //check if the targeted fields are valid
-        playersTeam = getHexagon(selectedItems.get(0)).getMarble();
+        playersTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
         for (int i = 0; i < ids.length; i++) {
             HexCoordinate neighbour = calcNeighbour(selectedItems.get(i), direction);
             if (getHexagon(neighbour) == null) {
@@ -102,10 +98,10 @@ public class Field implements Iterable<Hexagon> {
                 //this case is ok so we look further
             } else if (selectedItems.contains(neighbour)) {
                 //this case is also ok because the blocking marble is in our selection and will be moved too
-            } else if (getHexagon(neighbour).getMarble() != playersTeam) {
+            } else if (getHexagon(neighbour).getMarble().getTeam() != playersTeam) {
                 //this case will call isPushable because there is a enemy marble in our way which we can possibly push away
                 result = isPushable(selectedItems, direction);
-                if (result.length == 0 || result == null) {   //|| result == null
+                if (result == null) {   //|| result == null
                     return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
                 } else {
                     //will push enemy marbles here
@@ -121,19 +117,9 @@ public class Field implements Iterable<Hexagon> {
         move(ids, direction);            //ally
         return result;
     }
-
-	/*public int[] fuseIDS(int[] first, int[] second){
-		int[] result = new int[first.length + second.length];
-		for (int i = 0; i < first.length; i++) {
-			result[i] = first[i];
-		}
-		for (int i = 0; i < second.length; i++) {
-			result[i + first.length] = first[i];
-		}
-		return result;
-	}*/
-
+    
     public void move(int[] marbleID, Directions direction) {
+        boolean localPushedOut = false;
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         //get the hexCoordinates so it's easier to navigate
         for (int i = 0; i < marbleID.length; i++) {                    //sorts the selection
@@ -155,68 +141,58 @@ public class Field implements Iterable<Hexagon> {
             HexCoordinate target = calcNeighbour(hex, direction);        //calc target field
             if (getHexagon(target) == null) {
                 gotPushedOut = true;
+                localPushedOut = true;
+                if (marbleID.length == 1){                          //in this case only one marble is pushed out and we just delete it
+                    getHexagon(hex).setMarble(null);
+                }
                 continue;                                    //target field is null -> it's out of bound so we skip this iteration
             }
             tempMoving = getHexagon(hex).getMarble();
             getHexagon(hex).setMarble(tempTarget);
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
-            if(gotPushedOut){
+            if(localPushedOut){                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
         }
     }
 
-    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction) {
-        //takes direction and selected items, looks for otherTeamMarbles in the direction
-        int marbleCounter = 0;
-        HexCoordinate temp;
-        Team playersTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
-
-        int[] buffer = new int[3];
-        boolean holdsMarble = true;
-
-        for (int i = 0; i < radius * 2 && holdsMarble && marbleCounter <= 3; i++) {
-            temp = getTemp(selectedItems, direction, i);
-            if (getHexagon(temp) == null || getHexagon(temp).getMarble() == null) {
-                holdsMarble = false;
-            } else if (getHexagon(temp).getMarble().getTeam() != playersTeam) {
-                if (marbleCounter < 3) {
-                    buffer[marbleCounter] = getHexagon(temp).getId();
+    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction){
+        if(selectedItems.size() <= 1){
+            return null;
+        }
+        Team currentTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
+        for (HexCoordinate hex : selectedItems) {
+            HexCoordinate target = calcNeighbour(hex, direction);
+            if(getHexagon(target).getMarble() == null || selectedItems.contains(target)){
+                //in this case the target field is empty. we dond't need to check for ally marbles since the checkMove already does this
+            } else{     //this case will have a enemy marble
+                HexCoordinate behindAlly = calcNeighbour(hex, mirrorDirection(direction));
+                if(!selectedItems.contains(behindAlly) ){       //in this case we push normal to the marble line and therefore can't push anything
+                    return null;
                 }
-                marbleCounter++;
+                int enemyRow = 1;                               //here we can actually check if we can legit move the marble
+                int[] enemyMarbles = new int[3];
+                while(enemyRow < selectedItems.size()){
+                    HexCoordinate behindTarget = calcNeighbour(target, direction);
+                    if(getHexagon(behindTarget) == null || getHexagon(behindTarget).getMarble() == null){               //marble have space behind it is free and can be pushed
+                        enemyMarbles[enemyRow-1] = getHexagon(target).getId();
+                        int[] result = new int[enemyRow];
+                        for (int i = 0; i < result.length; i++) {                           //need to make a new array because i don't know how long it will be at the beginning
+                            result[i] = enemyMarbles[i];
+                        }
+                        return result;
+                    } else if (getHexagon(behindTarget).getMarble().getTeam() == currentTeam){      //ally marble blocks the push
+                        return null;
+                    } else{
+                        enemyMarbles[enemyRow-1] = getHexagon(target).getId();      //enemy marble has another enemy marble behind it so we look again for that one
+                        enemyRow++;
+                        target = behindTarget;
+                    }
+                }
             }
         }
-        if (marbleCounter >= 3) {
-            return new int[]{};
-        }
-
-        int[] result = new int[marbleCounter];
-        for (int i = 0, k = 0; i < buffer.length; i++) { //don't return zeros
-            if (buffer[i] != 0) {
-                result[k++] = buffer[i];
-            }
-        }
-        return result;
-    }
-
-    public HexCoordinate getTemp(ArrayList<HexCoordinate> selectedItems, Directions direction, int i) {
-        switch (direction) {
-            case LEFT:
-                return new HexCoordinate(selectedItems.get(0).getX() - i, selectedItems.get(0).getY() + i, selectedItems.get(0).getZ());
-            case RIGHT:
-                return new HexCoordinate(selectedItems.get(0).getX() + i, selectedItems.get(0).getY() - i, selectedItems.get(0).getZ());
-            case LEFTUP:
-                return new HexCoordinate(selectedItems.get(0).getX(), selectedItems.get(0).getY() + i, selectedItems.get(0).getZ() - i);
-            case RIGHTUP:
-                return new HexCoordinate(selectedItems.get(0).getX() + i, selectedItems.get(0).getY(), selectedItems.get(0).getZ() - i);
-            case LEFTDOWN:
-                return new HexCoordinate(selectedItems.get(0).getX() - i, selectedItems.get(0).getY(), selectedItems.get(0).getZ() + i);
-            case RIGHTDOWN:
-                return new HexCoordinate(selectedItems.get(0).getX(), selectedItems.get(0).getY() - i, selectedItems.get(0).getZ() + i);
-            default:
-                throw new IllegalStateException("Unexpected Direction: " + direction);
-        }
+        return null;            //case will be reached when you have 3 iterations in the while loop which leads to 3+ enemy marbles which can never be pushed
     }
 
     public boolean isPushedOutOfBound() {
@@ -323,5 +299,32 @@ public class Field implements Iterable<Hexagon> {
                 throw new IllegalStateException("Unexpected value: " + direction);
         }
         return neighbour;
+    }
+
+    public Directions mirrorDirection(Directions direction){
+        Directions mirror;
+        switch (direction) {
+            case LEFT:
+                mirror = Directions.RIGHT;
+                break;
+            case RIGHT:
+                mirror = Directions.LEFT;
+                break;
+            case LEFTUP:
+                mirror = Directions.RIGHTDOWN;
+                break;
+            case RIGHTUP:
+                mirror = Directions.LEFTDOWN;
+                break;
+            case LEFTDOWN:
+                mirror = Directions.RIGHTUP;
+                break;
+            case RIGHTDOWN:
+                mirror = Directions.LEFTUP;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + direction);
+        }
+        return mirror;
     }
 }

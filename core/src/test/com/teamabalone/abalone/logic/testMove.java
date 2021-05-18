@@ -67,6 +67,18 @@ public class testMove {
         return test;
     }
 
+    public Field setUpAsWanted(int one){
+        Field test = new Field(5);
+        test = cleanDefaultField(test);
+        for (HexCoordinate hex : test.iterateOverHexagons()) {
+            if (test.getHexagon(hex).getId() == one) {
+                test.getHexagon(hex).setMarble(new Marble(Team.WHITE));
+            }
+        }
+        return test;
+    }
+
+
     public Field cleanDefaultField(Field test){
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if(test.getHexagon(hex).getMarble() != null){
@@ -85,6 +97,30 @@ public class testMove {
         printArrayAsField(field.getMarbles());
         Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
     }
+
+    @Test
+    public void moveOneOut(){
+        Field wanted = setUpAsWanted( 17, 18);
+        wanted = cleanDefaultField(wanted);
+        Field field = setUpAsWanted(18);
+        field.move(new int[]{18}, Directions.RIGHT);
+        printArrayAsField(wanted.getMarbles());
+        printArrayAsField(field.getMarbles());
+        Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
+        Assert.assertTrue(field.isPushedOutOfBound());
+    }
+
+    @Test
+    public void moveTwoOut(){
+        Field wanted = setUpAsWanted(18);
+        Field field = setUpAsWanted(17, 18);
+        field.move(new int[]{17, 18}, Directions.RIGHT);
+        printArrayAsField(wanted.getMarbles());
+        printArrayAsField(field.getMarbles());
+        Assert.assertEquals(wanted.getMarbles(), field.getMarbles());
+        Assert.assertTrue(field.isPushedOutOfBound());
+    }
+
 
     @Test
     public void moveLineOut(){

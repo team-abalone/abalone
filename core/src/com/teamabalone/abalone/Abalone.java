@@ -29,6 +29,7 @@ import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
+import com.teamabalone.abalone.Gamelogic.Team;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
@@ -36,11 +37,13 @@ import com.teamabalone.abalone.View.MarbleSet;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Abalone implements Screen {
     private final int MAX_TEAMS = 6;
+    private final int MAX_SELECT = 3;
     private final int SWIPE_SENSITIVITY = 40;
     private final int NUMBER_PLAYERS = 2;
     private final int MAP_SIZE = 5; //TODO make only setting valid value possible?
@@ -71,7 +74,7 @@ public class Abalone implements Screen {
     private Stage stage;
     private TextButton next;
 
-    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+    SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
 
     boolean justTouched = false; //makes one touch only one operation (-> select)
     float firstTouchX;
@@ -294,26 +297,25 @@ public class Abalone implements Screen {
         if (validMove) {
             boolean marblesToPush = enemyMarbles.length > 0;
 
+            SelectionList<Sprite> selectedEnemySprites = new SelectionList<>(MAX_SELECT);
             if (marblesToPush) {
                 for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
                     Vector2 field = board.get(enemyMarble);
-                    selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                    selectedEnemySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                 }
             }
 
-            Sprite capturedMarble = null;
+            moveSelectedMarbles(selectedSprites); //move
+            moveSelectedMarbles(selectedEnemySprites);
+            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
+
+            unselectList();
+
             if (field.isPushedOutOfBound()) {
-                capturedMarble = lastDirection == Directions.LEFTDOWN ||
-                        lastDirection == Directions.RIGHTDOWN ||
-                        lastDirection == Directions.RIGHT
-                        ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length)
-                        : selectedSprites.get(selectedSprites.size());
+                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
+                GameSet.getInstance().removeMarble(capturedMarble);
             }
 
-            moveSelectedMarbles(); //move
-            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
-            unselectList();
-            GameSet.getInstance().removeMarble(capturedMarble);
             lastDirection = Directions.NOTSET;
             nextPlayer();
         }
@@ -398,9 +400,9 @@ public class Abalone implements Screen {
         }
     }
 
-    private void moveSelectedMarbles() {
-        for (int i = 0; i < selectedSprites.size(); i++) {
-            board.move(selectedSprites.get(i), lastDirection);
+    private void moveSelectedMarbles(SelectionList<Sprite> list) {
+        for (int i = 0; i < list.size(); i++) {
+            board.move(list.get(i), lastDirection);
         }
     }
 
@@ -484,7 +486,6 @@ public class Abalone implements Screen {
                 t.cancel();
             }
         }, 1000);//time in milliseconds
-
     }
 
     @Override

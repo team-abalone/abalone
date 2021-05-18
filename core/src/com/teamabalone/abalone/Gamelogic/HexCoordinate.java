@@ -41,7 +41,7 @@ public class HexCoordinate {
 	}
 
 	public static boolean isInLine(HexCoordinate a, HexCoordinate b, HexCoordinate c){
-		if(isNeighbour(a,b) && isNeighbour(b,c)){
+		if(isNeighbour(a,b) && isNeighbour(b,c) || isNeighbour(a,c) && isNeighbour(a,b)){
 			return a.x == b.x && b.x == c.x || a.y == b.y && b.y == c.y || a.z == b.z && b.z == c.z;
 		}
 		return false;
