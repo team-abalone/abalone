@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 
@@ -71,6 +72,7 @@ public class Abalone implements Screen {
     private TextButton next;
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
+    ArrayList<ArrayList<Sprite>> deletedSpritesLists = new ArrayList<>();
 
     boolean justTouched = false; //makes one touch only one operation (-> select)
     float firstTouchX;
@@ -156,14 +158,9 @@ public class Abalone implements Screen {
 
         for (int i = 0; i < positionArrays.size(); i++) {
             GameSet.getInstance().register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
         }
 
-    }
-
-    private Vector2 toMapCoordinates(float x, float y) { //TODO needed?
-        Vector3 v = new Vector3(x, y, 0f);
-        viewport.unproject(v);
-        return new Vector2(Math.round(v.x), Math.round(v.y));
     }
 
     @Override
@@ -187,6 +184,13 @@ public class Abalone implements Screen {
             for (int i = 0; i < m.size(); i++) {
                 m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
+            }
+        }
+
+        for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
+            for (Sprite sprite : arrayList) {
+                sprite.setScale(0.5f);
+                sprite.draw(batch);
             }
         }
 
@@ -310,6 +314,14 @@ public class Abalone implements Screen {
             if (field.isPushedOutOfBound()) {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
                 GameSet.getInstance().removeMarble(capturedMarble);
+
+                ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
+                deletionList.add(capturedMarble);
+                if (currentPlayer == 1) {
+                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size()-1)));
+                } else {
+                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size()-1)));
+                }
             }
 
             lastDirection = Directions.NOTSET;
@@ -494,7 +506,7 @@ public class Abalone implements Screen {
                 next.setText(currentPlayer == 0 ? "White" : "Black"); //thread? is currentPlayer changed in the meantime?
                 t.cancel();
             }
-        }, 1000);//time in milliseconds
+        }, 500);//time in milliseconds
     }
 
     @Override
