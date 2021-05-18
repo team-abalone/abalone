@@ -311,6 +311,7 @@ public class Abalone implements Screen {
             }
 
             moveSelectedMarbles(); //move
+            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
             unselectList();
             GameSet.getInstance().removeMarble(capturedMarble);
             lastDirection = Directions.NOTSET;
@@ -414,15 +415,15 @@ public class Abalone implements Screen {
     }
 
     public void button() {
-        next = FactoryHelper.CreateButtonWithText("Next Player");
-        next.addListener(new ClickListener() {
-            @Override
-            public void clicked(final InputEvent event, float x, float y) {
-                Gdx.app.log("ClickListener", next.toString() + " clicked");
-                playerTransition("Opponent");
-                simulatingOpponent();
-            }
-        });
+        next = FactoryHelper.CreateButtonWithText(currentPlayer == 0 ? "White" : "Black");
+//        next.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(final InputEvent event, float x, float y) {
+//                Gdx.app.log("ClickListener", next.toString() + " clicked");
+//                playerTransition("Opponent");
+//                simulatingOpponent();
+//            }
+//        });
 
         stage.addActor(next);
         Actor button = stage.getActors().get(0);
@@ -438,39 +439,39 @@ public class Abalone implements Screen {
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
-    public void simulatingOpponent() {
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            public void run() {
-                Sprite potentialSprite = null;
-                while (potentialSprite == null) {
-                    int randX = 68; //new Random().nextInt((int) screenWidth);
-                    int randY = 68; //new Random().nextInt((int) screenHeight);
-                    Vector3 v = new Vector3(randX, randY, 0f);
-                    viewport.unproject(v);
-                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-                }
-                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
-                selectedSprites.select(potentialSprite);
-                int dir = 1;    //new Random().nextInt(2);
-                switch (dir) {
-                    case 0:
-                        lastDirection = Directions.LEFTDOWN;
-                        break;
-                    case 1:
-                        lastDirection = Directions.RIGHTDOWN;
-                }
-                moveSelectedMarbles();
-                unselectList();
-                lastDirection = Directions.NOTSET;
-
-                wasTouched = false;
-                yourTurn = true;
-                t.cancel();
-                playerTransition("Your");
-            }
-        }, 5000);//time in milliseconds
-    }
+//    public void simulatingOpponent() {
+//        final Timer t = new Timer();
+//        t.schedule(new TimerTask() {
+//            public void run() {
+//                Sprite potentialSprite = null;
+//                while (potentialSprite == null) {
+//                    int randX = 68; //new Random().nextInt((int) screenWidth);
+//                    int randY = 68; //new Random().nextInt((int) screenHeight);
+//                    Vector3 v = new Vector3(randX, randY, 0f);
+//                    viewport.unproject(v);
+//                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+//                }
+//                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
+//                selectedSprites.select(potentialSprite);
+//                int dir = 1;    //new Random().nextInt(2);
+//                switch (dir) {
+//                    case 0:
+//                        lastDirection = Directions.LEFTDOWN;
+//                        break;
+//                    case 1:
+//                        lastDirection = Directions.RIGHTDOWN;
+//                }
+//                moveSelectedMarbles();
+//                unselectList();
+//                lastDirection = Directions.NOTSET;
+//
+//                wasTouched = false;
+//                yourTurn = true;
+//                t.cancel();
+//                playerTransition(currentPlayer == 0 ? "White's" : "Black's");
+//            }
+//        }, 5000);//time in milliseconds
+//    }
 
     public void playerTransition(String sayWhichPlayerTransTo) {
         nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
@@ -479,9 +480,11 @@ public class Abalone implements Screen {
         t.schedule(new TimerTask() {
             public void run() {
                 nextPlayerCard.hide();
+                next.setText(currentPlayer == 0 ? "White" : "Black"); //thread? is currentPlayer changed in the meantime?
                 t.cancel();
             }
         }, 1000);//time in milliseconds
+
     }
 
     @Override
