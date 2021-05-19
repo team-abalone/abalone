@@ -20,7 +20,6 @@ public class TurnAnnouncerTwo extends Dialog {
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);
-
     }
 }
 

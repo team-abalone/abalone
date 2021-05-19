@@ -17,12 +17,11 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 
@@ -41,6 +40,7 @@ import java.util.TimerTask;
 
 public class Abalone implements Screen {
     private final int MAX_TEAMS = 6;
+    private final int MAX_SELECT = 3;
     private final int SWIPE_SENSITIVITY = 40;
     private final int NUMBER_PLAYERS = 2;
     private final int MAP_SIZE = 5; //TODO make only setting valid value possible?
@@ -71,7 +71,8 @@ public class Abalone implements Screen {
     private Stage stage;
     private TextButton next;
 
-    SelectionList<Sprite> selectedSprites = new SelectionList<>(3);
+    SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
+    ArrayList<ArrayList<Sprite>> deletedSpritesLists = new ArrayList<>();
 
     boolean justTouched = false; //makes one touch only one operation (-> select)
     float firstTouchX;
@@ -157,14 +158,9 @@ public class Abalone implements Screen {
 
         for (int i = 0; i < positionArrays.size(); i++) {
             GameSet.getInstance().register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
         }
 
-    }
-
-    private Vector2 toMapCoordinates(float x, float y) { //TODO needed?
-        Vector3 v = new Vector3(x, y, 0f);
-        viewport.unproject(v);
-        return new Vector2(Math.round(v.x), Math.round(v.y));
     }
 
     @Override
@@ -188,6 +184,13 @@ public class Abalone implements Screen {
             for (int i = 0; i < m.size(); i++) {
                 m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
                 m.getMarble(i).draw(batch);
+            }
+        }
+
+        for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
+            for (Sprite sprite : arrayList) {
+                sprite.setScale(0.5f);
+                sprite.draw(batch);
             }
         }
 
@@ -294,25 +297,33 @@ public class Abalone implements Screen {
         if (validMove) {
             boolean marblesToPush = enemyMarbles.length > 0;
 
+            SelectionList<Sprite> selectedEnemySprites = new SelectionList<>(MAX_SELECT);
             if (marblesToPush) {
                 for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
                     Vector2 field = board.get(enemyMarble);
-                    selectedSprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                    selectedEnemySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                 }
             }
 
-            Sprite capturedMarble = null;
+            moveSelectedMarbles(selectedSprites); //move
+            moveSelectedMarbles(selectedEnemySprites);
+            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
+
+            unselectCompleteList();
+
             if (field.isPushedOutOfBound()) {
-                capturedMarble = lastDirection == Directions.LEFTDOWN ||
-                        lastDirection == Directions.RIGHTDOWN ||
-                        lastDirection == Directions.RIGHT
-                        ? selectedSprites.get(selectedSprites.size() - enemyMarbles.length)
-                        : selectedSprites.get(selectedSprites.size());
+                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
+                GameSet.getInstance().removeMarble(capturedMarble);
+
+                ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
+                deletionList.add(capturedMarble);
+                if (currentPlayer == 1) {
+                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size()-1)));
+                } else {
+                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size()-1)));
+                }
             }
 
-            moveSelectedMarbles(); //move
-            unselectList();
-            GameSet.getInstance().removeMarble(capturedMarble);
             lastDirection = Directions.NOTSET;
             nextPlayer();
         }
@@ -349,15 +360,28 @@ public class Abalone implements Screen {
             if (field.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
-                    int spriteIndex = selectedSprites.indexOf(potentialSprite);
-                    if (spriteIndex != 0 && spriteIndex != selectedSprites.size() - 1) {
-                        unselectList();
+                    int tileIndexPotentialSprite = board.getTileId(potentialSprite);
+                    boolean isMax = true;
+                    boolean isMin = true;
+                    for (int i = 0; i < selectedSprites.size(); i++) {
+                        Sprite currentSprite = selectedSprites.get(i);
+                        if (board.getTileId(currentSprite) > tileIndexPotentialSprite) {
+                            isMax = false;
+                        }
+                        if (board.getTileId(currentSprite) < tileIndexPotentialSprite) {
+                            isMin = false;
+                        }
                     }
-                    unselect(potentialSprite);
+
+                    if (isMax || isMin) { //first or last marble
+                        unselect(potentialSprite);
+                    } else {
+                        unselectCompleteList();
+                    }
                 }
             }
         } else {
-            unselectList();
+            unselectCompleteList();
         }
     }
 
@@ -374,7 +398,7 @@ public class Abalone implements Screen {
         sprite.setColor(Color.WHITE);
     }
 
-    private void unselectList() {
+    private void unselectCompleteList() {
         for (int i = 0; i < selectedSprites.size(); i++) {
             Sprite s = selectedSprites.get(i);
             if (s != null) {
@@ -397,9 +421,9 @@ public class Abalone implements Screen {
         }
     }
 
-    private void moveSelectedMarbles() {
-        for (int i = 0; i < selectedSprites.size(); i++) {
-            board.move(selectedSprites.get(i), lastDirection);
+    private void moveSelectedMarbles(SelectionList<Sprite> list) {
+        for (int i = 0; i < list.size(); i++) {
+            board.move(list.get(i), lastDirection);
         }
     }
 
@@ -414,15 +438,15 @@ public class Abalone implements Screen {
     }
 
     public void button() {
-        next = FactoryHelper.CreateButtonWithText("Next Player");
-        next.addListener(new ClickListener() {
-            @Override
-            public void clicked(final InputEvent event, float x, float y) {
-                Gdx.app.log("ClickListener", next.toString() + " clicked");
-                playerTransition("Opponent");
-                simulatingOpponent();
-            }
-        });
+        next = FactoryHelper.CreateButtonWithText(currentPlayer == 0 ? "White" : "Black");
+//        next.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(final InputEvent event, float x, float y) {
+//                Gdx.app.log("ClickListener", next.toString() + " clicked");
+//                playerTransition("Opponent");
+//                simulatingOpponent();
+//            }
+//        });
 
         stage.addActor(next);
         Actor button = stage.getActors().get(0);
@@ -438,39 +462,39 @@ public class Abalone implements Screen {
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
-    public void simulatingOpponent() {
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            public void run() {
-                Sprite potentialSprite = null;
-                while (potentialSprite == null) {
-                    int randX = 68; //new Random().nextInt((int) screenWidth);
-                    int randY = 68; //new Random().nextInt((int) screenHeight);
-                    Vector3 v = new Vector3(randX, randY, 0f);
-                    viewport.unproject(v);
-                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-                }
-                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
-                selectedSprites.select(potentialSprite);
-                int dir = 1;    //new Random().nextInt(2);
-                switch (dir) {
-                    case 0:
-                        lastDirection = Directions.LEFTDOWN;
-                        break;
-                    case 1:
-                        lastDirection = Directions.RIGHTDOWN;
-                }
-                moveSelectedMarbles();
-                unselectList();
-                lastDirection = Directions.NOTSET;
-
-                wasTouched = false;
-                yourTurn = true;
-                t.cancel();
-                playerTransition("Your");
-            }
-        }, 5000);//time in milliseconds
-    }
+//    public void simulatingOpponent() {
+//        final Timer t = new Timer();
+//        t.schedule(new TimerTask() {
+//            public void run() {
+//                Sprite potentialSprite = null;
+//                while (potentialSprite == null) {
+//                    int randX = 68; //new Random().nextInt((int) screenWidth);
+//                    int randY = 68; //new Random().nextInt((int) screenHeight);
+//                    Vector3 v = new Vector3(randX, randY, 0f);
+//                    viewport.unproject(v);
+//                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
+//                }
+//                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
+//                selectedSprites.select(potentialSprite);
+//                int dir = 1;    //new Random().nextInt(2);
+//                switch (dir) {
+//                    case 0:
+//                        lastDirection = Directions.LEFTDOWN;
+//                        break;
+//                    case 1:
+//                        lastDirection = Directions.RIGHTDOWN;
+//                }
+//                moveSelectedMarbles();
+//                unselectList();
+//                lastDirection = Directions.NOTSET;
+//
+//                wasTouched = false;
+//                yourTurn = true;
+//                t.cancel();
+//                playerTransition(currentPlayer == 0 ? "White's" : "Black's");
+//            }
+//        }, 5000);//time in milliseconds
+//    }
 
     public void playerTransition(String sayWhichPlayerTransTo) {
         nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
@@ -479,9 +503,10 @@ public class Abalone implements Screen {
         t.schedule(new TimerTask() {
             public void run() {
                 nextPlayerCard.hide();
+                next.setText(currentPlayer == 0 ? "White" : "Black"); //thread? is currentPlayer changed in the meantime?
                 t.cancel();
             }
-        }, 1000);//time in milliseconds
+        }, 500);//time in milliseconds
     }
 
     @Override
