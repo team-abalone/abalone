@@ -3,13 +3,14 @@ package com.teamabalone.abalone.view;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.teamabalone.abalone.View.MarbleSet;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class TestMarbleSet {
     ArrayList<Sprite> list = new ArrayList<>();
@@ -32,22 +33,22 @@ public class TestMarbleSet {
 
     @Test
     public void testConstructorNullArgument() {
-        Assert.assertThrows(IllegalArgumentException.class, () -> new MarbleSet(null));
+        assertThrows(IllegalArgumentException.class, () -> new MarbleSet(null));
     }
 
     @Test
     public void testGetMarble() {
-        Assert.assertEquals(sprite1, marbleSet.getMarble(0));
+        assertEquals(sprite1, marbleSet.getMarble(0));
     }
 
     @Test
     public void testGetMarbleOutOfRange() {
-        Assert.assertThrows(IllegalArgumentException.class,()-> marbleSet.getMarble(4));
+        assertThrows(IllegalArgumentException.class,()-> marbleSet.getMarble(4));
     }
 
     @Test
     public void testGetMarbleOutOfRangeNegative() {
-        Assert.assertThrows(IllegalArgumentException.class,()-> marbleSet.getMarble(-1));
+        assertThrows(IllegalArgumentException.class,()-> marbleSet.getMarble(-1));
     }
 
 }

@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.teamabalone.abalone.View.GameSet;
 import com.teamabalone.abalone.View.MarbleSet;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
