@@ -66,9 +66,9 @@ public class MenuScreen implements Screen {
                 // TODO: Open create room overlay.
                 Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
 
-                //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin(), Stage);
-                createRoomDialog.show(Stage);
+                Game.setScreen(new Abalone(Game));
+                //CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin(), Stage);
+                //createRoomDialog.show(Stage);
             }
 
             ;
