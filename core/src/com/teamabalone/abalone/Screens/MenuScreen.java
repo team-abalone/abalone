@@ -19,6 +19,7 @@ import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
+import com.teamabalone.abalone.Dialogs.WaitingForPlayersDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
@@ -61,33 +62,20 @@ public class MenuScreen implements Screen {
         CreateRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open create room overlay.
-                Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
-                //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin());
-                createRoomDialog.show(Stage);
-            }
-
-            ;
+                Game.setScreen(new Abalone(Game));
+                //CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin(), Stage);
+                //createRoomDialog.show(Stage);
+            };
         });
 
         JoinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
         JoinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open join game overlay.
-                // Test request for now.
-                try {
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    RequestSender ts = new RequestSender(SocketManager.newInstance().getSocket(), new CreateRoomRequest(UUID.randomUUID(), 2));
-                    Future future = executorService.submit(ts);
-                    executorService.shutdown();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
-            };
+            }
+
+            ;
         });
 
 

@@ -10,9 +10,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,10 +58,10 @@ public class ResponseHandlerService extends Service {
 
                         String responseString = in.readLine();
 
-                        Gson gson = new Gson();
-                        BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
+                        Gson gson = Helpers.GetGsonInstance();
 
                         if (ICoreResponseMessageHandler != null) {
+                            BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
                             ICoreResponseMessageHandler.HandleMessage(response);
                         }
                     } catch (IOException e) {

@@ -1,7 +1,5 @@
 package com.teamabalone.abalone.Dialogs;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -12,7 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+
+import java.util.UUID;
 
 public class WaitingForPlayersDialog extends Dialog {
 
@@ -53,5 +54,9 @@ public class WaitingForPlayersDialog extends Dialog {
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);
+    }
+
+    public void SendCreateRoomRequest() {
+        CreateRoomRequest createRoomRequest = new CreateRoomRequest(UUID.randomUUID(), 2);
     }
 }

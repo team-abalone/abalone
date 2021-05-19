@@ -13,15 +13,32 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.teamabalone.abalone.Client.IResponseHandlerObserver;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
+import com.teamabalone.abalone.Client.ResponseHandler;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
-public class CreateRoomDialog extends Dialog {
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver {
+    private final Stage Stage;
     private ImageButton exitButton;
+    private ResponseHandler ResponseHandler;
 
-
-    public CreateRoomDialog(String title, Skin skin) {
+    public CreateRoomDialog(String title, final Skin skin, Stage stage) {
         super(title, skin);
+        Stage = stage;
+
+        ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
+        ResponseHandler.addObserver(this);
 
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
@@ -40,6 +57,21 @@ public class CreateRoomDialog extends Dialog {
         });
 
         TextButton CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room", 100, 100);
+
+        CreateRoomButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                CreateRoomRequest createRoomRequest = new CreateRoomRequest(UUID.randomUUID(), 2);
+
+                try {
+                    RequestSender rs = new RequestSender(createRoomRequest);
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    Future future = executorService.submit(rs);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            };
+        });
 
         rootTable.add(header).left();
         rootTable.add(exitButton).right().top().expandX().height(100);
@@ -67,5 +99,13 @@ public class CreateRoomDialog extends Dialog {
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        remove();
+
+        WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), true);
+        waitingForPlayersDialog.show(Stage);
     }
 }

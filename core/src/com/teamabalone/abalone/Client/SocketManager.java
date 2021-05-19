@@ -28,7 +28,7 @@ public class SocketManager {
         OutputStream = Socket.getOutputStream();
     }
 
-    public static SocketManager newInstance() throws UnknownHostException, IOException {
+    public static SocketManager newInstance() throws IOException {
         if(SocketManager == null) {
             SocketManager = new SocketManager();
         }
