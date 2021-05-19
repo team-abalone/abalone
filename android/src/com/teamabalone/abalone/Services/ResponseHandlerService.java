@@ -10,9 +10,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Helpers.Helpers;
@@ -25,13 +23,13 @@ import java.net.Socket;
 import java.util.Random;
 
 public class ResponseHandlerService extends Service {
-    private ICoreResponseMessageHandler ICoreResponseMessageHandler;
+    private ICoreResponseMessageHandler CoreResponseMessageHandler;
     private Looper serviceLooper;
     private ServiceHandler serviceHandler;
     private Socket Socket;
 
     public void setICoreResponseMessageHandler(ICoreResponseMessageHandler mh) {
-        ICoreResponseMessageHandler = mh;
+        CoreResponseMessageHandler = mh;
     }
 
     public void setSocket(Socket socket) {
@@ -60,9 +58,9 @@ public class ResponseHandlerService extends Service {
 
                         Gson gson = Helpers.GetGsonInstance();
 
-                        if (ICoreResponseMessageHandler != null) {
+                        if (CoreResponseMessageHandler != null) {
                             BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
-                            ICoreResponseMessageHandler.HandleMessage(response);
+                            CoreResponseMessageHandler.HandleMessage(response);
                         }
                     } catch (IOException e) {
                         // Restore interrupt status.

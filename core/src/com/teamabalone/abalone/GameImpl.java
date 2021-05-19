@@ -5,20 +5,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.teamabalone.abalone.Client.ICoreLauncher;
-import com.teamabalone.abalone.Client.RequestSender;
-import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Screens.MenuScreen;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class GameImpl extends Game {
     private ICoreLauncher Launcher;
+
+    public static Abalone abalone;
+
     public SpriteBatch batch;
     public MenuScreen menuScreen;
 
@@ -49,14 +47,26 @@ public class GameImpl extends Game {
     }
 
     @Override
+    public void resume() {
+        super.resume();
+        this.setScreen(abalone);
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+    }
+
+    @Override
     public void render() {
         super.render();
     }
 
     @Override
-    public void dispose() {
+    public void dispose() {/*
+        super.dispose();
         menuScreen.dispose();
-        batch.dispose();
+        batch.dispose();*/
     }
 
     public SpriteBatch getBatch() {

@@ -1,8 +1,6 @@
 package com.teamabalone.abalone.Client;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Helpers.Helpers;
 
