@@ -5,18 +5,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.teamabalone.abalone.Client.ICoreLauncher;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Screens.MenuScreen;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class GameImpl extends Game {
-    private ICoreLauncher Launcher;
+
 
     public static Abalone abalone;
 
+
+    private ICoreLauncher Launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;
 
@@ -29,6 +36,7 @@ public class GameImpl extends Game {
         // Ensuring the app has a UserId stored.
         EnsureUserIdCreated();
 
+
         // Initializing our response handler, which is called from Service.
         ResponseHandler rh = ResponseHandler.newInstance();
         Launcher.setICoreResponseMessageHandler(rh);
@@ -40,6 +48,8 @@ public class GameImpl extends Game {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        TestMessage();
 
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this);
@@ -85,6 +95,23 @@ public class GameImpl extends Game {
             userId = UUID.randomUUID().toString();
             preferences.putString("UserId", userId);
             preferences.flush();
+        }
+    }
+
+    /**
+     * Making sure the socket is created.
+     * TODO: Move or change to do before sending requests.
+     */
+    private void TestMessage() {
+        try {
+            // Test request for now.
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            RequestSender ts = new RequestSender(new CreateRoomRequest(UUID.randomUUID(), 2));
+            Future future = executorService.submit(ts);
+            executorService.shutdown();
+        }
+        catch (Exception ex) {
+            Gdx.app.error(ex.getClass().toString(), ex.getMessage(), ex);
         }
     }
 }
