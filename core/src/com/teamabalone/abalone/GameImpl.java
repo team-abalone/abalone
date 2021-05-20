@@ -1,4 +1,4 @@
-package com.teamabalone.abalone;
+/*package com.teamabalone.abalone;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -71,22 +71,25 @@ public class GameImpl extends Game {
     public void render() {
         super.render();
     }
-
+*/
+/*
     @Override
     public void dispose() {/*
         super.dispose();
         menuScreen.dispose();
         batch.dispose();*/
-    }
+/*
+}
 
     public SpriteBatch getBatch() {
         return batch;
     }
-
+*/
     /**
      * Ensures, the app has a generated UserId, which is later used for api communication.
      * Upon first start a new id is generated and stored using Preferences.
      */
+    /*
     private void EnsureUserIdCreated() {
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         String userId = preferences.getString("UserId");
@@ -97,11 +100,12 @@ public class GameImpl extends Game {
             preferences.flush();
         }
     }
-
+*/
     /**
      * Making sure the socket is created.
      * TODO: Move or change to do before sending requests.
      */
+    /*
     private void TestMessage() {
         try {
             // Test request for now.
@@ -113,6 +117,57 @@ public class GameImpl extends Game {
         catch (Exception ex) {
             Gdx.app.error(ex.getClass().toString(), ex.getMessage(), ex);
         }
+    }
+}
+
+
+//https://libgdx.com/dev/simple-game-extended/
+*/
+package com.teamabalone.abalone;
+
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.teamabalone.abalone.Screens.MenuScreen;
+
+public class GameImpl extends Game {
+
+    public static Abalone abalone;
+
+    public SpriteBatch batch;
+    public MenuScreen menuScreen;
+
+    @Override
+    public void create() {
+        batch = new SpriteBatch();
+        menuScreen = new MenuScreen(this);
+        this.setScreen(menuScreen);
+    }
+
+    @Override
+    public void resume() {
+        super.resume();
+        this.setScreen(abalone);
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+    }
+
+    @Override
+    public void render() {
+        super.render();
+    }
+
+    @Override
+    public void dispose() {/*
+        super.dispose();
+        menuScreen.dispose();
+        batch.dispose();*/
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
     }
 }
 

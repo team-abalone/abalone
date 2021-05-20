@@ -1,3 +1,5 @@
+
+/*
 package com.teamabalone.abalone;
 
 import android.content.ComponentName;
@@ -54,8 +56,9 @@ public class AndroidLauncher extends AndroidApplication implements ICoreLauncher
 			Socket = socket;
 		}
 	}
-
+*/
 	/** Defines callbacks for service binding, passed to bindService() */
+	/*
 	private ServiceConnection mConnection = new ServiceConnection() {
 
 		@Override
@@ -81,4 +84,19 @@ public class AndroidLauncher extends AndroidApplication implements ICoreLauncher
 			mBound = false;
 		}
 	};
+}
+*/
+package com.teamabalone.abalone;
+
+import android.os.Bundle;
+import com.badlogic.gdx.backends.android.AndroidApplication;
+import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+
+public class AndroidLauncher extends AndroidApplication {
+	@Override
+	protected void onCreate (Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		initialize(new GameImpl(), config);
+	}
 }
