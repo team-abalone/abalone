@@ -17,6 +17,7 @@ import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.concurrent.Future;
 
 public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
     private final Stage stage;
-    private final TextField tfRoomKey;
+    //private final TextField tfRoomKey;
 
     private com.teamabalone.abalone.Client.ResponseHandler ResponseHandler;
 
@@ -55,14 +56,14 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
             };
         });
 
-        tfRoomKey = new TextField("RoomKey", FactoryHelper.GetDefaultSkin());
+//        tfRoomKey = new TextField("RoomKey", FactoryHelper.GetDefaultSkin());
 
         TextButton joinRoomButton = FactoryHelper.CreateButtonWithText("Join Room", 100, 100);
 
         joinRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(UUID.randomUUID(), tfRoomKey.getText());
+                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(UUID.randomUUID(), "DSF9Z");
 
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);
@@ -76,7 +77,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
 
         rootTable.add(header).left();
 
-        rootTable.add(tfRoomKey);
+        //rootTable.add(tfRoomKey);
 
         rootTable.add(exitButton).right().top().expandX().height(100);
 
@@ -104,11 +105,10 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
     @Override
     public void HandleResponse(BaseResponse response) {
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
-            Gdx.input.setInputProcessor(stage);
             // TODO: Dialog showing black screen -> Don't know why. Works perfectly if called outside of interface method.
             Gdx.app.log(response.getClass().getSimpleName(), response.toString());
-            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), ((CreateRoomResponse) response).getRoomKey(), false);
-            waitingForPlayersDialog.show(getStage());
+            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), ((RoomJoinedResponse) response).getRoomKey(), false);
+            waitingForPlayersDialog.show(stage);
         }
     }
 }
