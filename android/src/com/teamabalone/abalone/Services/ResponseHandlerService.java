@@ -15,6 +15,7 @@ import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
@@ -65,6 +66,11 @@ public class ResponseHandlerService extends Service {
                             if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
                                 response = gson.fromJson(responseString, CreateRoomResponse.class);
                             }
+
+                            if(response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
+                                response = gson.fromJson(responseString, RoomJoinedResponse.class);
+                            }
+
                             CoreResponseMessageHandler.HandleMessage(response);
                         }
                     } catch (IOException e) {

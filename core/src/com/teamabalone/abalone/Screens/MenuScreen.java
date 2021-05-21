@@ -17,6 +17,7 @@ import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
+import com.teamabalone.abalone.Dialogs.JoinGameDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
@@ -69,26 +70,18 @@ public class MenuScreen implements Screen {
                 //Game.setScreen(new Abalone(Game));
                 CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin(), Stage);
                 createRoomDialog.show(Stage);
-                createRoomDialog.debug();
             }
 
             ;
         });
 
         JoinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
+
         JoinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open join game overlay.
-                // Test request for now.
-                try {
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    RequestSender ts = new RequestSender(new CreateRoomRequest(UUID.randomUUID(), 2));
-                    Future future = executorService.submit(ts);
-                    executorService.shutdown();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                JoinGameDialog createRoomDialog = new JoinGameDialog("Join Room", FactoryHelper.GetDefaultSkin(), Stage);
+                createRoomDialog.show(Stage);
 
                 Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
             };
