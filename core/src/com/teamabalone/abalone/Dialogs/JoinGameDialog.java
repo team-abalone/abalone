@@ -28,13 +28,15 @@ import java.util.concurrent.Future;
 
 public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
     private final Stage stage;
+    private final UUID userId;
     //private final TextField tfRoomKey;
 
     private com.teamabalone.abalone.Client.ResponseHandler ResponseHandler;
 
-    public JoinGameDialog(String title, final Skin skin, Stage stage) {
+    public JoinGameDialog(UUID userId, String title, final Skin skin, Stage stage) {
         super(title, skin);
         this.stage = stage;
+        this.userId = userId;
 
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
@@ -63,7 +65,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         joinRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(UUID.randomUUID(), "DSF9Z");
+                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(UUID.randomUUID(), "oyoKS");
 
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);
@@ -105,10 +107,10 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
     @Override
     public void HandleResponse(BaseResponse response) {
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
-            // TODO: Dialog showing black screen -> Don't know why. Works perfectly if called outside of interface method.
-            Gdx.app.log(response.getClass().getSimpleName(), response.toString());
-            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), ((RoomJoinedResponse) response).getRoomKey(), false);
+            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), false);
             waitingForPlayersDialog.show(stage);
+
+            this.hide();
         }
     }
 }

@@ -49,8 +49,6 @@ public class GameImpl extends Game {
             e.printStackTrace();
         }
 
-        TestMessage();
-
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this);
         this.setScreen(menuScreen);
@@ -95,23 +93,6 @@ public class GameImpl extends Game {
             userId = UUID.randomUUID().toString();
             preferences.putString("UserId", userId);
             preferences.flush();
-        }
-    }
-
-    /**
-     * Making sure the socket is created.
-     * TODO: Move or change to do before sending requests.
-     */
-    private void TestMessage() {
-        try {
-            // Test request for now.
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            RequestSender ts = new RequestSender(new CreateRoomRequest(UUID.randomUUID(), 2));
-            Future future = executorService.submit(ts);
-            executorService.shutdown();
-        }
-        catch (Exception ex) {
-            Gdx.app.error(ex.getClass().toString(), ex.getMessage(), ex);
         }
     }
 }

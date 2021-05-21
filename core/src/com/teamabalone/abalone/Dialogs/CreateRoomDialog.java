@@ -32,14 +32,19 @@ import java.util.concurrent.Future;
 public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver {
     private final Stage stage;
     private ImageButton exitButton;
-    private ResponseHandler ResponseHandler;
+    private ResponseHandler responseHandler;
 
-    public CreateRoomDialog(String title, final Skin skin, Stage stage) {
+    private WaitingForPlayersDialog waitingForPlayersDialog;
+
+    public CreateRoomDialog(UUID userId, String title, final Skin skin, Stage stage) {
         super(title, skin);
         this.stage = stage;
 
-        ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
-        ResponseHandler.addObserver(this);
+        // Dialog declarations
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), true);
+
+        responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
+        responseHandler.addObserver(this);
 
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
@@ -57,12 +62,12 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
             };
         });
 
-        TextButton CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room", 100, 100);
+        TextButton createRoomButton = FactoryHelper.CreateButtonWithText("Create Room", 100, 100);
 
-        CreateRoomButton.addListener(new ClickListener() {
+        createRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                CreateRoomRequest createRoomRequest = new CreateRoomRequest(UUID.randomUUID(), 2);
+                CreateRoomRequest createRoomRequest = new CreateRoomRequest(userId, 2);
 
                 try {
                     RequestSender rs = new RequestSender(createRoomRequest);
@@ -77,23 +82,16 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         rootTable.add(header).left();
         rootTable.add(exitButton).right().top().expandX().height(100);
 
-        Label NumberOfPlayersLabel = new Label("Choose the number of players: ", skin);
+        Label numberOfPlayersLabel = new Label("Choose the number of players: ", skin);
 
         final SelectBox<Integer> numberOfPlayersSelect = new SelectBox<Integer>(skin);
         numberOfPlayersSelect.setItems(GameConstants.PlayerNumberSelect);
 
-        numberOfPlayersSelect.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Gdx.app.log("ClickListener", event.toString() + " was set");
-            }
-        });
-
         rootTable.row().padTop(50);
-        rootTable.add(NumberOfPlayersLabel);
+        rootTable.add(numberOfPlayersLabel);
         rootTable.add(numberOfPlayersSelect);
 
-        getButtonTable().add(CreateRoomButton).width(800);
+        getButtonTable().add(createRoomButton).width(800);
         getButtonTable().setWidth(getWidth());
     }
 
@@ -114,13 +112,13 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
 
     @Override
     public void HandleResponse(BaseResponse response) {
+        // Room creation completed -> open waiting for players dialog, hide current dialog.
         if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
-            Gdx.input.setInputProcessor(stage);
-            // TODO: Dialog showing black screen -> Don't know why. Works perfectly if called outside of interface method.
-            Gdx.app.log(response.getClass().getSimpleName(), response.toString());
-            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), ((CreateRoomResponse) response).getRoomKey(), true);
-            waitingForPlayersDialog.show(getStage());
-            waitingForPlayersDialog.debug();
+
+            waitingForPlayersDialog.setTitle(String.format("Waiting for players (%s) ... ", ((CreateRoomResponse) response).getRoomKey()));
+            waitingForPlayersDialog.setRoomKey(((CreateRoomResponse) response).getRoomKey());
+            waitingForPlayersDialog.show(stage);
+            this.hide();
         }
     }
 }

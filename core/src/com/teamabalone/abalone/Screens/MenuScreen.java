@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -39,7 +40,8 @@ import java.util.concurrent.Future;
  */
 public class MenuScreen implements Screen {
     private GameImpl Game;
-    Skin Skin = FactoryHelper.GetDefaultSkin();
+    private Skin Skin = FactoryHelper.GetDefaultSkin();
+    private UUID userId;
 
     private TextButton CreateRoomButton;
     private TextButton JoinGameButton;
@@ -50,6 +52,8 @@ public class MenuScreen implements Screen {
 
     public MenuScreen(GameImpl game) {
         this.Game = game;
+        Preferences preferences = Gdx.app.getPreferences("UserPreferences");
+        userId = UUID.fromString(preferences.getString("UserId"));
     }
 
     @Override
@@ -68,7 +72,7 @@ public class MenuScreen implements Screen {
                 Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
 
                 //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog("Create Room", FactoryHelper.GetDefaultSkin(), Stage);
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", FactoryHelper.GetDefaultSkin(), Stage);
                 createRoomDialog.show(Stage);
             }
 
@@ -80,10 +84,8 @@ public class MenuScreen implements Screen {
         JoinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinGameDialog createRoomDialog = new JoinGameDialog("Join Room", FactoryHelper.GetDefaultSkin(), Stage);
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", FactoryHelper.GetDefaultSkin(), Stage);
                 createRoomDialog.show(Stage);
-
-                Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
             };
         });
 

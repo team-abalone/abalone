@@ -6,10 +6,11 @@ import java.util.UUID;
  * Can either be used for joining, closing room or starting game.
  */
 public class JoinRoomRequest extends BaseRequest {
-    private String RoomKey;
+    private String roomKey;
 
     public JoinRoomRequest(UUID userId, String roomKey) {
-        CommandCode = RequestCommandCodes.JOIN_ROOM.getValue();
-        RoomKey = roomKey;
+        this.userId = userId;
+        this.commandCode = RequestCommandCodes.JOIN_ROOM.getValue();
+        this.roomKey = roomKey;
     }
 }
