@@ -18,7 +18,8 @@ import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
-import com.teamabalone.abalone.Client.SocketManager;
+import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
@@ -29,13 +30,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver {
-    private final Stage Stage;
+    private final Stage stage;
     private ImageButton exitButton;
     private ResponseHandler ResponseHandler;
 
     public CreateRoomDialog(String title, final Skin skin, Stage stage) {
         super(title, skin);
-        Stage = stage;
+        this.stage = stage;
 
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
@@ -102,10 +103,23 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
     }
 
     @Override
-    public void HandleResponse(BaseResponse response) {
-        remove();
+    public void hide() {
+        super.hide();
+    }
 
-        WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), true);
-        waitingForPlayersDialog.show(Stage);
+    @Override
+    public void cancel() {
+        super.cancel();
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
+            // TODO: Dialog showing black screen -> Don't know why. Works perfectly if called outside of interface method.
+            Gdx.app.log(response.getClass().getSimpleName(), response.toString());
+            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog("Waiting for players...", FactoryHelper.GetDefaultSkin(), ((CreateRoomResponse) response).getRoomKey(), true);
+            waitingForPlayersDialog.show(stage);
+            waitingForPlayersDialog.debug();
+        }
     }
 }

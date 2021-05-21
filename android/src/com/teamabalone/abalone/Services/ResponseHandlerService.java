@@ -13,6 +13,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
@@ -60,6 +62,9 @@ public class ResponseHandlerService extends Service {
 
                         if (CoreResponseMessageHandler != null) {
                             BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
+                            if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
+                                response = gson.fromJson(responseString, CreateRoomResponse.class);
+                            }
                             CoreResponseMessageHandler.HandleMessage(response);
                         }
                     } catch (IOException e) {

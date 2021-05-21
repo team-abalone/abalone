@@ -16,13 +16,13 @@ public class WaitingForPlayersDialog extends Dialog {
     private ImageButton exitButton;
 
 
-    public WaitingForPlayersDialog(String title, Skin skin, boolean isRoomCreator) {
+    public WaitingForPlayersDialog(String title, Skin skin, String roomKey, boolean isRoomCreator) {
         super(title, skin);
 
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
 
-        Label header = new Label(title, skin);
+        Label header = new Label(title + " (" + roomKey + " )" , skin);
         exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
@@ -44,7 +44,11 @@ public class WaitingForPlayersDialog extends Dialog {
             getButtonTable().setWidth(getWidth());
         }
 
+        rootTable.add(header).left();
+
         rootTable.row();
+
+        rootTable.add(header).left();
     }
 
     @Override
