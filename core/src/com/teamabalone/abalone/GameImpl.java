@@ -18,8 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class GameImpl extends Game {
-
-
     public static Abalone abalone;
 
 
@@ -50,7 +48,7 @@ public class GameImpl extends Game {
         }
 
         batch = new SpriteBatch();
-        menuScreen = new MenuScreen(this);
+        menuScreen = new MenuScreen(this, Launcher.getCommitHash());
         this.setScreen(menuScreen);
     }
 

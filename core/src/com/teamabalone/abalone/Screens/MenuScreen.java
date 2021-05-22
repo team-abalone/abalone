@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -39,6 +40,7 @@ import java.util.concurrent.Future;
  * Implements the menu screen of the game.
  */
 public class MenuScreen implements Screen {
+    private final String commitHash;
     private GameImpl Game;
     private Skin Skin = FactoryHelper.GetDefaultSkin();
     private UUID userId;
@@ -50,8 +52,9 @@ public class MenuScreen implements Screen {
 
     private Stage Stage;
 
-    public MenuScreen(GameImpl game) {
+    public MenuScreen(GameImpl game, String commitHash) {
         this.Game = game;
+        this.commitHash = commitHash;
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         userId = UUID.fromString(preferences.getString("UserId"));
     }
@@ -63,6 +66,7 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.getHeight() / 3,
                 Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 8,
                 Gdx.graphics.getHeight() / 6);
+
         // Creating and adding buttons.
         CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
         CreateRoomButton.addListener(new ClickListener() {
@@ -110,14 +114,23 @@ public class MenuScreen implements Screen {
             ;
         });
 
+        Label versionLabel = new Label(commitHash, FactoryHelper.GetDefaultSkin());
+
         Stage = new Stage();
         Gdx.input.setInputProcessor(Stage);
 
         // Adding buttons.
-        buttonTable.row().fillX().expandX();
+        buttonTable.row().fillX().expandX().padTop(100);
         buttonTable.add(CreateRoomButton);
         buttonTable.row().fillX().expandX().padTop(32);
         buttonTable.add(JoinGameButton);
+
+        buttonTable.row().padTop(100);
+        buttonTable.row();
+
+        // Adding version label.
+        buttonTable.add(versionLabel).center().bottom();
+
         Stage.addActor(SettingsButton);
         Stage.addActor(buttonTable);
     }

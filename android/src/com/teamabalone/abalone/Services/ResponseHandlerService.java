@@ -66,8 +66,10 @@ public class ResponseHandlerService extends Service {
                             if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
                                 response = gson.fromJson(responseString, CreateRoomResponse.class);
                             }
-
-                            if(response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
+                            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
+                                response = gson.fromJson(responseString, RoomJoinedResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED_OTHER.getValue()) {
                                 response = gson.fromJson(responseString, RoomJoinedResponse.class);
                             }
 

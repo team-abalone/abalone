@@ -1,12 +1,15 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	Oswald-Bold-White: {
-		file: Oswald-Bold1.fnt
+		file: Oswald-Bold(1).fnt
 	}
 }
 com.badlogic.gdx.graphics.Color: {
-	RGBA_255_255_255_255: {
+	RGBA_240_75_36_255: {
 		hex: f04b24ff
+	}
+	RGBA_255_255_255_255: {
+		hex: ffffffff
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
@@ -40,9 +43,9 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
 		font: Oswald-Bold-White
-		fontColorSelected: RGBA_255_255_255_255
+		fontColorSelected: RGBA_240_75_36_255
 		fontColorUnselected: RGBA_255_255_255_255
-		selection: bg_scroll
+		selection: window_frame
 		background: window_background
 	}
 }
@@ -54,17 +57,11 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
-		corner: slider_up
+		background: window_background
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 	default: {
-		font: Oswald-Bold-White
-		fontColor: RGBA_255_255_255_255
-		scrollStyle: default
-		listStyle: default
-	}
-	scrollCheckBox: {
 		font: Oswald-Bold-White
 		fontColor: RGBA_255_255_255_255
 		scrollStyle: default
@@ -85,9 +82,14 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		up: button_up
 		down: button_down
 	}
-	customStyle: {
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+	default: {
 		font: Oswald-Bold-White
-		up: button_up
+		fontColor: RGBA_255_255_255_255
+		focusedFontColor: RGBA_240_75_36_255
+		disabledFontColor: RGBA_255_255_255_255
+		background: tf_bg
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {

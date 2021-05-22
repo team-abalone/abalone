@@ -47,13 +47,15 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         responseHandler.addObserver(this);
 
         Table rootTable = getContentTable();
+        Table buttonTable = getButtonTable();
+        Table titleTable = getTitleTable();
+
         rootTable.setFillParent(true);
 
         Label header = new Label(title, skin);
         exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
-        exitButton.padTop(1000);
 
         exitButton.addListener(new ClickListener() {
             @Override
@@ -79,20 +81,20 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
             };
         });
 
-        rootTable.add(header).left();
-        rootTable.add(exitButton).right().top().expandX().height(100);
+        titleTable.add(exitButton).right().top().width(100).height(100);
+
+        rootTable.row().padTop(250);
 
         Label numberOfPlayersLabel = new Label("Choose the number of players: ", skin);
 
         final SelectBox<Integer> numberOfPlayersSelect = new SelectBox<Integer>(skin);
         numberOfPlayersSelect.setItems(GameConstants.PlayerNumberSelect);
 
-        rootTable.row().padTop(50);
         rootTable.add(numberOfPlayersLabel);
         rootTable.add(numberOfPlayersSelect);
 
-        getButtonTable().add(createRoomButton).width(800);
-        getButtonTable().setWidth(getWidth());
+        buttonTable.add(createRoomButton).width(800);
+        buttonTable.setWidth(getWidth());
     }
 
     @Override

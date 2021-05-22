@@ -21,6 +21,7 @@ import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +30,8 @@ import java.util.concurrent.Future;
 public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
     private final Stage stage;
     private final UUID userId;
-    //private final TextField tfRoomKey;
+    private final TextField tfRoomKey;
+    private WaitingForPlayersDialog waitingForPlayersDialog;
 
     private com.teamabalone.abalone.Client.ResponseHandler ResponseHandler;
 
@@ -38,18 +40,22 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         this.stage = stage;
         this.userId = userId;
 
+        // Creating dialogs.
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), false);
+
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
 
         Table rootTable = getContentTable();
+        Table buttonTable = getButtonTable();
+        Table titleTable = getTitleTable();
+
         rootTable.setFillParent(true);
 
-        Label header = new Label(title, skin);
-
+        // Exit button.
         ImageButton exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
-        exitButton.padTop(1000);
 
         exitButton.addListener(new ClickListener() {
             @Override
@@ -58,14 +64,19 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
             };
         });
 
-//        tfRoomKey = new TextField("RoomKey", FactoryHelper.GetDefaultSkin());
+        tfRoomKey = new TextField("", FactoryHelper.GetDefaultSkin());
+        TextField.TextFieldStyle style = tfRoomKey.getStyle();
+        style.background.setLeftWidth(60);
+        tfRoomKey.setStyle(style);
+
+        Label roomKeyLabel = new Label("Enter the RoomKey: ", skin);
 
         TextButton joinRoomButton = FactoryHelper.CreateButtonWithText("Join Room", 100, 100);
 
         joinRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(UUID.randomUUID(), "oyoKS");
+                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(userId, tfRoomKey.getText());
 
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);
@@ -77,16 +88,15 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
             };
         });
 
-        rootTable.add(header).left();
+        titleTable.add(exitButton).right().top().width(100).height(100);
 
-        //rootTable.add(tfRoomKey);
+        rootTable.row().padTop(250).height(150);
 
-        rootTable.add(exitButton).right().top().expandX().height(100);
+        rootTable.add(roomKeyLabel);
+        rootTable.add(tfRoomKey).fillX().width(Gdx.graphics.getWidth() / 5);
 
-        rootTable.row().padTop(50);
-
-        getButtonTable().add(joinRoomButton).width(800);
-        getButtonTable().setWidth(getWidth());
+        buttonTable.add(joinRoomButton).width(800);
+        buttonTable.setWidth(getWidth());
     }
 
     @Override
@@ -106,10 +116,13 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
 
     @Override
     public void HandleResponse(BaseResponse response) {
+        // User joined successfully.
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
-            WaitingForPlayersDialog waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), false);
+            waitingForPlayersDialog.setTitle(String.format("Waiting for players (%s) ... ", ((RoomJoinedResponse) response).getRoomKey()));
+            List<UUID> playerListTemp = ((RoomJoinedResponse) response).getPlayers();
+            UUID[] playerList = playerListTemp.toArray(new UUID[playerListTemp.size()]);
+            waitingForPlayersDialog.setPlayers(playerList);
             waitingForPlayersDialog.show(stage);
-
             this.hide();
         }
     }
