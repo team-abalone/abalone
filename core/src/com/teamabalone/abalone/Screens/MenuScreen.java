@@ -14,10 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.teamabalone.abalone.Abalone;
-import com.teamabalone.abalone.Client.RequestSender;
-import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
-import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.JoinGameDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
@@ -25,32 +21,26 @@ import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
-import com.teamabalone.abalone.View.GameSet;
-import com.teamabalone.abalone.Helpers.Helpers;
-
-import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 
 
 /**
  * Implements the menu screen of the game.
  */
 public class MenuScreen implements Screen {
-    private final String commitHash;
+    private Skin defaultSkin = FactoryHelper.GetDefaultSkin();
     private GameImpl Game;
-    private Skin Skin = FactoryHelper.GetDefaultSkin();
+    private Stage Stage;
     private UUID userId;
 
-    private TextButton CreateRoomButton;
-    private TextButton JoinGameButton;
-    private ImageButton SettingsButton;
-    TextureAtlas.AtlasRegion logo = FactoryHelper.GetAtlas().findRegion("logo");
+    private final String commitHash;
 
-    private Stage Stage;
+    private TextButton createRoomButton;
+    private TextButton joinGameButton;
+    private ImageButton settingsButton;
+
+    private TextureAtlas.AtlasRegion logo = FactoryHelper.GetAtlas().findRegion("logo");
+
 
     public MenuScreen(GameImpl game, String commitHash) {
         this.Game = game;
@@ -68,44 +58,45 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.getHeight() / 6);
 
         // Creating and adding buttons.
-        CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
-        CreateRoomButton.addListener(new ClickListener() {
+        createRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
+
+        createRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open create room overlay.
-                Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
+                Gdx.app.log("ClickListener", createRoomButton.toString() + " clicked");
 
                 //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", FactoryHelper.GetDefaultSkin(), Stage);
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, Stage);
                 createRoomDialog.show(Stage);
             }
 
             ;
         });
 
-        JoinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
+        joinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
 
-        JoinGameButton.addListener(new ClickListener() {
+        joinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", FactoryHelper.GetDefaultSkin(), Stage);
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, Stage);
                 createRoomDialog.show(Stage);
             };
         });
 
 
-        SettingsButton = FactoryHelper.CreateImageButton(
-                Skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+        settingsButton = FactoryHelper.CreateImageButton(
+                defaultSkin.get("settings-btn", ImageButton.ImageButtonStyle.class),
                 150,
                 150,
                 Gdx.graphics.getWidth() - 250,
                 Gdx.graphics.getHeight() - 250);
 
-        SettingsButton.addListener(new ClickListener() {
+        settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
-                Gdx.app.log("ClickListener", SettingsButton.toString() + " clicked");
+                Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
                 SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
                 settingsDialog.show(Stage);
@@ -114,16 +105,16 @@ public class MenuScreen implements Screen {
             ;
         });
 
-        Label versionLabel = new Label(commitHash, FactoryHelper.GetDefaultSkin());
+        Label versionLabel = new Label(commitHash, defaultSkin);
 
         Stage = new Stage();
         Gdx.input.setInputProcessor(Stage);
 
         // Adding buttons.
         buttonTable.row().fillX().expandX().padTop(100);
-        buttonTable.add(CreateRoomButton);
+        buttonTable.add(createRoomButton);
         buttonTable.row().fillX().expandX().padTop(32);
-        buttonTable.add(JoinGameButton);
+        buttonTable.add(joinGameButton);
 
         buttonTable.row().padTop(100);
         buttonTable.row();
@@ -131,7 +122,7 @@ public class MenuScreen implements Screen {
         // Adding version label.
         buttonTable.add(versionLabel).center().bottom();
 
-        Stage.addActor(SettingsButton);
+        Stage.addActor(settingsButton);
         Stage.addActor(buttonTable);
     }
 
