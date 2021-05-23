@@ -24,11 +24,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
-import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 
 import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
 import com.teamabalone.abalone.Gamelogic.Field;
@@ -50,13 +49,14 @@ public class Abalone implements Screen {
 
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
+    private final int NUMBER_CAPTURES_TO_WIN = 1;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
     private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
     private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
 
     private Music bgMusic;
-    private Preferences settings;
+    private final Preferences settings;
 
     private final GameImpl game;
     private final SpriteBatch batch;
@@ -73,12 +73,7 @@ public class Abalone implements Screen {
 
     private final float screenWidth = Gdx.graphics.getWidth();
     private final float screenHeight = Gdx.graphics.getHeight();
-
-    boolean yourTurn = true;
-    boolean wasTouched = false;
-    TurnAnnouncerTwo nextPlayerCard;
-
-    private Stage stage;
+    private final Stage stage;
     private Label nextLabel;
     private ImageButton settingsButton;
 
@@ -99,6 +94,7 @@ public class Abalone implements Screen {
     private float boardHeight;
 
     private int currentPlayer = 0;
+    private int winner = -1;
 
     public Abalone(GameImpl game) {
         settings = Gdx.app.getPreferences("UserSettings");
@@ -211,26 +207,6 @@ public class Abalone implements Screen {
         stage.act();
         stage.draw();
 
-        /*
-        Gdx.app.log("Click Listener", "Your Turn = " + yourTurn);
-        if(yourTurn == true){      //solange true kann bewegt werden
-            if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching) {
-                Sprite potentialSprite = GameSet.getInstance().getMarble(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-                if (potentialSprite != null) {
-                    currentSprite = potentialSprite;
-                }
-                if (currentSprite != null) {
-                    currentSprite.setCenter(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-                    wasTouched = true;
-                    Gdx.app.log("Click Listener", "Turn ended");
-                }
-            }
-            if(Gdx.input.isTouched() != true && wasTouched == true){
-                yourTurn = false;
-            }
-        }
-         */
-
         boolean firstFingerTouching = Gdx.input.isTouched(0);
         boolean secondFingerTouching = Gdx.input.isTouched(1);
         boolean thirdFingerTouching = Gdx.input.isTouched(2);
@@ -333,6 +309,11 @@ public class Abalone implements Screen {
                     capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
                 } else {
                     capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+                }
+
+                if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+                    winner = currentPlayer;
+                    exitLabel();
                 }
             }
 
@@ -463,6 +444,29 @@ public class Abalone implements Screen {
         label.setY(screenHeight - (label.getHeight() + 60));
     }
 
+    public void exitLabel() {
+        //TODO proper style?
+        Label winLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
+        winLabel.setAlignment(Align.center);
+
+        Abalone currentGame = this;
+        winLabel.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", winLabel.toString() + " clicked");
+                currentGame.exit();
+            }
+        });
+
+        stage.addActor(winLabel);
+    }
+
+    private void exit() {
+        game.setScreen(game.menuScreen);
+        //TODO destroy old game
+    }
+
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
         Skin skin = FactoryHelper.GetDefaultSkin();
         settingsButton = FactoryHelper.CreateImageButton(
@@ -488,7 +492,26 @@ public class Abalone implements Screen {
         // TODO updating setting changes
     }
 
-    public void exitButton() {
+    public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
+        Skin skin = FactoryHelper.GetDefaultSkin();
+        ImageButton exitButton = FactoryHelper.CreateImageButton(
+                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+
+        Abalone currentGame = this;
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
+                currentGame.exit();
+            }
+        });
+
+        stage.addActor(exitButton);
+        Actor button = stage.getActors().peek();
+        button.setX(20);
+        button.setY(screenHeight - (button.getHeight() + 20));
     }
 
     public void music() {
