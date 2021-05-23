@@ -9,7 +9,7 @@ public class MakeMoveRequest extends BaseRequest{
     protected Directions direction;
     public MakeMoveRequest(UUID userId, int [] marbles, Directions direction){
         this.userId = userId;
-        this.commandCode = 80;
+        this.commandCode = 10;
         this.marbles = marbles;
         this.direction = direction;
     }
