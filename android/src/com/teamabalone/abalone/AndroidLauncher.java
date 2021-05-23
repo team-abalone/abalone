@@ -55,6 +55,16 @@ public class AndroidLauncher extends AndroidApplication implements ICoreLauncher
 		}
 	}
 
+	/**
+	 * Can be used by the core module to retrieve the currently
+	 * last commit hash.
+	 * @return The currently last commit hash.
+	 */
+	@Override
+	public String getCommitHash() {
+		return BuildConfig.GitHash;
+	}
+
 	/** Defines callbacks for service binding, passed to bindService() */
 	private ServiceConnection mConnection = new ServiceConnection() {
 
