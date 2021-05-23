@@ -76,7 +76,7 @@ public class MenuScreen implements Screen {
             ;
         });
 
-        createLocalGameButton = FactoryHelper.CreateButtonWithText("Single Player");
+        createLocalGameButton = FactoryHelper.CreateButtonWithText("Local Game");
 
         createLocalGameButton.addListener(new ClickListener() {
             @Override
