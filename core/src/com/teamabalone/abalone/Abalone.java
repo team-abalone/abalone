@@ -21,13 +21,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 
+import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
+import com.teamabalone.abalone.Gamelogic.Game;
+import com.teamabalone.abalone.Gamelogic.GameInfos;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
@@ -39,11 +41,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Abalone implements Screen {
+    private final GameInfos gameInfos = new Game();
+
     private final int MAX_TEAMS = 6;
-    private final int MAX_SELECT = 3;
     private final int SWIPE_SENSITIVITY = 40;
-    private final int NUMBER_PLAYERS = 2;
-    private final int MAP_SIZE = 5; //TODO make only setting valid value possible?
+    private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
+    private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
+    private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
+    private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
 
     private Music bgMusic;
     private Preferences settings;
@@ -80,7 +85,7 @@ public class Abalone implements Screen {
     float lastTouchX;
     float lastTouchY;
 
-    Field field;
+    AbaloneQueries queries;
 
     Directions lastDirection = Directions.NOTSET;
 
@@ -130,8 +135,8 @@ public class Abalone implements Screen {
     }
 
     private void instantiateBoard() {
-        field = new Field(5);
-        int[] fieldMatrix = field.getWholeField();
+        queries = new Field(5);
+        int[] fieldMatrix = queries.getWholeField();
         int[] teams = new int[MAX_TEAMS + 1]; //also storing empty field
 
         for (int initialPosition : fieldMatrix) { //get count of teams
@@ -292,7 +297,7 @@ public class Abalone implements Screen {
             marblesToCheck[i] = board.getTileId(selectedSprites.get(i));
         }
 
-        int[] enemyMarbles = field.checkMove(marblesToCheck, lastDirection);
+        int[] enemyMarbles = queries.checkMove(marblesToCheck, lastDirection);
         boolean validMove = enemyMarbles != null;
         if (validMove) {
             boolean marblesToPush = enemyMarbles.length > 0;
@@ -311,7 +316,7 @@ public class Abalone implements Screen {
 
             unselectCompleteList();
 
-            if (field.isPushedOutOfBound()) {
+            if (queries.isPushedOutOfBound()) {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
                 GameSet.getInstance().removeMarble(capturedMarble);
 
@@ -357,7 +362,7 @@ public class Abalone implements Screen {
                 }
             }
 
-            if (field.isInLine(marblesToCheck)) {
+            if (queries.isInLine(marblesToCheck)) {
                 boolean alreadySelected = !select(potentialSprite);
                 if (alreadySelected) {
                     int tileIndexPotentialSprite = board.getTileId(potentialSprite);

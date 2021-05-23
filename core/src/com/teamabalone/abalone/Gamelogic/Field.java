@@ -1,10 +1,12 @@
 package com.teamabalone.abalone.Gamelogic;
 
+import com.teamabalone.abalone.Abalone;
+
 import java.util.*;
 
 import static java.lang.Math.abs;
 
-public class Field implements Iterable<Hexagon> {
+public class Field implements Iterable<Hexagon>, AbaloneQueries {
     private HashMap<HexCoordinate, Hexagon> field;
     private int radius;
     private int hexFields;
