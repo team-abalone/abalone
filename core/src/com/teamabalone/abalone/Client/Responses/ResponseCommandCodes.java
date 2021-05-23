@@ -6,7 +6,8 @@ public enum ResponseCommandCodes {
     ROOM_JOINED(30),
     ROOM_CREATED(40),
     ROOM_CLOSED(50),
-    ROOM_JOINED_OTHER(60);
+    ROOM_JOINED_OTHER(60),
+    MADE_MOVE(70);
 
     private final int value;
 
