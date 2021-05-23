@@ -1,14 +1,21 @@
 package com.teamabalone.abalone.Helpers;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import java.awt.Font;
 
 /**
  * Contains helper methods for easy creation of certain libGdx elements (e.g. Buttons).
@@ -19,6 +26,7 @@ public class FactoryHelper {
     /**
      * Returns the default button skin, which for now is the skinny glass ui from:
      * https://github.com/czyzby/gdx-skins
+     *
      * @return
      */
     public static Skin GetDefaultSkin() {
@@ -28,6 +36,7 @@ public class FactoryHelper {
 
     /**
      * Returns the default textureAtlas.
+     *
      * @return
      */
     public static TextureAtlas GetAtlas() {
@@ -36,6 +45,7 @@ public class FactoryHelper {
 
     /**
      * Returns the region with the given name in the atlas.
+     *
      * @param name
      * @return
      */
@@ -45,6 +55,7 @@ public class FactoryHelper {
 
     /**
      * Helper method to create a simple TextButton with the given parameters.
+     *
      * @param text
      * @param width
      * @param height
@@ -63,6 +74,7 @@ public class FactoryHelper {
 
     /**
      * Helper method to create a simple TextButton with the given parameters.
+     *
      * @param text
      * @param width
      * @param height
@@ -77,6 +89,7 @@ public class FactoryHelper {
 
     /**
      * Helper method to create a simple TextButton with the given parameters.
+     *
      * @param text
      * @return
      */
@@ -85,8 +98,17 @@ public class FactoryHelper {
         return button;
     }
 
+    //TODO document and set skin
+    public static Label CreateLabelWithText(String text, float width, float height) {
+        Label label = new Label(text, GetDefaultSkin());
+        label.setWidth(width);
+        label.setHeight(height);
+        return label;
+    }
+
     /**
      * Creates a simple Table with the given parameters.
+     *
      * @param width
      * @param height
      * @param xPos
@@ -105,6 +127,7 @@ public class FactoryHelper {
 
     /**
      * Creates a simple ImageButton with the given parameters.
+     *
      * @param imageUp
      * @param imageDown
      * @param background
@@ -115,7 +138,7 @@ public class FactoryHelper {
      * @return
      */
     public static ImageButton CreateImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
-                                          float width, float height, float xPos, float yPos) {
+                                                float width, float height, float xPos, float yPos) {
         ImageButton imageButton = new ImageButton(imageUp, imageDown, background);
         imageButton.setWidth(width);
         imageButton.setHeight(height);
@@ -127,6 +150,7 @@ public class FactoryHelper {
 
     /**
      * Creates a simple ImageButton with the given parameters.#
+     *
      * @param width
      * @param height
      * @param xPos
@@ -145,6 +169,7 @@ public class FactoryHelper {
 
     /**
      * Creates a simple ImageButton with the given parameters.
+     *
      * @return
      */
     public static ImageButton CreateImageButton(ImageButton.ImageButtonStyle style) {
@@ -155,6 +180,7 @@ public class FactoryHelper {
 
     /**
      * Creates a simple ImageButton with the given parameters.
+     *
      * @param imageUp
      * @param imageDown
      * @param background
@@ -163,7 +189,7 @@ public class FactoryHelper {
      * @return
      */
     public static ImageButton CreateImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
-                                          float xPos, float yPos) {
+                                                float xPos, float yPos) {
         ImageButton imageButton = new ImageButton(imageUp, imageDown, background);
         imageButton.setX(xPos);
         imageButton.setY(yPos);

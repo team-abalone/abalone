@@ -2,7 +2,19 @@ package com.teamabalone.abalone.Gamelogic;
 
 import java.util.ArrayList;
 
-public class Game implements GameInfos{
+public class GameInfo implements GameInfos {
+    public static GameInfo singletonInstance;
+
+    private GameInfo() {
+        //private constructor
+    }
+
+    public static GameInfo getInstance() {
+        if (singletonInstance == null) {
+            singletonInstance = new GameInfo();
+        }
+        return singletonInstance;
+    }
 
     @Override
     public boolean singleDeviceMode() {

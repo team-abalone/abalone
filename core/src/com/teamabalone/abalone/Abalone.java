@@ -17,31 +17,36 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.Dialogs.TurnAnnouncerTwo;
 
 import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
 
-import com.teamabalone.abalone.Gamelogic.Game;
+import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.GameInfos;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Helpers.GameConstants;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
 import com.teamabalone.abalone.View.MarbleSet;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Abalone implements Screen {
-    private final GameInfos gameInfos = new Game();
+    private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
@@ -74,7 +79,8 @@ public class Abalone implements Screen {
     TurnAnnouncerTwo nextPlayerCard;
 
     private Stage stage;
-    private TextButton next;
+    private Label nextLabel;
+    private ImageButton settingsButton;
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
     ArrayList<ArrayList<Sprite>> deletedSpritesLists = new ArrayList<>();
@@ -101,6 +107,7 @@ public class Abalone implements Screen {
         batch = game.getBatch();
 
         stage = new Stage(); //stage not attached, so it moves with screen
+        Gdx.input.setInputProcessor(stage);
 
         board();
         camera();
@@ -312,7 +319,7 @@ public class Abalone implements Screen {
 
             moveSelectedMarbles(selectedSprites); //move
             moveSelectedMarbles(selectedEnemySprites);
-            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
+//            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
 
             unselectCompleteList();
 
@@ -323,9 +330,9 @@ public class Abalone implements Screen {
                 ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
                 deletionList.add(capturedMarble);
                 if (currentPlayer == 1) {
-                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size()-1)));
+                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
                 } else {
-                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size()-1)));
+                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
                 }
             }
 
@@ -433,31 +440,55 @@ public class Abalone implements Screen {
     }
 
     public int nextPlayer() {
-        return currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+        currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+        nextLabel.setText(currentPlayer == 0 ? "White" : "Black");
+        return currentPlayer;
     }
 
     @Override
     public void show() {
-        button();
+        playerLabel();
+        settingsButton();
+        exitButton();
+
         music();
     }
 
-    public void button() {
-        next = FactoryHelper.CreateButtonWithText(currentPlayer == 0 ? "White" : "Black");
-//        next.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(final InputEvent event, float x, float y) {
-//                Gdx.app.log("ClickListener", next.toString() + " clicked");
-//                playerTransition("Opponent");
-//                simulatingOpponent();
-//            }
-//        });
+    public void playerLabel() {
+        //TODO proper style?
+        nextLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
+        stage.addActor(nextLabel);
+        Actor label = stage.getActors().peek();
+        label.setX(screenWidth - (label.getWidth() + 220));
+        label.setY(screenHeight - (label.getHeight() + 60));
+    }
 
-        stage.addActor(next);
-        Actor button = stage.getActors().get(0);
-        button.setX(Gdx.graphics.getWidth() - button.getWidth() - 10);
-        button.setY(Gdx.graphics.getHeight() - button.getHeight() - 10);
-        Gdx.input.setInputProcessor(stage);
+    public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
+        Skin skin = FactoryHelper.GetDefaultSkin();
+        settingsButton = FactoryHelper.CreateImageButton(
+                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
+                Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
+                settingsDialog.show(stage);
+            }
+        });
+
+        stage.addActor(settingsButton);
+        Actor button = stage.getActors().peek();
+        button.setX(screenWidth - (button.getWidth() + 20));
+        button.setY(screenHeight - (button.getHeight() + 20));
+
+        // TODO updating setting changes
+    }
+
+    public void exitButton() {
     }
 
     public void music() {
@@ -465,53 +496,6 @@ public class Abalone implements Screen {
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
-    }
-
-//    public void simulatingOpponent() {
-//        final Timer t = new Timer();
-//        t.schedule(new TimerTask() {
-//            public void run() {
-//                Sprite potentialSprite = null;
-//                while (potentialSprite == null) {
-//                    int randX = 68; //new Random().nextInt((int) screenWidth);
-//                    int randY = 68; //new Random().nextInt((int) screenHeight);
-//                    Vector3 v = new Vector3(randX, randY, 0f);
-//                    viewport.unproject(v);
-//                    potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-//                }
-//                Gdx.app.log("Enemy", "Got " + potentialSprite.getOriginX() + " " + potentialSprite.getOriginY());
-//                selectedSprites.select(potentialSprite);
-//                int dir = 1;    //new Random().nextInt(2);
-//                switch (dir) {
-//                    case 0:
-//                        lastDirection = Directions.LEFTDOWN;
-//                        break;
-//                    case 1:
-//                        lastDirection = Directions.RIGHTDOWN;
-//                }
-//                moveSelectedMarbles();
-//                unselectList();
-//                lastDirection = Directions.NOTSET;
-//
-//                wasTouched = false;
-//                yourTurn = true;
-//                t.cancel();
-//                playerTransition(currentPlayer == 0 ? "White's" : "Black's");
-//            }
-//        }, 5000);//time in milliseconds
-//    }
-
-    public void playerTransition(String sayWhichPlayerTransTo) {
-        nextPlayerCard = new TurnAnnouncerTwo(sayWhichPlayerTransTo + " Turn", FactoryHelper.GetDefaultSkin());
-        nextPlayerCard.show(stage);
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            public void run() {
-                nextPlayerCard.hide();
-                next.setText(currentPlayer == 0 ? "White" : "Black"); //thread? is currentPlayer changed in the meantime?
-                t.cancel();
-            }
-        }, 500);//time in milliseconds
     }
 
     @Override
