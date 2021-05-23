@@ -464,13 +464,18 @@ public class Abalone implements Screen {
 
     private void exit() {
         game.setScreen(game.menuScreen);
-        //TODO destroy old game
+        reset();
+    }
+
+    public void reset(){
+        board = null;
+        GameSet.reset();
     }
 
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
         Skin skin = FactoryHelper.GetDefaultSkin();
         settingsButton = FactoryHelper.CreateImageButton(
-                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+                skin.get("settings-btn", ImageButton.ImageButtonStyle.class), //TODO exit-btn vector!
                 150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
 
         settingsButton.addListener(new ClickListener() {
@@ -528,6 +533,7 @@ public class Abalone implements Screen {
 
     @Override
     public void pause() {
+        reset();
     }
 
     @Override
@@ -553,5 +559,6 @@ public class Abalone implements Screen {
         background.dispose();
         blackBall.dispose();
         whiteBall.dispose();
+        reset();
     }
 }

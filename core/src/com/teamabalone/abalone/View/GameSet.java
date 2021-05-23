@@ -24,6 +24,17 @@ public class GameSet { //singleton
     }
 
     /**
+     * Set singleton instance to null, so the next getInstance() call will create a new instance. Possible way to delete the current GameSet.
+     *
+     * @return old GameSet
+     */
+    public static GameSet reset() {
+        GameSet oldGameSet = gameSet;
+        gameSet = null;
+        return oldGameSet;
+    }
+
+    /**
      * Create and add a new marble set to GameSet instance
      *
      * @param texture   marble team texture
