@@ -1,21 +1,13 @@
 package com.teamabalone.abalone.Helpers;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-
-import java.awt.Font;
 
 /**
  * Contains helper methods for easy creation of certain libGdx elements (e.g. Buttons).
@@ -29,7 +21,7 @@ public class FactoryHelper {
      *
      * @return
      */
-    public static Skin GetDefaultSkin() {
+    public static Skin getDefaultSkin() {
         return new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
     }
 
@@ -39,7 +31,7 @@ public class FactoryHelper {
      *
      * @return
      */
-    public static TextureAtlas GetAtlas() {
+    public static TextureAtlas getAtlas() {
         return new TextureAtlas(Gdx.files.internal(GameConstants.CUSTOM_UI_ATLAS));
     }
 
@@ -49,8 +41,8 @@ public class FactoryHelper {
      * @param name
      * @return
      */
-    public static TextureAtlas.AtlasRegion GetAtlasRegion(String name) {
-        return GetAtlas().findRegion(name);
+    public static TextureAtlas.AtlasRegion getAtlasRegion(String name) {
+        return getAtlas().findRegion(name);
     }
 
     /**
@@ -63,8 +55,8 @@ public class FactoryHelper {
      * @param yPos
      * @return
      */
-    public static TextButton CreateButtonWithText(String text, float width, float height, float xPos, float yPos) {
-        TextButton button = new TextButton(text, GetDefaultSkin());
+    public static TextButton createButtonWithText(String text, float width, float height, float xPos, float yPos) {
+        TextButton button = new TextButton(text, getDefaultSkin());
         button.setWidth(width);
         button.setHeight(height);
         button.setX(xPos);
@@ -80,8 +72,8 @@ public class FactoryHelper {
      * @param height
      * @return
      */
-    public static TextButton CreateButtonWithText(String text, float width, float height) {
-        TextButton button = new TextButton(text, GetDefaultSkin());
+    public static TextButton createButtonWithText(String text, float width, float height) {
+        TextButton button = new TextButton(text, getDefaultSkin());
         button.setWidth(width);
         button.setHeight(height);
         return button;
@@ -93,14 +85,14 @@ public class FactoryHelper {
      * @param text
      * @return
      */
-    public static TextButton CreateButtonWithText(String text) {
-        TextButton button = new TextButton(text, GetDefaultSkin());
+    public static TextButton createButtonWithText(String text) {
+        TextButton button = new TextButton(text, getDefaultSkin());
         return button;
     }
 
     //TODO document and set skin
-    public static Label CreateLabelWithText(String text, float width, float height) {
-        Label label = new Label(text, GetDefaultSkin());
+    public static Label createLabelWithText(String text, float width, float height) {
+        Label label = new Label(text, getDefaultSkin());
         label.setWidth(width);
         label.setHeight(height);
         return label;
@@ -115,7 +107,7 @@ public class FactoryHelper {
      * @param yPos
      * @return
      */
-    public static Table CreateTable(float width, float height, float xPos, float yPos) {
+    public static Table createTable(float width, float height, float xPos, float yPos) {
         Table table = new Table();
         table.setWidth(width);
         table.setHeight(height);
@@ -137,7 +129,7 @@ public class FactoryHelper {
      * @param yPos
      * @return
      */
-    public static ImageButton CreateImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
+    public static ImageButton createImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
                                                 float width, float height, float xPos, float yPos) {
         ImageButton imageButton = new ImageButton(imageUp, imageDown, background);
         imageButton.setWidth(width);
@@ -157,7 +149,7 @@ public class FactoryHelper {
      * @param yPos
      * @return
      */
-    public static ImageButton CreateImageButton(ImageButton.ImageButtonStyle style, float width, float height, float xPos, float yPos) {
+    public static ImageButton createImageButton(ImageButton.ImageButtonStyle style, float width, float height, float xPos, float yPos) {
         ImageButton imageButton = new ImageButton(style);
         imageButton.setWidth(width);
         imageButton.setHeight(height);
@@ -172,7 +164,7 @@ public class FactoryHelper {
      *
      * @return
      */
-    public static ImageButton CreateImageButton(ImageButton.ImageButtonStyle style) {
+    public static ImageButton createImageButton(ImageButton.ImageButtonStyle style) {
         ImageButton imageButton = new ImageButton(style);
         return imageButton;
     }
@@ -188,7 +180,7 @@ public class FactoryHelper {
      * @param yPos
      * @return
      */
-    public static ImageButton CreateImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
+    public static ImageButton createImageButton(Drawable imageUp, Drawable imageDown, Drawable background,
                                                 float xPos, float yPos) {
         ImageButton imageButton = new ImageButton(imageUp, imageDown, background);
         imageButton.setX(xPos);

@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 /**
@@ -34,7 +35,7 @@ public class SettingsDialog extends Dialog {
     //
     Preferences settings = Gdx.app.getPreferences("UserSettings");
 
-    public SettingsDialog(String title, Skin skin) {
+    public SettingsDialog(String title, Skin skin, Abalone abalone) {
         super(title, skin);
 
         Table rootTable = getContentTable();
@@ -43,7 +44,7 @@ public class SettingsDialog extends Dialog {
 
         //exit Button setup
         Label header = new Label("Settings", skin);
-        exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
+        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
 
@@ -51,21 +52,29 @@ public class SettingsDialog extends Dialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
+                if (abalone != null) {
+                    abalone.updateSettings();
+                }
                 remove();
-            };
+            }
+
+            ;
         });
 
         // Music Controll setup
-        Label  musicVolume = new Label("Music Volume:", skin);
+        Label musicVolume = new Label("Music Volume:", skin);
         final Slider slider = new Slider(0, 100, 1, false, skin);
-        slider.setValue(settings.getFloat("bgMusicVolumeFactor" , 1f)*100);
+        slider.setValue(settings.getFloat("bgMusicVolumeFactor", 1f) * 100);
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                bgMusicVolumeFactor = slider.getValue() /100;
+                bgMusicVolumeFactor = slider.getValue() / 100;
                 Gdx.app.log("ClickListener", bgMusicVolumeFactor + " was set");
                 settings.putFloat("bgMusicVolumeFactor", bgMusicVolumeFactor);
                 settings.flush();
+                if (abalone != null) {
+                    abalone.updateSettings();
+                }
             }
         });
 
@@ -76,14 +85,14 @@ public class SettingsDialog extends Dialog {
         sfxBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                 if(sfxBox.isChecked()){
-                     sfxSoundActive = false;
-                 } else{
-                     sfxSoundActive = true;
-                 }
+                if (sfxBox.isChecked()) {
+                    sfxSoundActive = false;
+                } else {
+                    sfxSoundActive = true;
+                }
                 settings.putBoolean("sfxSoundActive", sfxSoundActive);
-                 settings.flush();
-                Gdx.app.log("ClickListener", "The SFX is: "+ sfxSoundActive);
+                settings.flush();
+                Gdx.app.log("ClickListener", "The SFX is: " + sfxSoundActive);
             }
         });
 
@@ -91,18 +100,18 @@ public class SettingsDialog extends Dialog {
         Label marbleSkinLabel = new Label("Choose a Marble Skin:", skin);
         FileHandle[] directoryMarbles = Gdx.files.internal("marbles/").list();          //fetches the files in this directory
         Array<String> marbleSkinsList = new Array<String>();
-        for (FileHandle i: directoryMarbles) {
+        for (FileHandle i : directoryMarbles) {
             marbleSkinsList.add(i.name());                                  //saves the name of all files in this directory
         }
         final SelectBox<String> marbleSkins = new SelectBox<String>(skin);
         marbleSkins.setItems(marbleSkinsList);
-        marbleSkins.setSelected(settings.getString("marbleSkin"));
+        marbleSkins.setSelected(settings.getString("marbleSkin" + 1));
         marbleSkins.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 marbleSkin = marbleSkins.getSelected();
                 Gdx.app.log("ClickListener", marbleSkin + " was set");
-                settings.putString("marbleSkin", marbleSkin);
+                settings.putString("marbleSkin" + 1, marbleSkin);
                 settings.flush();
             }
         });
@@ -111,7 +120,7 @@ public class SettingsDialog extends Dialog {
         Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
         FileHandle[] directoryBoard = Gdx.files.internal("boards/").list();          //fetches the files in this directory
         Array<String> boardSkinList = new Array<String>();
-        for (FileHandle i: directoryBoard) {
+        for (FileHandle i : directoryBoard) {
             boardSkinList.add(i.name());                                  //saves the name of all files in this directory
         }
         final SelectBox<String> boardSkins = new SelectBox<String>(skin);
@@ -143,6 +152,7 @@ public class SettingsDialog extends Dialog {
         rootTable.add(boardSkinLabel);
         rootTable.add(boardSkins).center();
     }
+
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);

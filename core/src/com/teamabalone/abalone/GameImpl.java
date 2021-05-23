@@ -5,28 +5,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.teamabalone.abalone.Client.ICoreLauncher;
-import com.teamabalone.abalone.Client.RequestSender;
-import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
 import com.teamabalone.abalone.Screens.MenuScreen;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class GameImpl extends Game {
     public static Abalone abalone;
 
 
-    private ICoreLauncher Launcher;
+    private ICoreLauncher launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;
 
     public GameImpl(ICoreLauncher launcher) {
-        Launcher = launcher;
+        this.launcher = launcher;
     }
 
     @Override
@@ -37,18 +32,18 @@ public class GameImpl extends Game {
 
         // Initializing our response handler, which is called from Service.
         ResponseHandler rh = ResponseHandler.newInstance();
-        Launcher.setICoreResponseMessageHandler(rh);
+        launcher.setICoreResponseMessageHandler(rh);
 
         try {
             SocketManager sm = SocketManager.newInstance();
-            Launcher.setSocket(sm.getSocket());
+            launcher.setSocket(sm.getSocket());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         batch = new SpriteBatch();
-        menuScreen = new MenuScreen(this, Launcher.getCommitHash());
+        menuScreen = new MenuScreen(this, launcher.getCommitHash());
         this.setScreen(menuScreen);
     }
 

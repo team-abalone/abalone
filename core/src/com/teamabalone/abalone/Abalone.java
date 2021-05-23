@@ -57,6 +57,7 @@ public class Abalone implements Screen {
 
     private Music bgMusic;
     private final Preferences settings;
+    private final ArrayList<Texture> playerTextures = new ArrayList<>();
 
     private final GameImpl game;
     private final SpriteBatch batch;
@@ -66,8 +67,6 @@ public class Abalone implements Screen {
     private FitViewport viewport;
 
     private Texture background;
-    private Texture blackBall;
-    private Texture whiteBall;
 
     private Board board;
 
@@ -114,8 +113,12 @@ public class Abalone implements Screen {
 
     private void textures() {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
-        blackBall = new Texture("marbles/" + settings.getString("marbleSkin", "ball.png"));
-        whiteBall = new Texture("marbles/ball_white.png");
+
+        //TODO putString only temporary. should be in settings later on.
+        settings.putString("marbleSkin" + 0, "ball_white.png");
+        settings.flush();
+        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 0)));
+        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
     private void board() {
@@ -165,7 +168,7 @@ public class Abalone implements Screen {
         }
 
         for (int i = 0; i < positionArrays.size(); i++) {
-            GameSet.getInstance().register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i)); //TODO set chosen color
             deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
         }
 
@@ -437,7 +440,7 @@ public class Abalone implements Screen {
 
     public void playerLabel() {
         //TODO proper style?
-        nextLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
+        nextLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
         stage.addActor(nextLabel);
         Actor label = stage.getActors().peek();
         label.setX(screenWidth - (label.getWidth() + 220));
@@ -446,7 +449,7 @@ public class Abalone implements Screen {
 
     public void exitLabel() {
         //TODO proper style?
-        Label winLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
+        Label winLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -463,28 +466,30 @@ public class Abalone implements Screen {
     }
 
     private void exit() {
+        bgMusic.stop();
         game.setScreen(game.menuScreen);
         reset();
     }
 
-    public void reset(){
+    public void reset() {
         board = null;
         GameSet.reset();
     }
 
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
-        Skin skin = FactoryHelper.GetDefaultSkin();
-        settingsButton = FactoryHelper.CreateImageButton(
-                skin.get("settings-btn", ImageButton.ImageButtonStyle.class), //TODO exit-btn vector!
+        Skin skin = FactoryHelper.getDefaultSkin();
+        settingsButton = FactoryHelper.createImageButton(
+                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
                 150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
 
+        Abalone currentGame = this;
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, currentGame);
                 settingsDialog.show(stage);
             }
         });
@@ -498,9 +503,9 @@ public class Abalone implements Screen {
     }
 
     public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
-        Skin skin = FactoryHelper.GetDefaultSkin();
-        ImageButton exitButton = FactoryHelper.CreateImageButton(
-                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+        Skin skin = FactoryHelper.getDefaultSkin();
+        ImageButton exitButton = FactoryHelper.createImageButton(
+                skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
                 150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
 
         Abalone currentGame = this;
@@ -524,6 +529,30 @@ public class Abalone implements Screen {
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
+    }
+
+    public void updateSettings() {
+        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
+
+        String boardTexturePath = "boards/" + settings.getString("boardSkin");
+        if (!background.toString().equals(boardTexturePath)) {
+            background = new Texture(boardTexturePath);
+        }
+
+        for (int k = 0; k < playerTextures.size(); k++) {
+            Texture oldTexture = playerTextures.get(k);
+            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
+            Texture newTexture = playerTextures.get(k);
+            if (!newTexture.toString().equals(oldTexture.toString())) { //if texture type changed
+                MarbleSet marbleSet = GameSet.getInstance().getMarbleSets().get(k);
+                if (marbleSet.getMarble(0) != null) {
+                    for (int i = 0; i < marbleSet.size(); i++) {
+                        marbleSet.getMarble(i).setTexture(newTexture);
+                    }
+                }
+
+            }
+        }
     }
 
     @Override
@@ -557,8 +586,9 @@ public class Abalone implements Screen {
         tiledMapRenderer.dispose();
 
         background.dispose();
-        blackBall.dispose();
-        whiteBall.dispose();
+        for (int i = 0; i < playerTextures.size(); i++) {
+            playerTextures.get(i).dispose();
+        }
         reset();
     }
 }

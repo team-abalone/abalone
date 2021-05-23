@@ -46,7 +46,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         responseHandler.addObserver(this);
 
         headerLabel = new Label("", skin);
-        exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
+        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
 
@@ -61,7 +61,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
 
         // Only the creator of the room can start it.
         if (isRoomCreator) {
-            TextButton startGameButton = FactoryHelper.CreateButtonWithText("Start Game", 100, 100);
+            TextButton startGameButton = FactoryHelper.createButtonWithText("Start Game", 100, 100);
             buttonTable.add(startGameButton).width(800);
             buttonTable.setWidth(getWidth());
 
@@ -73,7 +73,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         }
 
         // Button for closing room.
-        TextButton closeRoomButton = FactoryHelper.CreateButtonWithText("Close Game", 100, 100);
+        TextButton closeRoomButton = FactoryHelper.createButtonWithText("Close Game", 100, 100);
         closeRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
