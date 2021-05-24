@@ -54,6 +54,7 @@ public class Abalone implements Screen {
     private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
     private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
+    private final int PLAYER_ID = gameInfos.playerId();
 
     private Music bgMusic;
     private final Preferences settings;
@@ -238,10 +239,12 @@ public class Abalone implements Screen {
 
             lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
 
-            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
-                makeMove();
-            } else {
-                selectMarbleIfTouched();
+            if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn
+                if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+                    makeMove();
+                } else {
+                    selectMarbleIfTouched();
+                }
             }
 
             justTouched = false;
@@ -298,7 +301,6 @@ public class Abalone implements Screen {
 
             moveSelectedMarbles(selectedSprites); //move
             moveSelectedMarbles(selectedEnemySprites);
-//            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
 
             unselectCompleteList();
 
@@ -423,7 +425,7 @@ public class Abalone implements Screen {
         }
     }
 
-    public int nextPlayer() {
+    public int nextPlayer() { //TODO has to be called if server sends move of opponent
         currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
         nextLabel.setText(currentPlayer == 0 ? "White" : "Black");
         return currentPlayer;
