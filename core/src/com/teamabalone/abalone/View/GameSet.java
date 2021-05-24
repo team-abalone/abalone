@@ -16,6 +16,14 @@ public class GameSet { //singleton
         //private Constructor
     }
 
+    /**
+     * Singleton Constructor for this GameSet.
+     * <p></p>
+     * Initialize a new GameSet if the current one is null.
+     * Otherwise returns {@link GameSet#gameSet}.
+     *
+     * @return  the gameSet
+     */
     public static GameSet getInstance() {
         if (gameSet == null) {
             gameSet = new GameSet();
@@ -75,6 +83,11 @@ public class GameSet { //singleton
         return sprites;
     }
 
+    /**
+     * Returns this marbleSet.
+     *
+     * @return  the marbleSet
+     */
     public ArrayList<MarbleSet> getMarbleSets() {
         return marbleSets;
     }
