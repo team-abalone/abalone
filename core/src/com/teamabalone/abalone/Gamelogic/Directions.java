@@ -1,8 +1,31 @@
 package com.teamabalone.abalone.Gamelogic;
 
+/**
+ *The enums for Directions.
+ * <p></p>
+ *This class holds all directions available for the user.
+ *It can be:
+ * <li>RIGHT
+ * <li>RIGHTUP
+ * <li>RIGHTDOWN
+ * <li>LEFT
+ * <li>LEFTUP
+ * <li>LEFTDOWN
+ * <li>NOTSET
+ */
 public enum Directions {
     RIGHT, RIGHTUP, LEFTUP, LEFT, LEFTDOWN, RIGHTDOWN, NOTSET;
 
+    /**
+     * Takes the swipe input and returns a direction.
+     *
+     * @param sensitivity the swipe sensivity
+     * @param startX  the x-coordinate at pointer down
+     * @param startY  the y-coordinate at pointer down
+     * @param endX  the x-coordinate at pointer up
+     * @param endY  the y-coordinate at pointer down
+     * @return  the most fitting direction
+     */
     public static Directions calculateDirection(int sensitivity, float startX, float startY, float endX, float endY) {
         float adjacentLeg = endX - startX;
         float oppositeLeg = startY - endY; //screen coordinates: (0,0) left UPPER corner
