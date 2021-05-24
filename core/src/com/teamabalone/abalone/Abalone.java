@@ -49,7 +49,7 @@ public class Abalone implements Screen {
 
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
-    private final int NUMBER_CAPTURES_TO_WIN = 1;
+    private final int NUMBER_CAPTURES_TO_WIN = 3;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
     private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
@@ -139,6 +139,7 @@ public class Abalone implements Screen {
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;
+//        camera.rotate((360 / (float) NUMBER_PLAYERS) * PLAYER_ID); //player orientation //not working!
     }
 
     private void instantiateBoard() {

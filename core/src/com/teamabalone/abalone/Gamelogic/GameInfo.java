@@ -38,7 +38,7 @@ public class GameInfo implements GameInfos {
 
     @Override
     public int playerId() {
-        return 0;
+        return 1;
     }
 
     @Override
