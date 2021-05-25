@@ -1,17 +1,33 @@
 package com.teamabalone.abalone.Gamelogic;
 
+import com.teamabalone.abalone.Client.IResponseHandlerObserver;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.MakeMoveRequest;
+import com.teamabalone.abalone.Client.ResponseHandler;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static java.lang.Math.abs;
 
-public class Field implements Iterable<Hexagon> {
+public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
     private HashMap<HexCoordinate, Hexagon> field;
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+    private UUID userId;
 
-    public Field(int radius) {
+    private ResponseHandler responseHandler;
+
+    public Field(int radius, UUID userId) {
         this.radius = radius;
+        this.userId = userId;
         this.hexFields = getHexagonCount(radius);
         this.field = new HashMap<>(this.hexFields);
         int i = 1;
@@ -19,6 +35,10 @@ public class Field implements Iterable<Hexagon> {
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
         fieldSetUp();
+
+        responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
+        responseHandler.addObserver(this);
+
         System.out.println(iterateOverHexagons());
     }
 
@@ -153,6 +173,14 @@ public class Field implements Iterable<Hexagon> {
             getHexagon(target).setMarble(tempMoving);
             if(localPushedOut){                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
+            }
+            BaseRequest makeMoveRequest = new MakeMoveRequest(userId,marbleID,direction);
+            try {
+                RequestSender rs = new RequestSender(makeMoveRequest);
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                Future future = executorService.submit(rs);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -326,5 +354,12 @@ public class Field implements Iterable<Hexagon> {
                 throw new IllegalStateException("Unexpected value: " + direction);
         }
         return mirror;
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        if(response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()){
+            //Recreate opponents move. This will be broadcast by our api
+        }
     }
 }
