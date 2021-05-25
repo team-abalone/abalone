@@ -40,6 +40,10 @@ public class MarbleSet {
         return marbles.remove(sprite);
     }
 
+    public boolean addMarble(Sprite sprite) {
+        return marbles.add(sprite);
+    }
+
     public int size() {
         return marbles.size();
     }
