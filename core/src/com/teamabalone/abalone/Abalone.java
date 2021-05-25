@@ -97,7 +97,7 @@ public class Abalone implements Screen {
     private int currentPlayer = 0;
     private int winner = -1;
 
-    private final RenegadeKeeper[] renegadeKeeper = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
+    private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
 
     public Abalone(GameImpl game) {
         settings = Gdx.app.getPreferences("UserSettings");
@@ -115,8 +115,8 @@ public class Abalone implements Screen {
         instantiateBoard();
 
         //initialize renegadeKeeper array
-        for (int i = 0; i < renegadeKeeper.length; i++) {
-            renegadeKeeper[i] = new RenegadeKeeper(NUMBER_PLAYERS);
+        for (int i = 0; i < renegadeKeepers.length; i++) {
+            renegadeKeepers[i] = new RenegadeKeeper();
         }
     }
 
@@ -317,7 +317,7 @@ public class Abalone implements Screen {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
 
                 //choose renegade = true
-                renegadeKeeper[GameSet.getInstance().getTeamIndex(capturedMarble)].mayChooseRenegade();
+                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
 
                 GameSet.getInstance().removeMarble(capturedMarble);
 
@@ -346,13 +346,14 @@ public class Abalone implements Screen {
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
         if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
-            //TODO renegades
-            if (renegadeKeeper[currentPlayer].isCanPickRenegade()) {
-                renegadeKeeper[currentPlayer].chooseRenegade(potentialSprite);
-                GameSet.getInstance().removeMarble(potentialSprite);
-                potentialSprite.setTexture(playerTextures.get(currentPlayer));
-                GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(potentialSprite);
+
+            if (!renegadeKeepers[currentPlayer].isCanPickRenegade()) {
+                renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite));
+            } else {
+                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer);
+                queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
             }
+
             return;
         }
 
@@ -446,8 +447,13 @@ public class Abalone implements Screen {
     }
 
     public int nextPlayer() { //TODO has to be called if server sends move of opponent
-        currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
-        nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeeper[currentPlayer].isCanPickRenegade() ? "*" : ""));
+        if (renegadeKeepers[currentPlayer].hasDoubleTurn()) {
+            renegadeKeepers[currentPlayer].takeDoubleTurn();
+        } else {
+            currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+            nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade());
+        }
         return currentPlayer;
     }
 
