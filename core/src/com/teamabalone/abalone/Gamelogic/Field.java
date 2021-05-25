@@ -11,7 +11,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
-    private int renegade;
+    private int renegade = -1;
 
     public Field(int radius) {
         this.radius = radius;
@@ -75,7 +75,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         for (HexCoordinate hex : iterateOverHexagons()) {
             if(getHexagon(hex).getId()==tileId){
                 getHexagon(hex).getMarble().setTeam(Team.values()[playerId]); //returns the Team of the playerId
-                this.renegade = tileId;
+                renegade = tileId;
                 break;
             }
         }
@@ -83,9 +83,8 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
 
     @Override
     public int idOfCurrentRenegade() {
-        return this.renegade;
+        return renegade;
     }
-
 
     //invalid move -> null
     //valid move but empty field ahead -> array{}

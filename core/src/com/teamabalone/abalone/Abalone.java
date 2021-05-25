@@ -50,7 +50,7 @@ public class Abalone implements Screen {
 
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
-    private final int NUMBER_CAPTURES_TO_WIN = 3;
+    private final int NUMBER_CAPTURES_TO_WIN = 6;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
     private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
@@ -98,6 +98,7 @@ public class Abalone implements Screen {
     private int winner = -1;
 
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
+    private Label renegadeLabels = null;
 
     public Abalone(GameImpl game) {
         settings = Gdx.app.getPreferences("UserSettings");
@@ -313,6 +314,12 @@ public class Abalone implements Screen {
 
             unselectCompleteList();
 
+            //unmark renegade
+            if (renegadeLabels != null) {
+                stage.getActors().pop();
+                renegadeLabels = null;
+            }
+
             if (queries.isPushedOutOfBound()) {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
 
@@ -340,6 +347,21 @@ public class Abalone implements Screen {
         }
     }
 
+    public void createRenegadeMark(Vector2 center) {
+        Label mark = FactoryHelper.createLabelWithText("R", 20, 20);
+        mark.setAlignment(Align.center);
+        mark.setColor(Color.GOLD);
+        renegadeLabels = mark;
+
+        stage.addActor(mark);
+        Actor label = stage.getActors().peek();
+
+        Vector3 vector = new Vector3(center.x, center.y, 0f);
+        viewport.project(vector);
+        label.setX(vector.x - mark.getWidth() / 2);
+        label.setY(vector.y - mark.getHeight() / 2);
+    }
+
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
@@ -348,7 +370,9 @@ public class Abalone implements Screen {
         if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
 
             if (!renegadeKeepers[currentPlayer].isCanPickRenegade()) {
-                renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite));
+                if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+                    createRenegadeMark(board.getCenter(potentialSprite));
+                }
             } else {
                 renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer);
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
