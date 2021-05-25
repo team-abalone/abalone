@@ -61,7 +61,7 @@ public class SettingsDialog extends Dialog {
             ;
         });
 
-        // Music Controll setup
+        // Music Control setup
         Label musicVolume = new Label("Music Volume:", skin);
         final Slider slider = new Slider(0, 100, 1, false, skin);
         slider.setValue(settings.getFloat("bgMusicVolumeFactor", 1f) * 100);
@@ -78,7 +78,7 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        //SFX Controll setup
+        //SFX Control setup
         Label sfxCheck = new Label("Disbale SFX?", skin);
         final CheckBox sfxBox = new CheckBox("", skin);
         sfxBox.setChecked(settings.getBoolean("sfxSoundActive", false));
