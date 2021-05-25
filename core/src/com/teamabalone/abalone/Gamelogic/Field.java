@@ -25,7 +25,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
 
     private ResponseHandler responseHandler;
 
-    public Field(int radius, UUID userId) {
+    public Field(int radius/*, UUID userId*/) {
         this.radius = radius;
         this.userId = userId;
         this.hexFields = getHexagonCount(radius);
@@ -360,6 +360,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
     public void HandleResponse(BaseResponse response) {
         if(response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()){
             //Recreate opponents move. This will be broadcast by our api
+        }
+        if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()){
+            //Create Field on each player's client. Ensure that all ID's are unique and have the same value among all players
         }
     }
 }
