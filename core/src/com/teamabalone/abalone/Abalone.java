@@ -76,6 +76,8 @@ public class Abalone implements Screen {
     private final float screenHeight = Gdx.graphics.getHeight();
     private final Stage stage;
     private Label nextLabel;
+    private Label deadBlackMarbleLabel;
+    private Label deadWhiteMarbleLabel;
     private ImageButton settingsButton;
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
@@ -128,7 +130,8 @@ public class Abalone implements Screen {
         settings.putString("marbleSkin" + 0, "ball_white.png");
         settings.flush();
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 0)));
-        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
+        playerTextures.add(new Texture("marbles/ball.png"));
+        //playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
     private void board() {
@@ -218,6 +221,7 @@ public class Abalone implements Screen {
 
         batch.end();
 
+
         stage.act();
         stage.draw();
 
@@ -259,6 +263,7 @@ public class Abalone implements Screen {
 
             justTouched = false;
         }
+
     }
 
     public void background() {
@@ -330,6 +335,9 @@ public class Abalone implements Screen {
 
                 ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
                 deletionList.add(capturedMarble);
+                deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+                deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
                 if (currentPlayer == 1) {
                     capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
                 } else {
@@ -484,6 +492,8 @@ public class Abalone implements Screen {
     @Override
     public void show() {
         playerLabel();
+        deadBlackMarblesLabel();
+        deadWhiteMarblesLabel();
         settingsButton();
         exitButton();
 
@@ -497,6 +507,24 @@ public class Abalone implements Screen {
         Actor label = stage.getActors().peek();
         label.setX(screenWidth - (label.getWidth() + 220));
         label.setY(screenHeight - (label.getHeight() + 60));
+    }
+
+    public void deadBlackMarblesLabel(){
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(0).size(),100,60);
+
+        stage.addActor(deadBlackMarbleLabel);
+        Actor label = stage.getActors().peek();
+        label.setX((label.getWidth() + 220));
+        label.setY(screenHeight - (label.getHeight() + 60));
+    }
+
+    public void deadWhiteMarblesLabel(){
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(1).size(),100,60);
+
+        stage.addActor(deadWhiteMarbleLabel);
+        Actor label = stage.getActors().peek();
+        label.setX(screenWidth - (label.getWidth() + 220));
+        label.setY((label.getHeight() + 60));
     }
 
     public void exitLabel() {
