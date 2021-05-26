@@ -11,6 +11,9 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+    private int renegade;
+    private int deadMarbles;
+
 
     public Field(int radius) {
         this.radius = radius;

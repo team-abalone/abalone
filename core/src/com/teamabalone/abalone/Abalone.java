@@ -19,6 +19,7 @@ import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.math.Vector2;
@@ -203,12 +204,16 @@ public class Abalone implements Screen {
             }
         }
 
+
+        /*
         for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
             for (Sprite sprite : arrayList) {
                 sprite.setScale(0.5f);
                 sprite.draw(batch);
             }
         }
+
+         */
 
         batch.end();
 
@@ -316,6 +321,7 @@ public class Abalone implements Screen {
 
                 ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
                 deletionList.add(capturedMarble);
+
                 deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
                 deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
 
@@ -463,19 +469,27 @@ public class Abalone implements Screen {
     public void deadBlackMarblesLabel(){
         deadBlackMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(0).size(),100,60);
 
+        Image imageOfBlackMarble = new Image(playerTextures.get(1));
+        imageOfBlackMarble.setPosition(263,900);
+        stage.addActor(imageOfBlackMarble);
+
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
         label.setX((label.getWidth() + 220));
-        label.setY(screenHeight - (label.getHeight() + 60));
+        label.setY(screenHeight - (label.getHeight() + 85 ));
     }
 
     public void deadWhiteMarblesLabel(){
         deadWhiteMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(1).size(),100,60);
 
+        Image imageOfWhiteMarble = new Image(playerTextures.get(0));
+        imageOfWhiteMarble.setPosition(1706,20);
+        stage.addActor(imageOfWhiteMarble);
+
         stage.addActor(deadWhiteMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX(screenWidth - (label.getWidth() + 220));
-        label.setY((label.getHeight() + 60));
+        label.setX(screenWidth - (label.getWidth() + 225));
+        label.setY((label.getHeight() - 5));
     }
 
     public void exitLabel() {
