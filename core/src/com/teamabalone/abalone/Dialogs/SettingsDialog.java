@@ -6,6 +6,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -32,6 +33,8 @@ public class SettingsDialog extends Dialog {
     boolean sfxSoundActive;
     String marbleSkin;
     String boardSkin;
+    boolean colorSetting;
+    private Stage stage;
     //
     Preferences settings = Gdx.app.getPreferences("UserSettings");
 
@@ -116,6 +119,52 @@ public class SettingsDialog extends Dialog {
             }
         });
 
+        //Marble RGB color selection
+        Label marbleRGBLabel = new Label("Choose a Marble Color:", skin);
+        final CheckBox colorBox = new CheckBox("", skin);
+        colorBox.setChecked(settings.getBoolean("colorSetting", false));
+        Button selectColor = FactoryHelper.createButtonWithText("Select Color");
+        if(colorBox.isChecked()){
+            selectColor.setVisible(true);
+            marbleSkins.setVisible(false);
+        } else{
+            selectColor.setVisible(false);
+            marbleSkins.setVisible(true);
+        }
+        colorBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (colorBox.isChecked()) {
+                    colorSetting = true;
+                    settings.putString("marbleSkin" + 1, "ball_white.png");
+                    settings.flush();
+                    marbleSkins.setSelected("ball_white.png");
+                    marbleSkins.setVisible(false);
+                    Gdx.app.log("ClickListener", "The marble skin for painting has ben set to ball_white.png");
+                    selectColor.setVisible(true);
+                } else {
+                    colorSetting = false;
+                    marbleSkins.setVisible(true);
+                    selectColor.setVisible(false);
+                }
+                settings.putBoolean("colorSetting", colorSetting);
+                settings.flush();
+                Gdx.app.log("ClickListener", "The Color Setting is: " + sfxSoundActive);
+            }
+        });
+        selectColor.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                ColorPickerDialog colorPickerDialog = new ColorPickerDialog("", skin, abalone);
+                colorPickerDialog.show(stage);
+
+            }
+        });
+
+
+
+
+
         //Gameboard visual setup
         Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
         FileHandle[] directoryBoard = Gdx.files.internal("boards/").list();          //fetches the files in this directory
@@ -138,6 +187,7 @@ public class SettingsDialog extends Dialog {
 
         //Table that holds everything gets filled
         rootTable.add(header).left();
+        rootTable.add();
         rootTable.add(exitButton).right().top().expandX();
         rootTable.row();
         rootTable.add(musicVolume);
@@ -149,12 +199,17 @@ public class SettingsDialog extends Dialog {
         rootTable.add(marbleSkinLabel);
         rootTable.add(marbleSkins).center();
         rootTable.row();
+        rootTable.add(marbleRGBLabel);
+        rootTable.add(colorBox).left().padLeft(50);
+        rootTable.add(selectColor).maxHeight(100f).left();
+        rootTable.row();
         rootTable.add(boardSkinLabel);
         rootTable.add(boardSkins).center();
     }
 
     @Override
     public Dialog show(Stage stage) {
+        this.stage = stage;
         return super.show(stage);
     }
 }
