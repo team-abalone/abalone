@@ -86,6 +86,11 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         return renegade;
     }
 
+    @Override
+    public void resetRenegade() {
+        renegade = -1;
+    }
+
     //invalid move -> null
     //valid move but empty field ahead -> array{}
     //valid move and enemy marbles ahead -> array{enemy1, enemy2}

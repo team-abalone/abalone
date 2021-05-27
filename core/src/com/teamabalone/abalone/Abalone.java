@@ -379,9 +379,10 @@ public class Abalone implements Screen {
 
             //TODO first turns marble before expose enemy marble
             if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+                queries.resetRenegade();
                 createRenegadeMark(board.getCenter(potentialSprite));
             } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
-                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer);
+                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
                 nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
@@ -484,7 +485,8 @@ public class Abalone implements Screen {
         } else {
             currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
             nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
-            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade());
+            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+            //TODO player communication server wont work that easily
         }
         return currentPlayer;
     }

@@ -13,4 +13,6 @@ public interface AbaloneQueries {
     void changeTo(int tileId, int playerId);
 
     int idOfCurrentRenegade();
+
+    void resetRenegade();
 }

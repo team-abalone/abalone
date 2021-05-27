@@ -19,14 +19,19 @@ public class RenegadeKeeper {
         return canPickRenegade;
     }
 
-    public void chooseRenegade(Sprite sprite, Texture texture, int currentPlayer) {
+    public void chooseRenegade(Sprite sprite, Texture texture, int currentPlayer, Board board) {
         GameSet.getInstance().removeMarble(sprite);
         sprite.setTexture(texture); //set texture
         GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(sprite);
+        lastRenegadeId = board.getTileId(sprite);
         canPickRenegade = false;
     }
 
     public void checkNewRenegade(int currentRenegadeId) { //only one expose attempt per renegade
+        if (currentRenegadeId == -1 && lastRenegadeId != -1) { //reset
+            lastRenegadeId = -1;
+            hasExposeAttempt = false;
+        }
         if (lastRenegadeId != currentRenegadeId) {
             lastRenegadeId = currentRenegadeId;
             hasExposeAttempt = true;
