@@ -42,11 +42,6 @@ public class GameInfo implements GameInfos {
     }
 
     @Override
-    public ArrayList<String> colors() {
-        return null;
-    }
-
-    @Override
     public ArrayList<String> names() {
         return null;
     }

@@ -1,7 +1,6 @@
 package com.teamabalone.abalone.View;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class RenegadeKeeper {
@@ -51,6 +50,4 @@ public class RenegadeKeeper {
     public void takeDoubleTurn() {
         doubleTurn = false;
     }
-
-
 }

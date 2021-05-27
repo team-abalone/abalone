@@ -377,13 +377,13 @@ public class Abalone implements Screen {
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
         if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
 
-            if (!renegadeKeepers[currentPlayer].isCanPickRenegade()) {
-                if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
-                    createRenegadeMark(board.getCenter(potentialSprite));
-                }
-            } else {
+            //TODO first turns marble before expose enemy marble
+            if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+                createRenegadeMark(board.getCenter(potentialSprite));
+            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
                 renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer);
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
+                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
 
             return;
@@ -509,8 +509,8 @@ public class Abalone implements Screen {
         label.setY(screenHeight - (label.getHeight() + 60));
     }
 
-    public void deadBlackMarblesLabel(){
-        deadBlackMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(0).size(),100,60);
+    public void deadBlackMarblesLabel() {
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 100, 60);
 
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
@@ -518,8 +518,8 @@ public class Abalone implements Screen {
         label.setY(screenHeight - (label.getHeight() + 60));
     }
 
-    public void deadWhiteMarblesLabel(){
-        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(1).size(),100,60);
+    public void deadWhiteMarblesLabel() {
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 100, 60);
 
         stage.addActor(deadWhiteMarbleLabel);
         Actor label = stage.getActors().peek();
