@@ -102,7 +102,8 @@ public class Abalone implements Screen {
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
     private Label renegadeLabels = null;
 
-    public Abalone(GameImpl game) {
+    public Abalone(GameImpl game, Field field) {
+        queries = field;
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
@@ -155,7 +156,6 @@ public class Abalone implements Screen {
     }
 
     private void instantiateBoard() {
-        queries = new Field(5);
         int[] fieldMatrix = queries.getWholeField();
         int[] teams = new int[MAX_TEAMS + 1]; //also storing empty field
 

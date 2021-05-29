@@ -19,6 +19,8 @@ import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.JoinGameDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
+import com.teamabalone.abalone.Gamelogic.Field;
+import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
@@ -75,12 +77,14 @@ public class MenuScreen implements Screen {
             ;
         });
 
+        GameInfo.getInstance().setSingleDeviceMode(true);
         createLocalGameButton = FactoryHelper.createButtonWithText("Local Game");
 
         createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new Abalone(game));
+                Field field = new Field(GameInfo.getInstance().mapSize());
+                game.setScreen(new Abalone(game, field));
             };
         });
 

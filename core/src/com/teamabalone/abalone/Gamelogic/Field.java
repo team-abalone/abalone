@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Gamelogic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +21,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         for (HexCoordinate hex : iterateOverHexagons()) {
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
-        fieldSetUp();
+//        fieldSetUp();
         System.out.println(iterateOverHexagons());
     }
 
@@ -48,6 +49,35 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
             } else if (getHexagon(hex).getId() >= 51 || getHexagon(hex).getId() >= 46 && getHexagon(hex).getId() <= 48) {
                 getHexagon(hex).setMarble(new Marble(Team.BLACK));
             }
+        }
+    }
+
+    //field[]
+    //names[]
+    //player id
+    //playerIds[]
+/*    public void setInitialValues(StarterResponse starterResponse) {
+        GameInfo gameInfo = GameInfo.getInstance();
+        gameInfo.setPlayerId(starterResponse.playerId);
+        gameInfo.setNumberPlayers(starterResponse.name[].length);
+        gameInfo.setNames(new ArrayList<>(Arrays.asList(starterResponse.names)));
+
+        fieldSetUpServer(starterResponse.field);
+    }*/
+
+    //0 - 6
+    //0 - 5
+    public void fieldSetUpServer(int[] field) {
+        if(field.length != this.field.size()){
+            throw new IllegalArgumentException("field size not matching hash map");
+        }
+
+        int i = 0;
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            if (field[i] != 0) {
+                getHexagon(hex).setMarble(new Marble(Team.values()[field[i] - 1]));
+            }
+            i++;
         }
     }
 
