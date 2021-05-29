@@ -14,9 +14,14 @@ import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
+
+import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
+
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
+
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
+import com.teamabalone.abalone.Client.Responses.StartGameResponse;
 import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
@@ -73,6 +78,10 @@ public class ResponseHandlerService extends Service {
                             else if(response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED_OTHER.getValue()) {
                                 response = gson.fromJson(responseString, RoomJoinedResponse.class);
                             }
+                            else if(response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+                                response = gson.fromJson(responseString, MadeMoveResponse.class);
+                            }
+
                             else if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
                                 response = gson.fromJson(responseString, GameStartedResponse.class);
                             }

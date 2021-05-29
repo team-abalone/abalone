@@ -1,8 +1,21 @@
 package com.teamabalone.abalone.Gamelogic;
 
+import com.teamabalone.abalone.Client.IResponseHandlerObserver;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.MakeMoveRequest;
+import com.teamabalone.abalone.Client.ResponseHandler;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+
+import java.io.IOException;
 import com.teamabalone.abalone.Abalone;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static java.lang.Math.abs;
 
@@ -12,11 +25,16 @@ import static java.lang.Math.abs;
  * I holds a {@link HashMap} called field in which the {@link HexCoordinate Hexcoordinates} and {@link Marble Marbles} are stored.
  * Futhermore it has several methods to change the {@code field} and to communicate with a View.
  */
-public class Field implements Iterable<Hexagon>, AbaloneQueries {
+public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, AbaloneQueries {
+
     private HashMap<HexCoordinate, Hexagon> field;
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+    private UUID userId;
+
+    private ResponseHandler responseHandler;
+
 
     /**
      * Constructor for Field.
@@ -25,6 +43,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
      */
     public Field(int radius) {
         this.radius = radius;
+        this.userId = userId;
         this.hexFields = getHexagonCount(radius);
         this.field = new HashMap<>(this.hexFields);
         int i = 1;
@@ -32,8 +51,13 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
         fieldSetUp();
+
+        responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
+        responseHandler.addObserver(this);
+
         System.out.println(iterateOverHexagons());
     }
+
 
     /**
      * Returns all Marbles in the {@code field}.
@@ -45,7 +69,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
     public List<Team> getMarbles(){
         List<Team> result = new ArrayList<Team>();
         for (HexCoordinate hex : iterateOverHexagons()) {
-            if(getHexagon(hex).getMarble() == null){
+            if (getHexagon(hex).getMarble() == null) {
                 result.add(null);
             } else {
                 result.add(getHexagon(hex).getMarble().getTeam());
@@ -53,6 +77,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         }
         return result;
     }
+
 
     /**
      * Sets the {@code gotPushedOut} boolean to false.
@@ -64,6 +89,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
     /**
      * Loads default marble positions into the hashmap for the game start
      */
+
     public void fieldSetUp() {
         for (HexCoordinate hex : iterateOverHexagons()) {
             if (getHexagon(hex).getId() <= 11 || getHexagon(hex).getId() >= 14 && getHexagon(hex).getId() <= 16) {
@@ -165,6 +191,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         return result;
     }
 
+
     /**
      * Moves the marbles within the {@code field} data.
      * <p></p>
@@ -199,7 +226,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
             if (getHexagon(target) == null) {
                 gotPushedOut = true;
                 localPushedOut = true;
-                if (marbleID.length == 1){                          //in this case only one marble is pushed out and we just delete it
+                if (marbleID.length == 1) {                          //in this case only one marble is pushed out and we just delete it
                     getHexagon(hex).setMarble(null);
                 }
                 continue;                                    //target field is null -> it's out of bound so we skip this iteration
@@ -208,11 +235,23 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
             getHexagon(hex).setMarble(tempTarget);
             tempTarget = getHexagon(target).getMarble();
             getHexagon(target).setMarble(tempMoving);
-            if(localPushedOut){                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
+            if (localPushedOut) {                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
+            }
+            BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
+            try {
+                RequestSender rs = new RequestSender(makeMoveRequest);
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                Future future = executorService.submit(rs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch(Exception e){
+                e.printStackTrace();
             }
         }
     }
+
 
     /**
      * Checks if selected marbles can push the blocking marbles
@@ -232,28 +271,28 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         Team currentTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
         for (HexCoordinate hex : selectedItems) {
             HexCoordinate target = calcNeighbour(hex, direction);
-            if(getHexagon(target).getMarble() == null || selectedItems.contains(target)){
+            if (getHexagon(target).getMarble() == null || selectedItems.contains(target)) {
                 //in this case the target field is empty. we dond't need to check for ally marbles since the checkMove already does this
-            } else{     //this case will have a enemy marble
+            } else {     //this case will have a enemy marble
                 HexCoordinate behindAlly = calcNeighbour(hex, mirrorDirection(direction));
-                if(!selectedItems.contains(behindAlly) ){       //in this case we push normal to the marble line and therefore can't push anything
+                if (!selectedItems.contains(behindAlly)) {       //in this case we push normal to the marble line and therefore can't push anything
                     return null;
                 }
                 int enemyRow = 1;                               //here we can actually check if we can legit move the marble
                 int[] enemyMarbles = new int[3];
-                while(enemyRow < selectedItems.size()){
+                while (enemyRow < selectedItems.size()) {
                     HexCoordinate behindTarget = calcNeighbour(target, direction);
-                    if(getHexagon(behindTarget) == null || getHexagon(behindTarget).getMarble() == null){               //marble have space behind it is free and can be pushed
-                        enemyMarbles[enemyRow-1] = getHexagon(target).getId();
+                    if (getHexagon(behindTarget) == null || getHexagon(behindTarget).getMarble() == null) {               //marble have space behind it is free and can be pushed
+                        enemyMarbles[enemyRow - 1] = getHexagon(target).getId();
                         int[] result = new int[enemyRow];
                         for (int i = 0; i < result.length; i++) {                           //need to make a new array because i don't know how long it will be at the beginning
                             result[i] = enemyMarbles[i];
                         }
                         return result;
-                    } else if (getHexagon(behindTarget).getMarble().getTeam() == currentTeam){      //ally marble blocks the push
+                    } else if (getHexagon(behindTarget).getMarble().getTeam() == currentTeam) {      //ally marble blocks the push
                         return null;
-                    } else{
-                        enemyMarbles[enemyRow-1] = getHexagon(target).getId();      //enemy marble has another enemy marble behind it so we look again for that one
+                    } else {
+                        enemyMarbles[enemyRow - 1] = getHexagon(target).getId();      //enemy marble has another enemy marble behind it so we look again for that one
                         enemyRow++;
                         target = behindTarget;
                     }
@@ -413,6 +452,7 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
         return neighbour;
     }
 
+
     /**
      * Turns the Direction 180° around.
      *
@@ -444,5 +484,17 @@ public class Field implements Iterable<Hexagon>, AbaloneQueries {
                 throw new IllegalStateException("Unexpected value: " + direction);
         }
         return mirror;
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        if (response instanceof MadeMoveResponse) {
+            if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+                //Recreate opponents move. This will be broadcast by our api
+                Directions direction = ((MadeMoveResponse) response).getDirection();
+                int ids[] = ((MadeMoveResponse) response).getMarbles();
+                move(ids,direction);
+            }
+        }
     }
 }

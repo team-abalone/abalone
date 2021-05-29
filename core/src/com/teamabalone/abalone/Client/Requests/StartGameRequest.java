@@ -1,5 +1,6 @@
 package com.teamabalone.abalone.Client.Requests;
 
+
 import java.util.UUID;
 
 public class StartGameRequest extends BaseRequest {
@@ -10,4 +11,5 @@ public class StartGameRequest extends BaseRequest {
         this.commandCode = RequestCommandCodes.START_GAME.getValue();
         this.roomKey = roomKey;
     }
+
 }
