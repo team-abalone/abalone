@@ -193,7 +193,7 @@ public class SettingsDialog extends Dialog {
 
         lblUserName = new Label("Username:", skin);
 
-        tfUsername = new TextField(settings.getString("UserName"), FactoryHelper.GetDefaultSkin());
+        tfUsername = new TextField(settings.getString("UserName"), FactoryHelper.getDefaultSkin());
         TextField.TextFieldStyle style = tfUsername.getStyle();
         style.background.setLeftWidth(60);
         tfUsername.setStyle(style);

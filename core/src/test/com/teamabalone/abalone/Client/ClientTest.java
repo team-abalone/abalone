@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
+import com.teamabalone.abalone.Client.Requests.InititalFieldType;
 import com.teamabalone.abalone.Client.Requests.RequestCommandCodes;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
@@ -52,7 +53,7 @@ public class ClientTest {
     @Test
     public void requestSenderTest() throws Exception {
         UUID userId = new UUID(1,32);
-        BaseRequest br = new CreateRoomRequest(userId,3,"bspid");
+        BaseRequest br = new CreateRoomRequest(userId,3,"bspid", InititalFieldType.DEFAULT);
         Gson gson = Helpers.GetGsonInstance();
         System.out.println(gson.toJson(br));
         SocketManager sm = SocketManager.newInstance();
