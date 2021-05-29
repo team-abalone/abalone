@@ -7,10 +7,12 @@ import java.util.UUID;
  */
 public class JoinRoomRequest extends BaseRequest {
     private String roomKey;
+    private String userName;
 
-    public JoinRoomRequest(UUID userId, String roomKey) {
+    public JoinRoomRequest(UUID userId, String roomKey, String userName) {
         this.userId = userId;
         this.commandCode = RequestCommandCodes.JOIN_ROOM.getValue();
         this.roomKey = roomKey;
+        this.userName = userName;
     }
 }

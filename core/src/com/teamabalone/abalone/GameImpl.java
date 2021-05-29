@@ -15,7 +15,6 @@ import java.util.UUID;
 public class GameImpl extends Game {
     public static Abalone abalone;
 
-
     private ICoreLauncher launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;

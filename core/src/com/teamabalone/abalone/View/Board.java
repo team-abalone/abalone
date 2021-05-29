@@ -8,7 +8,13 @@ import com.teamabalone.abalone.Gamelogic.Directions;
 import java.util.ArrayList;
 
 /**
- * The Board class holds the center coordinates of all field tiles of a hexagon map, also providing methods to move marbles in each direction. A vertical row oriented hexagon tile can be separated into a rectangle in the middle and two triangles, one on top and one below. Accordingly, the top Height represents the vertical height of one of those triangles and the bottom height the sum of the vertical height of the rectangle and the vertical triangle height. Each map has a specific edge length expressed in the number of edge tiles.
+ * The Board class holds the center coordinates of all field tiles of a hexagon map.
+ * <p></p>
+ * It is providing methods to move marbles in each direction.
+ * A vertical row oriented hexagon tile can be separated into a rectangle in the middle and two triangles, one on top and one below.
+ * Accordingly, the top Height represents the vertical height of one of those triangles and the bottom height the sum of the vertical
+ * height of the rectangle and the vertical triangle height.
+ * Each map has a specific edge length expressed in the number of edge tiles.
  */
 public class Board {
     private final ArrayList<Vector2> tiles = new ArrayList<>();
@@ -22,6 +28,14 @@ public class Board {
     private final float tileHeight;
     private final int numberEdgeTiles;
 
+    /**
+     * Constructor for this Board.
+     *
+     * @param tileLayer   the layer this board tiles, not null
+     * @param mapSize   the size of this board, not negative
+     * @param boardWidth   the width of the board, in pixels
+     * @param boardHeight   the width of the board, in pixels
+     */
     public Board(TiledMapTileLayer tileLayer, int mapSize, float boardWidth, float boardHeight) {
         if (tileLayer == null) {
             throw new IllegalArgumentException("no tileLayer has been passed to board");
@@ -42,6 +56,11 @@ public class Board {
         this.instantiate();
     }
 
+    /**
+     * Sets up the board.
+     * <p></p>
+     * Gives every tile on this board a {@link Vector2} in order to address every single tile individually.
+     */
     private void instantiate() {
         //the center coordinates will be stored two times: on index 0 and in the middle of the remaining array, basically making tiles 1-indexed and allowing quick access to center tile coordinates
         tiles.add(new Vector2(boardWidth / 2f + 1.5f, boardHeight / 2f - 0.5f)); //center; manually centered (+1.5f -0.5f)
@@ -60,21 +79,21 @@ public class Board {
     }
 
     /**
-     * Move marble one tile in left-up direction
+     * Move marble one tile in left-up direction.
      *
-     * @param point current center
-     * @return center after move
+     * @param point  current center
+     * @return  center after move
      */
     public Vector2 shiftLeftUp(Vector2 point) {
         return shiftLeftUp(point, 1);
     }
 
     /**
-     * Move marble n tiles in left-up direction
+     * Move marble n tiles in left-up direction.
      *
-     * @param point        current center
-     * @param howManyTimes number of tiles to move
-     * @return center after move
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
      */
     public Vector2 shiftLeftUp(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
@@ -85,10 +104,23 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Move marble one tile in left direction.
+     *
+     * @param point  current center
+     * @return  center after move
+     */
     public Vector2 shiftLeft(Vector2 point) {
         return shiftLeft(point, 1);
     }
 
+    /**
+     * Move marble n tiles in left direction.
+     *
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
+     */
     public Vector2 shiftLeft(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
         for (int i = 0; i < howManyTimes; i++) {
@@ -97,10 +129,23 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Move marble one tile in left-down direction.
+     *
+     * @param point  current center
+     * @return  center after move
+     */
     public Vector2 shiftLeftDown(Vector2 point) {
         return shiftLeftDown(point, 1);
     }
 
+    /**
+     * Move marble n tiles in left-down direction.
+     *
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
+     */
     public Vector2 shiftLeftDown(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
         for (int i = 0; i < howManyTimes; i++) {
@@ -110,10 +155,23 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Move marble one tile in right-up direction.
+     *
+     * @param point  current center
+     * @return  center after move
+     */
     public Vector2 shiftRightUp(Vector2 point) {
         return shiftRightUp(point, 1);
     }
 
+    /**
+     * Move marble n tiles in right-up direction.
+     *
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
+     */
     public Vector2 shiftRightUp(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
         for (int i = 0; i < howManyTimes; i++) {
@@ -123,10 +181,23 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Move marble one tile in right direction.
+     *
+     * @param point  current center
+     * @return  center after move
+     */
     public Vector2 shiftRight(Vector2 point) {
         return shiftRight(point, 1);
     }
 
+    /**
+     * Move marble n tiles in right direction.
+     *
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
+     */
     public Vector2 shiftRight(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
         for (int i = 0; i < howManyTimes; i++) {
@@ -135,10 +206,23 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Move marble one tile in right-down direction.
+     *
+     * @param point  current center
+     * @return  center after move
+     */
     public Vector2 shiftRightDown(Vector2 point) {
         return shiftRightDown(point, 1);
     }
 
+    /**
+     * Move marble n tiles in right-down direction.
+     *
+     * @param point         current center
+     * @param howManyTimes  number of tiles to move
+     * @return  center after move
+     */
     public Vector2 shiftRightDown(Vector2 point, int howManyTimes) {
         Vector2 vector = createVector(point);
         for (int i = 0; i < howManyTimes; i++) {
@@ -148,6 +232,12 @@ public class Board {
         return vector;
     }
 
+    /**
+     * Gets the tile at given index.
+     *
+     * @param index  the index in this list
+     * @return  the object from this list
+     */
     public Vector2 get(int index) {
         return tiles.get(index);
     }

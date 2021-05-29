@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CloseRoomRequest;
+import com.teamabalone.abalone.Client.Requests.StartGameRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
@@ -69,7 +70,20 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             playerList = new UUID[] { userId };
             currentPlayersList.setItems(playerList);
 
-            // TODO: Enable room creator to start game.
+            startGameButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    StartGameRequest startGameRequest = new StartGameRequest(userId, roomKey);
+
+                    try {
+                        RequestSender rs = new RequestSender(startGameRequest);
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        Future future = executorService.submit(rs);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                };
+            });
         }
 
         // Button for closing room.
@@ -133,6 +147,11 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             List<UUID> playerListTemp = ((RoomJoinedResponse) response).getPlayers();
             playerList = playerListTemp.toArray(new UUID[playerListTemp.size()]);
             currentPlayersList.setItems(playerList);
+        }
+        // Game has started.
+        // TODO: Init client side field with data from server.
+        else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
+            // TODO: Handle start game -> response can be parsed to GameStartedResponse
         }
     }
 }
