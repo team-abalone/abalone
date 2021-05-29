@@ -40,6 +40,7 @@ import com.teamabalone.abalone.Helpers.GameConstants;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
 import com.teamabalone.abalone.View.MarbleSet;
+import com.teamabalone.abalone.View.RenegadeKeeper;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
@@ -49,14 +50,16 @@ public class Abalone implements Screen {
 
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
-    private final int NUMBER_CAPTURES_TO_WIN = 1;
+    private final int NUMBER_CAPTURES_TO_WIN = 6;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
     private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
     private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
+    private final int PLAYER_ID = gameInfos.playerId();
 
     private Music bgMusic;
     private final Preferences settings;
+    private final ArrayList<Texture> playerTextures = new ArrayList<>();
 
     private final GameImpl game;
     private final SpriteBatch batch;
@@ -66,8 +69,6 @@ public class Abalone implements Screen {
     private FitViewport viewport;
 
     private Texture background;
-    private Texture blackBall;
-    private Texture whiteBall;
 
     private Board board;
 
@@ -75,6 +76,8 @@ public class Abalone implements Screen {
     private final float screenHeight = Gdx.graphics.getHeight();
     private final Stage stage;
     private Label nextLabel;
+    private Label deadBlackMarbleLabel;
+    private Label deadWhiteMarbleLabel;
     private ImageButton settingsButton;
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
@@ -96,7 +99,11 @@ public class Abalone implements Screen {
     private int currentPlayer = 0;
     private int winner = -1;
 
-    public Abalone(GameImpl game) {
+    private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
+    private Label renegadeLabels = null;
+
+    public Abalone(GameImpl game, Field field) {
+        queries = field;
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
@@ -110,12 +117,22 @@ public class Abalone implements Screen {
         textures();
 
         instantiateBoard();
+
+        //initialize renegadeKeeper array
+        for (int i = 0; i < renegadeKeepers.length; i++) {
+            renegadeKeepers[i] = new RenegadeKeeper();
+        }
     }
 
     private void textures() {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
-        blackBall = new Texture("marbles/" + settings.getString("marbleSkin", "ball.png"));
-        whiteBall = new Texture("marbles/ball_white.png");
+
+        //TODO putString only temporary. should be in settings later on.
+        settings.putString("marbleSkin" + 0, "ball_white.png");
+        settings.flush();
+        playerTextures.add(new Texture("marbles/ball_white.png"));
+        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
+        //playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
     private void board() {
@@ -135,10 +152,10 @@ public class Abalone implements Screen {
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;
+//        camera.rotate((360 / (float) NUMBER_PLAYERS) * PLAYER_ID); //player orientation //not working!
     }
 
     private void instantiateBoard() {
-        queries = new Field(5);
         int[] fieldMatrix = queries.getWholeField();
         int[] teams = new int[MAX_TEAMS + 1]; //also storing empty field
 
@@ -165,7 +182,11 @@ public class Abalone implements Screen {
         }
 
         for (int i = 0; i < positionArrays.size(); i++) {
-            GameSet.getInstance().register(i == 0 ? whiteBall : blackBall, positionArrays.get(i)); //TODO set chosen color
+            if(settings.getBoolean("colorSetting" ) && i == PLAYER_ID){
+                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"),positionArrays.get(i));
+            } else{
+                GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i));
+            }
             deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
         }
 
@@ -204,6 +225,7 @@ public class Abalone implements Screen {
 
         batch.end();
 
+
         stage.act();
         stage.draw();
 
@@ -235,14 +257,17 @@ public class Abalone implements Screen {
 
             lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
 
-            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
-                makeMove();
-            } else {
-                selectMarbleIfTouched();
+            if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
+                if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+                    makeMove();
+                } else {
+                    selectMarbleIfTouched();
+                }
             }
 
             justTouched = false;
         }
+
     }
 
     public void background() {
@@ -295,16 +320,28 @@ public class Abalone implements Screen {
 
             moveSelectedMarbles(selectedSprites); //move
             moveSelectedMarbles(selectedEnemySprites);
-//            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
 
             unselectCompleteList();
 
+            //unmark renegade
+            if (renegadeLabels != null) {
+                stage.getActors().pop();
+                renegadeLabels = null;
+            }
+
             if (queries.isPushedOutOfBound()) {
-                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
+                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
+
+                //choose renegade = true
+                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
+
                 GameSet.getInstance().removeMarble(capturedMarble);
 
                 ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
                 deletionList.add(capturedMarble);
+                deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+                deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
                 if (currentPlayer == 1) {
                     capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
                 } else {
@@ -322,12 +359,38 @@ public class Abalone implements Screen {
         }
     }
 
+    public void createRenegadeMark(Vector2 center) {
+        Label mark = FactoryHelper.createLabelWithText("R", 20, 20);
+        mark.setAlignment(Align.center);
+        mark.setColor(Color.GOLD);
+        renegadeLabels = mark;
+
+        stage.addActor(mark);
+        Actor label = stage.getActors().peek();
+
+        Vector3 vector = new Vector3(center.x, center.y, 0f);
+        viewport.project(vector);
+        label.setX(vector.x - mark.getWidth() / 2);
+        label.setY(vector.y - mark.getHeight() / 2);
+    }
+
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
         if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
+
+            //TODO first turns marble before expose enemy marble
+            if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+                queries.resetRenegade();
+                createRenegadeMark(board.getCenter(potentialSprite));
+            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
+                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
+                queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
+                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+            }
+
             return;
         }
 
@@ -388,14 +451,23 @@ public class Abalone implements Screen {
 
     private void unselect(Sprite sprite) {
         selectedSprites.unselect(sprite);
-        sprite.setColor(Color.WHITE);
+        if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+            sprite.setColor(new Color(settings.getInteger("rgbaValue")));
+        } else {
+            sprite.setColor(Color.WHITE);
+        }
+
     }
 
     private void unselectCompleteList() {
         for (int i = 0; i < selectedSprites.size(); i++) {
             Sprite s = selectedSprites.get(i);
             if (s != null) {
-                s.setColor(Color.WHITE);
+                if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+                    s.setColor(new Color(settings.getInteger("rgbaValue")));
+                } else {
+                    s.setColor(Color.WHITE);
+                }
             }
         }
         selectedSprites.unselectAll();
@@ -420,15 +492,23 @@ public class Abalone implements Screen {
         }
     }
 
-    public int nextPlayer() {
-        currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
-        nextLabel.setText(currentPlayer == 0 ? "White" : "Black");
+    public int nextPlayer() { //TODO has to be called if server sends move of opponent
+        if (renegadeKeepers[currentPlayer].hasDoubleTurn()) {
+            renegadeKeepers[currentPlayer].takeDoubleTurn();
+        } else {
+            currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+            nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+            //TODO player communication server wont work that easily
+        }
         return currentPlayer;
     }
 
     @Override
     public void show() {
         playerLabel();
+        deadBlackMarblesLabel();
+        deadWhiteMarblesLabel();
         settingsButton();
         exitButton();
 
@@ -437,16 +517,34 @@ public class Abalone implements Screen {
 
     public void playerLabel() {
         //TODO proper style?
-        nextLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
+        nextLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
         stage.addActor(nextLabel);
         Actor label = stage.getActors().peek();
         label.setX(screenWidth - (label.getWidth() + 220));
         label.setY(screenHeight - (label.getHeight() + 60));
     }
 
+    public void deadBlackMarblesLabel() {
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 100, 60);
+
+        stage.addActor(deadBlackMarbleLabel);
+        Actor label = stage.getActors().peek();
+        label.setX((label.getWidth() + 220));
+        label.setY(screenHeight - (label.getHeight() + 60));
+    }
+
+    public void deadWhiteMarblesLabel() {
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 100, 60);
+
+        stage.addActor(deadWhiteMarbleLabel);
+        Actor label = stage.getActors().peek();
+        label.setX(screenWidth - (label.getWidth() + 220));
+        label.setY((label.getHeight() + 60));
+    }
+
     public void exitLabel() {
         //TODO proper style?
-        Label winLabel = FactoryHelper.CreateLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
+        Label winLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -463,28 +561,30 @@ public class Abalone implements Screen {
     }
 
     private void exit() {
+        bgMusic.stop();
         game.setScreen(game.menuScreen);
         reset();
     }
 
-    public void reset(){
+    public void reset() {
         board = null;
         GameSet.reset();
     }
 
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
-        Skin skin = FactoryHelper.GetDefaultSkin();
-        settingsButton = FactoryHelper.CreateImageButton(
-                skin.get("settings-btn", ImageButton.ImageButtonStyle.class), //TODO exit-btn vector!
+        Skin skin = FactoryHelper.getDefaultSkin();
+        settingsButton = FactoryHelper.createImageButton(
+                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
                 150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
 
+        Abalone currentGame = this;
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, currentGame);
                 settingsDialog.show(stage);
             }
         });
@@ -498,9 +598,9 @@ public class Abalone implements Screen {
     }
 
     public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
-        Skin skin = FactoryHelper.GetDefaultSkin();
-        ImageButton exitButton = FactoryHelper.CreateImageButton(
-                skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+        Skin skin = FactoryHelper.getDefaultSkin();
+        ImageButton exitButton = FactoryHelper.createImageButton(
+                skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
                 150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
 
         Abalone currentGame = this;
@@ -524,6 +624,36 @@ public class Abalone implements Screen {
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
+    }
+
+    public void updateSettings() {
+        bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
+
+        String boardTexturePath = "boards/" + settings.getString("boardSkin");
+        if (!background.toString().equals(boardTexturePath)) {
+            background = new Texture(boardTexturePath);
+        }
+
+        for (int k = 0; k < playerTextures.size(); k++) {
+            Texture oldTexture = playerTextures.get(k);
+            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
+            Texture newTexture = playerTextures.get(k);
+            if (!newTexture.toString().equals(oldTexture.toString())) { //if texture type changed
+                MarbleSet marbleSet = GameSet.getInstance().getMarbleSets().get(k);
+                if (marbleSet.getMarble(0) != null) {
+                    for (int i = 0; i < marbleSet.size(); i++) {
+                        marbleSet.getMarble(i).setTexture(newTexture);
+                    }
+                }
+
+            }
+        }
+
+        if(settings.getBoolean("colorSetting")){
+            GameSet.getInstance().colorMarbleSet(settings.getInteger("rgbaValue"), PLAYER_ID);
+        } else {
+            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID);
+        }
     }
 
     @Override
@@ -557,8 +687,9 @@ public class Abalone implements Screen {
         tiledMapRenderer.dispose();
 
         background.dispose();
-        blackBall.dispose();
-        whiteBall.dispose();
+        for (int i = 0; i < playerTextures.size(); i++) {
+            playerTextures.get(i).dispose();
+        }
         reset();
     }
 }

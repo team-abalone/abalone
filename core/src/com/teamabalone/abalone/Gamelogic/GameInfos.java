@@ -8,6 +8,6 @@ public interface GameInfos {
     int numberPlayers();
     int mapSize();
     int maximalSelectableMarbles();
-    ArrayList<String> colors(); //skin or color; probably parsing necessary
+    int playerId();
     ArrayList<String> names();
 }

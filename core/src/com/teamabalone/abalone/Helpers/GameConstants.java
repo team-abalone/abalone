@@ -7,5 +7,5 @@ public class GameConstants {
     public static final String CUSTOM_UI_JSON = "skin/StyleExport.json";
     public static final String CUSTOM_UI_ATLAS = "skin/StyleExport.atlas";
 
-    public static final Integer[] PlayerNumberSelect = new Integer[] { 2, 3, 4 };
+    public static final Integer[] playerNumberSelect = new Integer[] { 2, 3, 4 };
 }

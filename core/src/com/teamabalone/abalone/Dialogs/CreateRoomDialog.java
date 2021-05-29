@@ -43,7 +43,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         this.stage = stage;
 
         // Dialog declarations
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), true);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), true);
 
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
@@ -55,7 +55,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         rootTable.setFillParent(true);
 
         Label header = new Label(title, skin);
-        exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
+        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
 
@@ -66,7 +66,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
             };
         });
 
-        TextButton createRoomButton = FactoryHelper.CreateButtonWithText("Create Room", 100, 100);
+        TextButton createRoomButton = FactoryHelper.createButtonWithText("Create Room", 100, 100);
 
         createRoomButton.addListener(new ClickListener() {
             @Override
@@ -94,7 +94,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         Label numberOfPlayersLabel = new Label("Choose the number of players:", skin);
 
         numberOfPlayersSelect = new SelectBox<Integer>(skin);
-        numberOfPlayersSelect.setItems(GameConstants.PlayerNumberSelect);
+        numberOfPlayersSelect.setItems(GameConstants.playerNumberSelect);
 
         Label initialFieldTypeLabel = new Label("Select the initial field type:", skin);
 

@@ -59,6 +59,10 @@ public class MarbleSet {
         return marbles.remove(sprite);
     }
 
+    public boolean addMarble(Sprite sprite) {
+        return marbles.add(sprite);
+    }
+
     /**
      * Returns the number of the current {@code Sprites} in this arrayList.
      *

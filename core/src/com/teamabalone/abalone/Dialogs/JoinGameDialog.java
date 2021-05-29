@@ -17,7 +17,6 @@ import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
-import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
@@ -43,7 +42,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         this.userId = userId;
 
         // Creating dialogs.
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.GetDefaultSkin(), false);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false);
 
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
@@ -55,7 +54,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         rootTable.setFillParent(true);
 
         // Exit button.
-        ImageButton exitButton = FactoryHelper.CreateImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
+        ImageButton exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
         exitButton.setHeight(100);
         exitButton.setWidth(100);
 
@@ -66,14 +65,14 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
             };
         });
 
-        tfRoomKey = new TextField("", FactoryHelper.GetDefaultSkin());
+        tfRoomKey = new TextField("", FactoryHelper.getDefaultSkin());
         TextField.TextFieldStyle style = tfRoomKey.getStyle();
         style.background.setLeftWidth(60);
         tfRoomKey.setStyle(style);
 
         Label roomKeyLabel = new Label("Enter the RoomKey: ", skin);
 
-        TextButton joinRoomButton = FactoryHelper.CreateButtonWithText("Join Room", 100, 100);
+        TextButton joinRoomButton = FactoryHelper.createButtonWithText("Join Room", 100, 100);
 
         joinRoomButton.addListener(new ClickListener() {
             @Override

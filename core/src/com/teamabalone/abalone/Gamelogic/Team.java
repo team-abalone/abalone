@@ -4,5 +4,5 @@ package com.teamabalone.abalone.Gamelogic;
  * Enum to represent the Teams aka Players.
  */
 public enum Team {
-	WHITE, BLACK
+	BLACK, WHITE
 }

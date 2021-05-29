@@ -10,14 +10,15 @@ import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 
 import java.io.IOException;
-import com.teamabalone.abalone.Abalone;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static java.lang.Math.abs;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This Class manages the data of the game field.
@@ -31,6 +32,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+    private int renegade = -1;
     private UUID userId;
 
     private ResponseHandler responseHandler;
@@ -50,11 +52,10 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         for (HexCoordinate hex : iterateOverHexagons()) {
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
-        fieldSetUp();
+//        fieldSetUp();
 
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
-
         System.out.println(iterateOverHexagons());
     }
 
@@ -66,7 +67,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      *
      * @return  a {@link List} of teams from marbles. If a field has no marble it's null.
      */
-    public List<Team> getMarbles(){
+    public List<Team> getMarbles() {
         List<Team> result = new ArrayList<Team>();
         for (HexCoordinate hex : iterateOverHexagons()) {
             if (getHexagon(hex).getMarble() == null) {
@@ -82,14 +83,13 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Sets the {@code gotPushedOut} boolean to false.
      */
-    public void setGotPushedOut(){
+    public void setGotPushedOut() {
         gotPushedOut = false;
     }
 
     /**
      * Loads default marble positions into the hashmap for the game start
      */
-
     public void fieldSetUp() {
         for (HexCoordinate hex : iterateOverHexagons()) {
             if (getHexagon(hex).getId() <= 11 || getHexagon(hex).getId() >= 14 && getHexagon(hex).getId() <= 16) {
@@ -100,6 +100,36 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
     }
 
+    //field[]
+    //names[]
+    //player id
+    //playerIds[]
+/*    public void setInitialValues(StarterResponse starterResponse) {
+        GameInfo gameInfo = GameInfo.getInstance();
+        gameInfo.setPlayerId(starterResponse.playerId);
+        gameInfo.setNumberPlayers(starterResponse.name[].length);
+        gameInfo.setNames(new ArrayList<>(Arrays.asList(starterResponse.names)));
+
+        fieldSetUpServer(starterResponse.field);
+    }*/
+
+    //0 - 6
+    //0 - 5
+    public void fieldSetUpServer(int[] field) {
+        if(field.length != this.field.size()){
+            throw new IllegalArgumentException("field size not matching hash map");
+        }
+
+        int i = 0;
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            if (field[i] != 0) {
+                getHexagon(hex).setMarble(new Marble(Team.values()[field[i] - 1]));
+            }
+            i++;
+        }
+    }
+
+    //method for view that returns the content for all fields
 
     /**
      * Iterates over the whole game field and writes into an array what each hex holds.
@@ -122,6 +152,27 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             }
         }
         return arr;
+    }
+
+    @Override
+    public void changeTo(int tileId, int playerId) {
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            if (getHexagon(hex).getId() == tileId) {
+                getHexagon(hex).getMarble().setTeam(Team.values()[playerId]); //returns the Team of the playerId
+                renegade = tileId;
+                break;
+            }
+        }
+    }
+
+    @Override
+    public int idOfCurrentRenegade() {
+        return renegade;
+    }
+
+    @Override
+    public void resetRenegade() {
+        renegade = -1;
     }
 
     //invalid move -> null
@@ -190,9 +241,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         move(ids, direction);            //ally
         return result;
     }
-
-
-    /**
+/**
      * Moves the marbles within the {@code field} data.
      * <p></p>
      * Please don't call the method on itself.
@@ -264,8 +313,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param direction  the direction to push
      * @return  the id of the pushable marbles, null if not pushable
      */
-    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction){
-        if(selectedItems.size() <= 1){
+    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction) {
+        if (selectedItems.size() <= 1) {
             return null;
         }
         Team currentTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
@@ -459,7 +508,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param direction the direction
      * @return  the turned direction
      */
-    public Directions mirrorDirection(Directions direction){
+    public Directions mirrorDirection(Directions direction) {
         Directions mirror;
         switch (direction) {
             case LEFT:
@@ -493,7 +542,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 //Recreate opponents move. This will be broadcast by our api
                 Directions direction = ((MadeMoveResponse) response).getDirection();
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
-                move(ids,direction);
+            //move ids
             }
         }
     }
