@@ -322,6 +322,53 @@ public class Abalone implements Screen {
         }
     }
 
+    private void makeServerMove(MadeMoveResponse madeMoveResponse) {
+        int[] marblesToCheck = madeMoveResponse.getMarbles;
+        Directions givenDirection = madeMoveResponse.getDirection;
+
+        int[] enemyMarbles = queries.checkMove(marblesToCheck, givenDirection);
+        boolean validMove = enemyMarbles != null;
+        if (validMove) {
+            boolean marblesToPush = enemyMarbles.length > 0;
+
+            SelectionList<Sprite> selectedEnemySprites = new SelectionList<>(MAX_SELECT);
+            if (marblesToPush) {
+                for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
+                    Vector2 field = board.get(enemyMarble);
+                    selectedEnemySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+                }
+            }
+
+            SelectionList<Sprite> selectedAllySprites = new SelectionList<>(MAX_SELECT);
+            for (int marbleToCheck : marblesToCheck) { //add enemy marbles for move
+                Vector2 field = board.get(marbleToCheck);
+                selectedAllySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
+            }
+
+            moveSelectedMarbles(selectedAllySprites); //move
+            moveSelectedMarbles(selectedEnemySprites);
+//            playerTransition((currentPlayer + 1) % NUMBER_PLAYERS == 0 ? "White's" : "Black's");
+
+            if (queries.isPushedOutOfBound()) {
+                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1);
+                GameSet.getInstance().removeMarble(capturedMarble);
+
+                ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
+                deletionList.add(capturedMarble);
+                if (currentPlayer == 1) {
+                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
+                } else {
+                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+                }
+
+                if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+                    winner = currentPlayer;
+                    exitLabel();
+                }
+            }
+        }
+    }
+
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
