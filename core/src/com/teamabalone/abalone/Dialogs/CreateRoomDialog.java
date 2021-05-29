@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
+import com.teamabalone.abalone.Client.Requests.InititalFieldType;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
@@ -32,6 +33,8 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
     private final Stage stage;
     private ImageButton exitButton;
     private ResponseHandler responseHandler;
+    final SelectBox<InititalFieldType> initialFieldTypeSelect;
+    final SelectBox<Integer> numberOfPlayersSelect;
 
     private WaitingForPlayersDialog waitingForPlayersDialog;
 
@@ -71,7 +74,8 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
                 Preferences settings = Gdx.app.getPreferences("UserSettings");
                 String userName = settings.getString("UserName");
 
-                CreateRoomRequest createRoomRequest = new CreateRoomRequest(userId, 2, userName != null ? userName : "default");
+                InititalFieldType ift = initialFieldTypeSelect.getSelected();
+                CreateRoomRequest createRoomRequest = new CreateRoomRequest(userId, 2, userName != null ? userName : "default", ift);
 
                 try {
                     RequestSender rs = new RequestSender(createRoomRequest);
@@ -87,13 +91,23 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
 
         rootTable.row().padTop(250);
 
-        Label numberOfPlayersLabel = new Label("Choose the number of players: ", skin);
+        Label numberOfPlayersLabel = new Label("Choose the number of players:", skin);
 
-        final SelectBox<Integer> numberOfPlayersSelect = new SelectBox<Integer>(skin);
+        numberOfPlayersSelect = new SelectBox<Integer>(skin);
         numberOfPlayersSelect.setItems(GameConstants.PlayerNumberSelect);
 
-        rootTable.add(numberOfPlayersLabel);
-        rootTable.add(numberOfPlayersSelect);
+        Label initialFieldTypeLabel = new Label("Select the initial field type:", skin);
+
+        initialFieldTypeSelect = new SelectBox<>(skin);
+        initialFieldTypeSelect.setItems(InititalFieldType.values());
+
+        rootTable.add(numberOfPlayersLabel).left();
+        rootTable.add(numberOfPlayersSelect).left().padLeft(20);
+
+        rootTable.row().padTop(40);
+
+        rootTable.add(initialFieldTypeLabel).left();
+        rootTable.add(initialFieldTypeSelect).left().padLeft(20);
 
         buttonTable.add(createRoomButton).width(800);
         buttonTable.setWidth(getWidth());
