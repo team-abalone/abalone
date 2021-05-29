@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Dialogs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
@@ -76,7 +78,10 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         joinRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(userId, tfRoomKey.getText());
+                Preferences settings = Gdx.app.getPreferences("UserSettings");
+                String userName = settings.getString("UserName");
+
+                JoinRoomRequest joinRoomRequest = new JoinRoomRequest(userId, tfRoomKey.getText(), userName != null ? userName : "default");
 
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);

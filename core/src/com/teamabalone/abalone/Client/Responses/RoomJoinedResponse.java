@@ -1,5 +1,6 @@
 package com.teamabalone.abalone.Client.Responses;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,8 @@ public class RoomJoinedResponse extends BaseResponse {
     private String RoomKey;
 
     private List<UUID> Players;
+
+    private HashMap<UUID, String> playerMap;
 
     private UUID CreatedBy;
 
@@ -42,5 +45,13 @@ public class RoomJoinedResponse extends BaseResponse {
 
     public void setNumberOfPlayers(int numberOfPlayers) {
         NumberOfPlayers = numberOfPlayers;
+    }
+
+    public HashMap<UUID, String> getPlayerMap() {
+        return playerMap;
+    }
+
+    public void setPlayerMap(HashMap<UUID, String> playerMap) {
+        this.playerMap = playerMap;
     }
 }
