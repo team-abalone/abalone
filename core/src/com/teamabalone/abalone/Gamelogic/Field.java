@@ -246,6 +246,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
