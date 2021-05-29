@@ -130,8 +130,8 @@ public class Abalone implements Screen {
         //TODO putString only temporary. should be in settings later on.
         settings.putString("marbleSkin" + 0, "ball_white.png");
         settings.flush();
-        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 0)));
-        playerTextures.add(new Texture("marbles/ball.png"));
+        playerTextures.add(new Texture("marbles/ball_white.png"));
+        playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
         //playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
@@ -182,7 +182,11 @@ public class Abalone implements Screen {
         }
 
         for (int i = 0; i < positionArrays.size(); i++) {
-            GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i)); //TODO set chosen color
+            if(settings.getBoolean("colorSetting" ) && i == PLAYER_ID){
+                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"),positionArrays.get(i));
+            } else{
+                GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i));
+            }
             deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
         }
 
@@ -447,14 +451,23 @@ public class Abalone implements Screen {
 
     private void unselect(Sprite sprite) {
         selectedSprites.unselect(sprite);
-        sprite.setColor(Color.WHITE);
+        if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+            sprite.setColor(new Color(settings.getInteger("rgbaValue")));
+        } else {
+            sprite.setColor(Color.WHITE);
+        }
+
     }
 
     private void unselectCompleteList() {
         for (int i = 0; i < selectedSprites.size(); i++) {
             Sprite s = selectedSprites.get(i);
             if (s != null) {
-                s.setColor(Color.WHITE);
+                if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+                    s.setColor(new Color(settings.getInteger("rgbaValue")));
+                } else {
+                    s.setColor(Color.WHITE);
+                }
             }
         }
         selectedSprites.unselectAll();
@@ -634,6 +647,12 @@ public class Abalone implements Screen {
                 }
 
             }
+        }
+
+        if(settings.getBoolean("colorSetting")){
+            GameSet.getInstance().colorMarbleSet(settings.getInteger("rgbaValue"), PLAYER_ID);
+        } else {
+            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID);
         }
     }
 
