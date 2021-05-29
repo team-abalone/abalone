@@ -52,7 +52,7 @@ public class ClientTest {
     @Test
     public void requestSenderTest() throws Exception {
         UUID userId = new UUID(1,32);
-        BaseRequest br = new CreateRoomRequest(userId,3);
+        BaseRequest br = new CreateRoomRequest(userId,3,"bspid");
         Gson gson = Helpers.GetGsonInstance();
         System.out.println(gson.toJson(br));
         SocketManager sm = SocketManager.newInstance();
