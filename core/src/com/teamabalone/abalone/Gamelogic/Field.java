@@ -10,6 +10,8 @@ import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 
 import java.io.IOException;
+import com.teamabalone.abalone.Abalone;
+
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,7 +19,14 @@ import java.util.concurrent.Future;
 
 import static java.lang.Math.abs;
 
-public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
+/**
+ * This Class manages the data of the game field.
+ * <p></p>
+ * I holds a {@link HashMap} called field in which the {@link HexCoordinate Hexcoordinates} and {@link Marble Marbles} are stored.
+ * Futhermore it has several methods to change the {@code field} and to communicate with a View.
+ */
+public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, AbaloneQueries {
+
     private HashMap<HexCoordinate, Hexagon> field;
     private int radius;
     private int hexFields;
@@ -26,7 +35,13 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
 
     private ResponseHandler responseHandler;
 
-    public Field(int radius/*, UUID userId*/) {
+
+    /**
+     * Constructor for Field.
+     *
+     * @param radius  the side length of the Field.
+     */
+    public Field(int radius) {
         this.radius = radius;
         this.userId = userId;
         this.hexFields = getHexagonCount(radius);
@@ -43,7 +58,15 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         System.out.println(iterateOverHexagons());
     }
 
-    public List<Team> getMarbles() {
+
+    /**
+     * Returns all Marbles in the {@code field}.
+     *<p></p>
+     * This Method is only used for Testing and should not be used in the real application.
+     *
+     * @return  a {@link List} of teams from marbles. If a field has no marble it's null.
+     */
+    public List<Team> getMarbles(){
         List<Team> result = new ArrayList<Team>();
         for (HexCoordinate hex : iterateOverHexagons()) {
             if (getHexagon(hex).getMarble() == null) {
@@ -55,11 +78,18 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return result;
     }
 
-    public void setGotPushedOut() {
+
+    /**
+     * Sets the {@code gotPushedOut} boolean to false.
+     */
+    public void setGotPushedOut(){
         gotPushedOut = false;
     }
 
-    //loads default marble positions into the hashmap for the game start
+    /**
+     * Loads default marble positions into the hashmap for the game start
+     */
+
     public void fieldSetUp() {
         for (HexCoordinate hex : iterateOverHexagons()) {
             if (getHexagon(hex).getId() <= 11 || getHexagon(hex).getId() >= 14 && getHexagon(hex).getId() <= 16) {
@@ -70,7 +100,12 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         }
     }
 
-    //method for view that returns the content for all fields
+
+    /**
+     * Iterates over the whole game field and writes into an array what each hex holds.
+     *
+     * @return the content for all hexes in {@link Field#field}
+     */
     public int[] getWholeField() {
         int[] arr = new int[this.hexFields];
         for (int i = 1; i <= hexFields; i++) {
@@ -93,6 +128,22 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
     //valid move but empty field ahead -> array{}
     //valid move and enemy marbles ahead -> array{enemy1, enemy2}
 
+    /**
+     * Checks if the selected marbles can be pushed into the direction.
+     * <p></p>
+     * This Method gets the id of the Marbles.
+     * Then converts it into {@link HexCoordinate Hexcoordinates}.
+     * It then checks for each marble if you can move the marble or not with following options:
+     * <li>the move is not legit, the target is not within the field. returns null.
+     * <li>the move is not legit, at least one ally marble blocks the move. returns null.
+     * <li>the move is not legit, there are more enemy marbles than can be pushed away. returns null.
+     * <li>the move is legit, all hexes are free. returns an empty array with zero length.
+     * <li>the move is legit, enemy marbles can be pushed away, returns an array with the pushed enemy marbles.
+     *
+     * @param ids  the selected hexes, not null
+     * @param direction  the direction to push
+     * @return  an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
+     */
     public int[] checkMove(int[] ids, Directions direction) {  //return.length == 0 == false
         //TODO
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
@@ -140,6 +191,17 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return result;
     }
 
+
+    /**
+     * Moves the marbles within the {@code field} data.
+     * <p></p>
+     * Please don't call the method on itself.
+     * Let the {@link Field#checkMove(int[], Directions)} do the call.
+     * If you call this method alone expect undefined behaviour.
+     *
+     * @param marbleID  the selected hexes, not null
+     * @param direction  the direction to push
+     */
     public void move(int[] marbleID, Directions direction) {
         boolean localPushedOut = false;
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
@@ -187,8 +249,20 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         }
     }
 
-    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction) {
-        if (selectedItems.size() <= 1) {
+
+    /**
+     * Checks if selected marbles can push the blocking marbles
+     * <p></p>
+     * Please don't call the method on itself.
+     * Let the {@link Field#checkMove(int[], Directions)} do the call.
+     * If you call this method alone expect undefined behaviour.
+     *
+     * @param selectedItems  the hexes selected, null returns null
+     * @param direction  the direction to push
+     * @return  the id of the pushable marbles, null if not pushable
+     */
+    public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction){
+        if(selectedItems.size() <= 1){
             return null;
         }
         Team currentTeam = getHexagon(selectedItems.get(0)).getMarble().getTeam();
@@ -225,10 +299,21 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return null;            //case will be reached when you have 3 iterations in the while loop which leads to 3+ enemy marbles which can never be pushed
     }
 
+    /**
+     * Returns the global gotPushedOut value
+     *
+     * @return {@code gotPushedOut} boolean
+     */
     public boolean isPushedOutOfBound() {
         return gotPushedOut;
     }
 
+    /**
+     * Checks if an selection of marbles is in a line, no mather which direction
+     *
+     * @param ids the marbles to check
+     * @return true if in line, false if not in line
+     */
     public boolean isInLine(int[] ids) {
         if (ids.length == 0) {
             throw new RuntimeException("No ids given");
@@ -273,6 +358,13 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         }
     }
 
+    /**
+     * Creates a list which stores all available HexCoordinates for this Field.
+     * <p></p>
+     * This Method can be used to get the HexCoordinates to address the values stored in {@link Field#field}.
+     *
+     * @return  an {@link ArrayList} of every {@link HexCoordinate} in the field
+     */
     public Iterable<HexCoordinate> iterateOverHexagons() {
         ArrayList<HexCoordinate> resultList = new ArrayList<>(this.hexFields);
         for (int z = -radius + 1; z < radius; z++) {
@@ -287,14 +379,32 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return resultList;
     }
 
+    /**
+     * Returns a specific hex
+     *
+     * @param coordinate  a HexCoordinate for {@link Field#field}
+     * @return  the hex, null if not in {@link Field#field}
+     */
     public Hexagon getHexagon(HexCoordinate coordinate) {
         return field.get(coordinate);
     }
 
+    /**
+     * Sets a specific hex
+     *
+     * @param coordinate a HexCoordinate for {@link Field#field}
+     * @param hexagon a specific {@link Hexagon}
+     */
     private void setHexagon(HexCoordinate coordinate, Hexagon hexagon) {
         this.field.put(coordinate, hexagon);
     }
 
+    /**
+     * Counts how many hexes a field has
+     *
+     * @param r  the radius
+     * @return  count of all hexes in a field
+     */
     private int getHexagonCount(int r) {
         return 3 * r * (r - 1) + 1;
     }
@@ -304,6 +414,14 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return field.values().iterator();
     }
 
+    /**
+     * Calculates the nearest hex in a certain direction.
+     *
+     * @param hex  the coordinates for a hex
+     * @param direction the direction to aim for
+     * @return  the next {@code HexCoordinate} in the direction
+     * @throws IllegalStateException in case of an invalid {@link Directions Direction}
+     */
     public HexCoordinate calcNeighbour(HexCoordinate hex, Directions direction) {
         HexCoordinate neighbour;
         switch (direction) {
@@ -331,7 +449,14 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
         return neighbour;
     }
 
-    public Directions mirrorDirection(Directions direction) {
+
+    /**
+     * Turns the Direction 180° around.
+     *
+     * @param direction the direction
+     * @return  the turned direction
+     */
+    public Directions mirrorDirection(Directions direction){
         Directions mirror;
         switch (direction) {
             case LEFT:

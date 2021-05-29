@@ -1,7 +1,7 @@
 package com.teamabalone.abalone.Dialogs;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
@@ -69,7 +68,10 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         createRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                CreateRoomRequest createRoomRequest = new CreateRoomRequest(userId, 2);
+                Preferences settings = Gdx.app.getPreferences("UserSettings");
+                String userName = settings.getString("UserName");
+
+                CreateRoomRequest createRoomRequest = new CreateRoomRequest(userId, 2, userName != null ? userName : "default");
 
                 try {
                     RequestSender rs = new RequestSender(createRoomRequest);

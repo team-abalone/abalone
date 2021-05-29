@@ -20,7 +20,6 @@ import java.util.concurrent.Future;
 public class GameImpl extends Game {
     public static Abalone abalone;
 
-
     private ICoreLauncher Launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;
