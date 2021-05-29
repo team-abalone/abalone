@@ -366,10 +366,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver {
                 Directions direction = ((MadeMoveResponse) response).getDirection();
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
                 move(ids,direction);
-            }/*
-        if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()){
-            //Create Field on each player's client. Ensure that all ID's are unique and have the same value among all players
-        }*/
+            }
         }
     }
 }

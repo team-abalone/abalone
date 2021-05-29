@@ -10,12 +10,7 @@ public class MadeMoveResponse extends BaseResponse{
     protected int [] ids;
     protected Directions direction;
     //TODO: Remove or adapt - unknown if this will be of need
-    @Override
-    public String toString() {
-        return "MadeMoveResponse{" +
-                "Direction='" + direction + '\'' +
-                '}';
-    }
+
     public int [] getMarbles(){
         return this.ids;
     }

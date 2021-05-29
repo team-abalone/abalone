@@ -13,5 +13,4 @@ public class MakeMoveRequest extends BaseRequest{
         this.marbles = marbles;
         this.direction = direction;
     }
-
 }
