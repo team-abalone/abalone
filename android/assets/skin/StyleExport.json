@@ -1,0 +1,107 @@
+{
+com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	Oswald-Bold-White: {
+		file: Oswald-Bold(1).fnt
+	}
+}
+com.badlogic.gdx.graphics.Color: {
+	RGBA_240_75_36_255: {
+		hex: f04b24ff
+	}
+	RGBA_255_255_255_255: {
+		hex: ffffffff
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+	default: {
+		up: button_up
+		down: button_down
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+	default: {
+		checkboxOn: ticked
+		checkboxOff: not_ticked
+		font: Oswald-Bold-White
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
+	exit-btn: {
+		up: button_exit_up
+		down: button_exit_down
+	}
+	settings-btn: {
+		up: button_settings_up
+		down: button_settings_down
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: Oswald-Bold-White
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
+	default: {
+		font: Oswald-Bold-White
+		fontColorSelected: RGBA_240_75_36_255
+		fontColorUnselected: RGBA_255_255_255_255
+		selection: window_frame
+		background: window_background
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
+	default-horizontal: {
+		background: button_down
+		disabledBackground: button_up
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
+	default: {
+		background: window_background
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
+	default: {
+		font: Oswald-Bold-White
+		fontColor: RGBA_255_255_255_255
+		scrollStyle: default
+		listStyle: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
+	default-horizontal: {
+		knobOver: slider_up
+		knobDown: slider_down
+		background: slider_bg
+		knob: slider_up
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+	default: {
+		font: Oswald-Bold-White
+		up: button_up
+		down: button_down
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+	default: {
+		font: Oswald-Bold-White
+		fontColor: RGBA_255_255_255_255
+		focusedFontColor: RGBA_240_75_36_255
+		disabledFontColor: RGBA_255_255_255_255
+		background: tf_bg
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
+	default: {
+		titleFont: Oswald-Bold-White
+		titleFontColor: RGBA_255_255_255_255
+		stageBackground: window_frame
+	}
+}
+}

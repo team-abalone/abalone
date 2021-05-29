@@ -1,103 +1,159 @@
 package com.teamabalone.abalone.Screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Abalone;
+import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
+import com.teamabalone.abalone.Dialogs.JoinGameDialog;
+import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
+import com.teamabalone.abalone.Gamelogic.Field;
+import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Helpers.Helpers;
+import com.teamabalone.abalone.Helpers.GameConstants;
+
+import java.util.UUID;
 
 
 /**
  * Implements the menu screen of the game.
  */
 public class MenuScreen implements Screen {
-    private GameImpl Game;
+    private Skin defaultSkin = FactoryHelper.getDefaultSkin();
+    private GameImpl game;
+    private Stage stage;
+    private UUID userId;
 
-    private TextButton CreateRoomButton;
-    private TextButton JoinGameButton;
-    private ImageButton SettingsButton;
+    private final String commitHash;
 
-    private Stage Stage;
+    private TextButton createLocalGameButton;
+    private TextButton createRoomButton;
+    private TextButton joinGameButton;
+    private ImageButton settingsButton;
 
-    public MenuScreen(GameImpl game) {
-        this.Game = game;
+    private TextureAtlas.AtlasRegion logo = FactoryHelper.getAtlas().findRegion("logo");
+
+    public MenuScreen(GameImpl game, String commitHash) {
+        this.game = game;
+        this.commitHash = commitHash;
+        Preferences preferences = Gdx.app.getPreferences("UserPreferences");
+        userId = UUID.fromString(preferences.getString("UserId"));
     }
 
     @Override
     public void show() {
-        Table buttonTable = FactoryHelper.CreateTable(
-                Gdx.graphics.getWidth() / 4,
+        Table buttonTable = FactoryHelper.createTable(
+                Gdx.graphics.getWidth() / 3.5f,
                 Gdx.graphics.getHeight() / 3,
                 Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 8,
                 Gdx.graphics.getHeight() / 6);
 
-        CreateRoomButton = FactoryHelper.CreateButtonWithText("Create Room");
+        // Creating and adding buttons.
+        createRoomButton = FactoryHelper.createButtonWithText("Create Room");
 
-        CreateRoomButton.addListener(new ClickListener() {
+        createRoomButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open create room overlay.
-                Gdx.app.log("ClickListener", CreateRoomButton.toString() + " clicked");
-                Game.setScreen(new Abalone(Game));
-            };
-        });
+                Gdx.app.log("ClickListener", createRoomButton.toString() + " clicked");
 
-        JoinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
-        JoinGameButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open join game overlay.
-                Gdx.app.log("ClickListener", JoinGameButton.toString() + " clicked");
+                //Game.setScreen(new Abalone(Game));
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage);
+                createRoomDialog.show(stage);
             }
 
             ;
         });
 
-        SettingsButton = FactoryHelper.CreateImageButton(
-                Helpers.TextureToDrawable(new Texture(Gdx.files.internal("buttons/settings_up.png"))),
-                Helpers.TextureToDrawable(new Texture(Gdx.files.internal("buttons/settings_down.png"))),
-                Helpers.TextureToDrawable(new Texture(Gdx.files.internal("buttons/settings_background.png"))),
-                200,
-                200,
-                Gdx.graphics.getWidth() - 250,
-                Gdx.graphics.getHeight() - 250);
+        GameInfo.getInstance().setSingleDeviceMode(true);
+        createLocalGameButton = FactoryHelper.createButtonWithText("Local Game");
 
-        SettingsButton.addListener(new ClickListener() {
+        createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
-                Gdx.app.log("ClickListener", SettingsButton.toString() + " clicked");
+                Field field = new Field(GameInfo.getInstance().mapSize());
+                game.setScreen(new Abalone(game, field));
             };
         });
 
-        Stage = new Stage();
-        Gdx.input.setInputProcessor(Stage);
+        joinGameButton = FactoryHelper.createButtonWithText("Join Game");
+
+        joinGameButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage);
+                createRoomDialog.show(stage);
+            };
+        });
+
+
+        settingsButton = FactoryHelper.createImageButton(
+                defaultSkin.get("settings-btn", ImageButton.ImageButtonStyle.class),
+                150,
+                150,
+                Gdx.graphics.getWidth() - 250,
+                Gdx.graphics.getHeight() - 250);
+
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
+                Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
+                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, null);
+                settingsDialog.show(stage);
+            }
+
+            ;
+        });
+
+        Label versionLabel = new Label(commitHash, defaultSkin);
+        versionLabel.setFontScale(0.7f);
+
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
         // Adding buttons.
-        buttonTable.row().fillX().expandX();
-        buttonTable.add(CreateRoomButton);
+        buttonTable.row().fillX().expandX().padTop(120);
+        buttonTable.add(createLocalGameButton);
         buttonTable.row().fillX().expandX().padTop(32);
-        buttonTable.add(JoinGameButton);
-        Stage.addActor(SettingsButton);
-        Stage.addActor(buttonTable);
+        buttonTable.add(createRoomButton);
+        buttonTable.row().fillX().expandX().padTop(32);
+        buttonTable.add(joinGameButton);
+
+        buttonTable.row().padTop(15);
+
+        // Adding version label.
+        buttonTable.add(versionLabel).center().bottom();
+
+        stage.addActor(settingsButton);
+        stage.addActor(buttonTable);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Stage.act();
-        Stage.draw();
+
+        // Drawing logo.
+        SpriteBatch batch = new SpriteBatch();
+        batch.begin();
+        batch.draw(logo, Gdx.graphics.getWidth() / 2 - logo.getRegionWidth() / 2, Gdx.graphics.getHeight() / 1.8f); //550 is X and 380 is Y position.
+        batch.end();
+        stage.act();
+        stage.draw();
     }
 
     @Override

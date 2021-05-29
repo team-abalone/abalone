@@ -1,0 +1,118 @@
+
+StyleExport.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+tf_bg
+  rotate: false
+  xy: 863, 1409
+  size: 218, 67
+  orig: 218, 67
+  offset: 0, 0
+  index: -1
+Oswald-Bold1
+  rotate: false
+  xy: 1, 595
+  size: 506, 389
+  orig: 506, 389
+  offset: 0, 0
+  index: -1
+button_down
+  rotate: false
+  xy: 1219, 1684
+  size: 476, 153
+  orig: 476, 153
+  offset: 0, 0
+  index: -1
+button_exit_down
+  rotate: false
+  xy: 863, 1316
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_exit_up
+  rotate: false
+  xy: 509, 887
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_settings_down
+  rotate: false
+  xy: 1219, 1478
+  size: 91, 90
+  orig: 91, 90
+  offset: 0, 0
+  index: -1
+button_settings_up
+  rotate: false
+  xy: 1333, 1591
+  size: 91, 91
+  orig: 91, 91
+  offset: 0, 0
+  index: -1
+button_up
+  rotate: false
+  xy: 1, 440
+  size: 476, 153
+  orig: 476, 153
+  offset: 0, 0
+  index: -1
+logo
+  rotate: false
+  xy: 1, 1478
+  size: 1216, 359
+  orig: 1216, 359
+  offset: 0, 0
+  index: -1
+not_ticked
+  rotate: false
+  xy: 1697, 1737
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+slider_bg
+  rotate: false
+  xy: 509, 980
+  size: 157, 4
+  orig: 157, 4
+  offset: 0, 0
+  index: -1
+slider_down
+  rotate: false
+  xy: 1, 236
+  size: 40, 100
+  orig: 40, 100
+  offset: 0, 0
+  index: -1
+slider_up
+  rotate: false
+  xy: 1799, 1737
+  size: 40, 100
+  orig: 40, 100
+  offset: 0, 0
+  index: -1
+ticked
+  rotate: false
+  xy: 1, 338
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+window_background
+  rotate: false
+  xy: 1219, 1570
+  size: 112, 112
+  orig: 112, 112
+  offset: 0, 0
+  index: -1
+window_frame
+  rotate: false
+  xy: 1, 986
+  size: 860, 490
+  orig: 860, 490
+  offset: 0, 0
+  index: -1

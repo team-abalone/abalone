@@ -1,6 +1,41 @@
-sourceCompatibility = 1.7
+
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+sourceCompatibility = 1.8
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled true
+    }
+}
+
+task coverage {
+    dependsOn 'test'
+    dependsOn 'jacocoTestReport'
+    tasks.findByName('jacocoTestReport').mustRunAfter('test')
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.mockito:mockito-core:3.10.0'
+    implementation 'org.json:json:20210307'
+
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+}
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.java.srcDirs = ["src/"]
 
 eclipse.project.name = appName + "-core"
+
+sourceSets.test.java.srcDirs = ["src/test/"]
