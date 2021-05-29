@@ -10,6 +10,7 @@ import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.SocketManager;
+import com.teamabalone.abalone.Helpers.Helpers;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class ClientTest {
     @Test
     public void responseHandlerTest() {
         ResponseHandler rh =ResponseHandler.newInstance();
-        Gson gson = new Gson();
+        Gson gson = Helpers.GetGsonInstance();
         String responseString = "{CommandCode: 40}";
         gson.toJson(responseString);
         BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
@@ -52,7 +53,7 @@ public class ClientTest {
     public void requestSenderTest() throws Exception {
         UUID userId = new UUID(1,32);
         BaseRequest br = new CreateRoomRequest(userId,3);
-        Gson gson = new Gson();
+        Gson gson = Helpers.GetGsonInstance();
         System.out.println(gson.toJson(br));
         SocketManager sm = SocketManager.newInstance();
 
