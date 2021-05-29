@@ -3,6 +3,7 @@ package com.teamabalone.abalone.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.JoinGameDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
@@ -29,21 +31,21 @@ import java.util.UUID;
  */
 public class MenuScreen implements Screen {
     private Skin defaultSkin = FactoryHelper.GetDefaultSkin();
-    private GameImpl Game;
-    private Stage Stage;
+    private GameImpl game;
+    private Stage stage;
     private UUID userId;
 
     private final String commitHash;
 
+    private TextButton createLocalGameButton;
     private TextButton createRoomButton;
     private TextButton joinGameButton;
     private ImageButton settingsButton;
 
     private TextureAtlas.AtlasRegion logo = FactoryHelper.GetAtlas().findRegion("logo");
 
-
     public MenuScreen(GameImpl game, String commitHash) {
-        this.Game = game;
+        this.game = game;
         this.commitHash = commitHash;
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         userId = UUID.fromString(preferences.getString("UserId"));
@@ -67,11 +69,20 @@ public class MenuScreen implements Screen {
                 Gdx.app.log("ClickListener", createRoomButton.toString() + " clicked");
 
                 //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, Stage);
-                createRoomDialog.show(Stage);
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage);
+                createRoomDialog.show(stage);
             }
 
             ;
+        });
+
+        createLocalGameButton = FactoryHelper.CreateButtonWithText("Local Game");
+
+        createLocalGameButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new Abalone(game));
+            };
         });
 
         joinGameButton = FactoryHelper.CreateButtonWithText("Join Game");
@@ -79,8 +90,8 @@ public class MenuScreen implements Screen {
         joinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, Stage);
-                createRoomDialog.show(Stage);
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage);
+                createRoomDialog.show(stage);
             };
         });
 
@@ -99,31 +110,33 @@ public class MenuScreen implements Screen {
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
                 SettingsDialog settingsDialog = new SettingsDialog("", uiSkin);
-                settingsDialog.show(Stage);
+                settingsDialog.show(stage);
             }
 
             ;
         });
 
         Label versionLabel = new Label(commitHash, defaultSkin);
+        versionLabel.setFontScale(0.7f);
 
-        Stage = new Stage();
-        Gdx.input.setInputProcessor(Stage);
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
         // Adding buttons.
-        buttonTable.row().fillX().expandX().padTop(100);
+        buttonTable.row().fillX().expandX().padTop(120);
+        buttonTable.add(createLocalGameButton);
+        buttonTable.row().fillX().expandX().padTop(32);
         buttonTable.add(createRoomButton);
         buttonTable.row().fillX().expandX().padTop(32);
         buttonTable.add(joinGameButton);
 
-        buttonTable.row().padTop(100);
-        buttonTable.row();
+        buttonTable.row().padTop(15);
 
         // Adding version label.
         buttonTable.add(versionLabel).center().bottom();
 
-        Stage.addActor(settingsButton);
-        Stage.addActor(buttonTable);
+        stage.addActor(settingsButton);
+        stage.addActor(buttonTable);
     }
 
     @Override
@@ -136,8 +149,8 @@ public class MenuScreen implements Screen {
         batch.begin();
         batch.draw(logo, Gdx.graphics.getWidth() / 2 - logo.getRegionWidth() / 2, Gdx.graphics.getHeight() / 1.8f); //550 is X and 380 is Y position.
         batch.end();
-        Stage.act();
-        Stage.draw();
+        stage.act();
+        stage.draw();
     }
 
     @Override

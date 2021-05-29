@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
@@ -25,12 +26,18 @@ import com.teamabalone.abalone.Helpers.FactoryHelper;
  * TODO: Not yet working properly.
  */
 public class SettingsDialog extends Dialog {
+    private final int PAD_TOP = 40;
     private ImageButton exitButton;
+
     //settings variables
-    float bgMusicVolumeFactor;
-    boolean sfxSoundActive;
-    String marbleSkin;
-    String boardSkin;
+    private float bgMusicVolumeFactor;
+    private boolean sfxSoundActive;
+    private String marbleSkin;
+    private String boardSkin;
+
+    private final TextField tfUsername;
+    private final Label lblUserName;
+
     //
     Preferences settings = Gdx.app.getPreferences("UserSettings");
 
@@ -39,7 +46,6 @@ public class SettingsDialog extends Dialog {
 
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
-        //rootTable.setDebug(true);
 
         //exit Button setup
         Label header = new Label("Settings", skin);
@@ -50,19 +56,18 @@ public class SettingsDialog extends Dialog {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                 remove();
             };
         });
 
         // Music Controll setup
-        Label  musicVolume = new Label("Music Volume:", skin);
+        Label musicVolume = new Label("Music Volume:", skin);
         final Slider slider = new Slider(0, 100, 1, false, skin);
-        slider.setValue(settings.getFloat("bgMusicVolumeFactor" , 1f)*100);
+        slider.setValue(settings.getFloat("bgMusicVolumeFactor", 1f) * 100);
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                bgMusicVolumeFactor = slider.getValue() /100;
+                bgMusicVolumeFactor = slider.getValue() / 100;
                 Gdx.app.log("ClickListener", bgMusicVolumeFactor + " was set");
                 settings.putFloat("bgMusicVolumeFactor", bgMusicVolumeFactor);
                 settings.flush();
@@ -76,14 +81,14 @@ public class SettingsDialog extends Dialog {
         sfxBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                 if(sfxBox.isChecked()){
-                     sfxSoundActive = false;
-                 } else{
-                     sfxSoundActive = true;
-                 }
+                if (sfxBox.isChecked()) {
+                    sfxSoundActive = false;
+                } else {
+                    sfxSoundActive = true;
+                }
                 settings.putBoolean("sfxSoundActive", sfxSoundActive);
-                 settings.flush();
-                Gdx.app.log("ClickListener", "The SFX is: "+ sfxSoundActive);
+                settings.flush();
+                Gdx.app.log("ClickListener", "The SFX is: " + sfxSoundActive);
             }
         });
 
@@ -91,7 +96,7 @@ public class SettingsDialog extends Dialog {
         Label marbleSkinLabel = new Label("Choose a Marble Skin:", skin);
         FileHandle[] directoryMarbles = Gdx.files.internal("marbles/").list();          //fetches the files in this directory
         Array<String> marbleSkinsList = new Array<String>();
-        for (FileHandle i: directoryMarbles) {
+        for (FileHandle i : directoryMarbles) {
             marbleSkinsList.add(i.name());                                  //saves the name of all files in this directory
         }
         final SelectBox<String> marbleSkins = new SelectBox<String>(skin);
@@ -111,7 +116,7 @@ public class SettingsDialog extends Dialog {
         Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
         FileHandle[] directoryBoard = Gdx.files.internal("boards/").list();          //fetches the files in this directory
         Array<String> boardSkinList = new Array<String>();
-        for (FileHandle i: directoryBoard) {
+        for (FileHandle i : directoryBoard) {
             boardSkinList.add(i.name());                                  //saves the name of all files in this directory
         }
         final SelectBox<String> boardSkins = new SelectBox<String>(skin);
@@ -127,22 +132,46 @@ public class SettingsDialog extends Dialog {
             }
         });
 
+        lblUserName = new Label("Username:", skin);
+
+        tfUsername = new TextField(settings.getString("UserName"), FactoryHelper.GetDefaultSkin());
+        TextField.TextFieldStyle style = tfUsername.getStyle();
+        style.background.setLeftWidth(60);
+        tfUsername.setStyle(style);
+
+        tfUsername.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                settings.putString("UserName", tfUsername.getText());
+                settings.flush();
+            }
+        });
+
         //Table that holds everything gets filled
         rootTable.add(header).left();
         rootTable.add(exitButton).right().top().expandX();
-        rootTable.row();
-        rootTable.add(musicVolume);
+
+        rootTable.row().padTop(100);
+        rootTable.add(musicVolume).left();
         rootTable.add(slider).width(600);
-        rootTable.row();
-        rootTable.add(sfxCheck);
-        rootTable.add(sfxBox).width(100).left().padLeft(50);
-        rootTable.row();
-        rootTable.add(marbleSkinLabel);
+
+        rootTable.row().padTop(PAD_TOP);
+        rootTable.add(sfxCheck).left();
+        rootTable.add(sfxBox).width(100).center().padLeft(50);
+
+        rootTable.row().padTop(PAD_TOP);
+        rootTable.add(marbleSkinLabel).left();
         rootTable.add(marbleSkins).center();
-        rootTable.row();
-        rootTable.add(boardSkinLabel);
+
+        rootTable.row().padTop(PAD_TOP);
+        rootTable.add(boardSkinLabel).left();
         rootTable.add(boardSkins).center();
+
+        rootTable.row().padTop(PAD_TOP);
+        rootTable.add(lblUserName).left();
+        rootTable.add(tfUsername).center().width(600);
     }
+
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);
