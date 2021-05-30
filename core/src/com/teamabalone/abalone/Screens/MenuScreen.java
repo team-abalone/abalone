@@ -70,7 +70,7 @@ public class MenuScreen implements Screen {
                 Gdx.app.log("ClickListener", createRoomButton.toString() + " clicked");
 
                 //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage);
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage, game);
                 createRoomDialog.show(stage);
             }
 
@@ -83,7 +83,7 @@ public class MenuScreen implements Screen {
         createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Field field = new Field(GameInfo.getInstance().mapSize());
+                Field field = new Field(GameInfo.getInstance().getMapSize());
                 game.setScreen(new Abalone(game, field));
             };
         });
@@ -93,7 +93,7 @@ public class MenuScreen implements Screen {
         joinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage);
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage, game);
                 createRoomDialog.show(stage);
             };
         });

@@ -3,7 +3,7 @@ package com.teamabalone.abalone.Gamelogic;
 import java.util.ArrayList;
 
 /**
- *This class holds all relevant infomation about the current game.
+ * This class holds all relevant infomation about the current game.
  * <p></p>
  * Following information will be tracked:
  * <li> Single/Multiplayer as boolean
@@ -16,10 +16,10 @@ import java.util.ArrayList;
 public class GameInfo implements GameInfos {
     private static GameInfo singletonInstance;
     private boolean singleDeviceMode = false;
-    private int numberPlayers;
+    private int numberPlayers = 2;
     private int mapSize = 5;
     private int maximalSelectableMarbles = 3;
-    private int playerId;
+    private int playerId = 0;
     private ArrayList<String> names;
 
     private GameInfo() {
@@ -39,27 +39,27 @@ public class GameInfo implements GameInfos {
     }
 
     @Override
-    public boolean singleDeviceMode() {
+    public boolean getSingleDeviceMode() {
         return singleDeviceMode;
     }
 
     @Override
-    public int numberPlayers() {
+    public int getNumberPlayers() {
         return numberPlayers;
     }
 
     @Override
-    public int mapSize() {
+    public int getMapSize() {
         return mapSize;
     }
 
     @Override
-    public int maximalSelectableMarbles() {
+    public int getMaximalSelectableMarbles() {
         return maximalSelectableMarbles;
     }
 
     @Override
-    public int playerId() {
+    public int getPlayerId() {
         return playerId;
     }
 

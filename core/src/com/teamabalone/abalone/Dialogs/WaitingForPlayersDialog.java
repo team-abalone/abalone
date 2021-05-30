@@ -9,14 +9,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CloseRoomRequest;
 import com.teamabalone.abalone.Client.Requests.StartGameRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
+import com.teamabalone.abalone.GameImpl;
+import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
@@ -34,8 +38,11 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
     private String roomKey;
     private UUID[] playerList;
 
-    public WaitingForPlayersDialog(UUID userId, String title, Skin skin, boolean isRoomCreator) {
+    private GameImpl game;
+
+    public WaitingForPlayersDialog(UUID userId, String title, Skin skin, boolean isRoomCreator, GameImpl game) {
         super(title, skin);
+        this.game = game;
 
         Table rootTable = getContentTable();
         Table buttonTable = getButtonTable();
@@ -152,6 +159,8 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         // TODO: Init client side field with data from server.
         else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
             // TODO: Handle start game -> response can be parsed to GameStartedResponse
+            Field field = new Field(5, (GameStartedResponse) response);
+            game.setScreen(new Abalone(game, field));
         }
     }
 }

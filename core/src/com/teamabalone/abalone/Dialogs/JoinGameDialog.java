@@ -19,6 +19,7 @@ import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
@@ -36,13 +37,13 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
 
     private com.teamabalone.abalone.Client.ResponseHandler ResponseHandler;
 
-    public JoinGameDialog(UUID userId, String title, final Skin skin, Stage stage) {
+    public JoinGameDialog(UUID userId, String title, final Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
         this.stage = stage;
         this.userId = userId;
 
         // Creating dialogs.
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false, game);
 
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
