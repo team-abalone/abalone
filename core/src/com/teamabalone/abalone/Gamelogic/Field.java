@@ -1,13 +1,16 @@
 package com.teamabalone.abalone.Gamelogic;
 
+import com.badlogic.gdx.Gdx;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Client.Requests.MakeMoveRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.Client.Responses.StartGameResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,11 +44,11 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Constructor for Field.
      *
-     * @param radius  the side length of the Field.
+     * @param radius the side length of the Field.
      */
-    public Field(int radius) {
+    public Field(int radius, GameStartedResponse gameStartedResponse) {
         this.radius = radius;
-        this.userId = userId;
+        this.userId = UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId"));
         this.hexFields = getHexagonCount(radius);
         this.field = new HashMap<>(this.hexFields);
         int i = 1;
@@ -53,19 +56,27 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
 //        fieldSetUp();
+        if (gameStartedResponse != null) {
+            setInitialValues(gameStartedResponse);
+        } else {
+            fieldSetUp();
+        }
 
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
         System.out.println(iterateOverHexagons());
     }
 
+    public Field(int radius) {
+        this(radius, null);
+    }
 
     /**
      * Returns all Marbles in the {@code field}.
-     *<p></p>
+     * <p></p>
      * This Method is only used for Testing and should not be used in the real application.
      *
-     * @return  a {@link List} of teams from marbles. If a field has no marble it's null.
+     * @return a {@link List} of teams from marbles. If a field has no marble it's null.
      */
     public List<Team> getMarbles() {
         List<Team> result = new ArrayList<Team>();
@@ -100,23 +111,42 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
     }
 
-    //field[]
-    //names[]
-    //player id
-    //playerIds[]
-/*    public void setInitialValues(StarterResponse starterResponse) {
+    public void setInitialValues(GameStartedResponse gameStartedResponse) {
         GameInfo gameInfo = GameInfo.getInstance();
-        gameInfo.setPlayerId(starterResponse.playerId);
-        gameInfo.setNumberPlayers(starterResponse.name[].length);
-        gameInfo.setNames(new ArrayList<>(Arrays.asList(starterResponse.names)));
 
-        fieldSetUpServer(starterResponse.field);
-    }*/
+        gameInfo.setPlayerId(gameStartedResponse.getPlayers().indexOf(userId) - 1);
+        gameInfo.setNumberPlayers(gameStartedResponse.getNumberOfPlayers());
+
+        ArrayList<String> names = new ArrayList<>();
+        HashMap<UUID, String> map = gameStartedResponse.getPlayerMap();
+        for (UUID uuid : gameStartedResponse.getPlayers()) {
+            names.add(map.get(uuid));
+        }
+        gameInfo.setNames(names);
+
+        fieldSetUpServer(toOneDimension(gameStartedResponse.getGameField()));
+    }
+
+    public int[] toOneDimension(int[][] array) {
+        int elements = 0;
+        for (int[] row : array) {
+            elements += row.length;
+        }
+
+        int[] oneDimensionArray = new int[elements];
+        int i = 0;
+        for (int[] row : array) {
+            for (int content : row) {
+                oneDimensionArray[i++] = content;
+            }
+        }
+        return oneDimensionArray;
+    }
 
     //0 - 6
     //0 - 5
     public void fieldSetUpServer(int[] field) {
-        if(field.length != this.field.size()){
+        if (field.length != this.field.size()) {
             throw new IllegalArgumentException("field size not matching hash map");
         }
 
@@ -191,9 +221,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <li>the move is legit, all hexes are free. returns an empty array with zero length.
      * <li>the move is legit, enemy marbles can be pushed away, returns an array with the pushed enemy marbles.
      *
-     * @param ids  the selected hexes, not null
-     * @param direction  the direction to push
-     * @return  an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
+     * @param ids       the selected hexes, not null
+     * @param direction the direction to push
+     * @return an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
      */
     public int[] checkMove(int[] ids, Directions direction) {  //return.length == 0 == false
         //TODO
@@ -241,7 +271,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         move(ids, direction);            //ally
         return result;
     }
-/**
+
+    /**
      * Moves the marbles within the {@code field} data.
      * <p></p>
      * Please don't call the method on itself.
@@ -249,7 +280,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * If you call this method alone expect undefined behaviour.
      *
      * @param marbleID  the selected hexes, not null
-     * @param direction  the direction to push
+     * @param direction the direction to push
      */
     public void move(int[] marbleID, Directions direction) {
         boolean localPushedOut = false;
@@ -294,8 +325,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 Future future = executorService.submit(rs);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -309,9 +339,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * Let the {@link Field#checkMove(int[], Directions)} do the call.
      * If you call this method alone expect undefined behaviour.
      *
-     * @param selectedItems  the hexes selected, null returns null
-     * @param direction  the direction to push
-     * @return  the id of the pushable marbles, null if not pushable
+     * @param selectedItems the hexes selected, null returns null
+     * @param direction     the direction to push
+     * @return the id of the pushable marbles, null if not pushable
      */
     public int[] isPushable(ArrayList<HexCoordinate> selectedItems, Directions direction) {
         if (selectedItems.size() <= 1) {
@@ -415,7 +445,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <p></p>
      * This Method can be used to get the HexCoordinates to address the values stored in {@link Field#field}.
      *
-     * @return  an {@link ArrayList} of every {@link HexCoordinate} in the field
+     * @return an {@link ArrayList} of every {@link HexCoordinate} in the field
      */
     public Iterable<HexCoordinate> iterateOverHexagons() {
         ArrayList<HexCoordinate> resultList = new ArrayList<>(this.hexFields);
@@ -434,8 +464,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Returns a specific hex
      *
-     * @param coordinate  a HexCoordinate for {@link Field#field}
-     * @return  the hex, null if not in {@link Field#field}
+     * @param coordinate a HexCoordinate for {@link Field#field}
+     * @return the hex, null if not in {@link Field#field}
      */
     public Hexagon getHexagon(HexCoordinate coordinate) {
         return field.get(coordinate);
@@ -445,7 +475,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * Sets a specific hex
      *
      * @param coordinate a HexCoordinate for {@link Field#field}
-     * @param hexagon a specific {@link Hexagon}
+     * @param hexagon    a specific {@link Hexagon}
      */
     private void setHexagon(HexCoordinate coordinate, Hexagon hexagon) {
         this.field.put(coordinate, hexagon);
@@ -454,8 +484,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Counts how many hexes a field has
      *
-     * @param r  the radius
-     * @return  count of all hexes in a field
+     * @param r the radius
+     * @return count of all hexes in a field
      */
     private int getHexagonCount(int r) {
         return 3 * r * (r - 1) + 1;
@@ -469,9 +499,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Calculates the nearest hex in a certain direction.
      *
-     * @param hex  the coordinates for a hex
+     * @param hex       the coordinates for a hex
      * @param direction the direction to aim for
-     * @return  the next {@code HexCoordinate} in the direction
+     * @return the next {@code HexCoordinate} in the direction
      * @throws IllegalStateException in case of an invalid {@link Directions Direction}
      */
     public HexCoordinate calcNeighbour(HexCoordinate hex, Directions direction) {
@@ -506,7 +536,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * Turns the Direction 180° around.
      *
      * @param direction the direction
-     * @return  the turned direction
+     * @return the turned direction
      */
     public Directions mirrorDirection(Directions direction) {
         Directions mirror;
@@ -542,7 +572,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 //Recreate opponents move. This will be broadcast by our api
                 Directions direction = ((MadeMoveResponse) response).getDirection();
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
-            //move ids
+                //move ids
             }
         }
     }

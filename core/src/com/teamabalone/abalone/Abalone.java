@@ -51,11 +51,11 @@ public class Abalone implements Screen {
     private final int MAX_TEAMS = 6;
     private final int SWIPE_SENSITIVITY = 40;
     private final int NUMBER_CAPTURES_TO_WIN = 6;
-    private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
-    private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
-    private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
-    private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
-    private final int PLAYER_ID = gameInfos.playerId();
+    private final boolean SINGLE_DEVICE_MODE = gameInfos.getSingleDeviceMode();
+    private final int MAX_SELECT = gameInfos.getMaximalSelectableMarbles();
+    private final int NUMBER_PLAYERS = gameInfos.getNumberPlayers();
+    private final int MAP_SIZE = gameInfos.getMapSize(); //TODO make only setting valid value possible?
+    private final int PLAYER_ID = gameInfos.getPlayerId();
 
     private Music bgMusic;
     private final Preferences settings;

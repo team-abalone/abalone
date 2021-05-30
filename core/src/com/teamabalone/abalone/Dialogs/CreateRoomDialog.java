@@ -20,6 +20,7 @@ import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
@@ -38,12 +39,12 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
 
     private WaitingForPlayersDialog waitingForPlayersDialog;
 
-    public CreateRoomDialog(UUID userId, String title, final Skin skin, Stage stage) {
+    public CreateRoomDialog(UUID userId, String title, final Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
         this.stage = stage;
 
         // Dialog declarations
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), true);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), true, game);
 
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
