@@ -47,6 +47,7 @@ public class MenuScreen implements Screen {
 
     public MenuScreen(GameImpl game, String commitHash) {
         this.game = game;
+        stage = game.stage;
         this.commitHash = commitHash;
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         userId = UUID.fromString(preferences.getString("UserId"));
@@ -122,8 +123,8 @@ public class MenuScreen implements Screen {
         Label versionLabel = new Label(commitHash, defaultSkin);
         versionLabel.setFontScale(0.7f);
 
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+//        stage = new Stage();
+//        Gdx.input.setInputProcessor(stage);
 
         // Adding buttons.
         buttonTable.row().fillX().expandX().padTop(120);

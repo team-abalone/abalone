@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.teamabalone.abalone.Client.ICoreLauncher;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
@@ -17,6 +18,7 @@ public class GameImpl extends Game {
 
     private ICoreLauncher launcher;
     public SpriteBatch batch;
+    public Stage stage;
     public MenuScreen menuScreen;
 
     public GameImpl(ICoreLauncher launcher) {
@@ -41,6 +43,8 @@ public class GameImpl extends Game {
             e.printStackTrace();
         }
 
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this, launcher.getCommitHash());
         this.setScreen(menuScreen);

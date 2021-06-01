@@ -114,7 +114,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     public void setInitialValues(GameStartedResponse gameStartedResponse) {
         GameInfo gameInfo = GameInfo.getInstance();
 
-        gameInfo.setPlayerId(gameStartedResponse.getPlayers().indexOf(userId) - 1);
+        gameInfo.setPlayerId(gameStartedResponse.getPlayers().indexOf(userId));
         gameInfo.setNumberPlayers(gameStartedResponse.getNumberOfPlayers());
 
         ArrayList<String> names = new ArrayList<>();

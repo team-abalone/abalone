@@ -107,10 +107,10 @@ public class Abalone implements Screen {
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
-        batch = game.getBatch();
-
-        stage = new Stage(); //stage not attached, so it moves with screen
-        Gdx.input.setInputProcessor(stage);
+        batch = game.batch;
+        stage = game.stage;
+//        stage = new Stage(); //stage not attached, so it moves with screen
+//        Gdx.input.setInputProcessor(stage);
 
         board();
         camera();
@@ -129,6 +129,7 @@ public class Abalone implements Screen {
 
         //TODO putString only temporary. should be in settings later on.
         settings.putString("marbleSkin" + 0, "ball_white.png");
+        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
@@ -137,7 +138,7 @@ public class Abalone implements Screen {
 
     private void board() {
         tiledMap = new TmxMapLoader().load("abalone_map" + MAP_SIZE + ".tmx");
-        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
+        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap, batch);
 
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
