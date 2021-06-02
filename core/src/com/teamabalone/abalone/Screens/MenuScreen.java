@@ -47,7 +47,7 @@ public class MenuScreen implements Screen {
 
     public MenuScreen(GameImpl game, String commitHash) {
         this.game = game;
-        stage = game.stage;
+        stage = game.menuStage;
         this.commitHash = commitHash;
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         userId = UUID.fromString(preferences.getString("UserId"));

@@ -18,7 +18,8 @@ public class GameImpl extends Game {
 
     private ICoreLauncher launcher;
     public SpriteBatch batch;
-    public Stage stage;
+    public Stage menuStage;
+    public Stage gameStage;
     public MenuScreen menuScreen;
 
     public GameImpl(ICoreLauncher launcher) {
@@ -43,8 +44,9 @@ public class GameImpl extends Game {
             e.printStackTrace();
         }
 
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+        menuStage = new Stage();
+        gameStage = new Stage();
+        Gdx.input.setInputProcessor(menuStage);
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this, launcher.getCommitHash());
         this.setScreen(menuScreen);

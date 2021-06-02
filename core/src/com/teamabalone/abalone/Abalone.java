@@ -26,6 +26,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 
@@ -102,15 +103,17 @@ public class Abalone implements Screen {
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
     private Label renegadeLabels = null;
 
+    Array<Actor> menuScreenActors;
+
     public Abalone(GameImpl game, Field field) {
         queries = field;
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
         batch = game.batch;
-        stage = game.stage;
+        stage = game.gameStage;
 //        stage = new Stage(); //stage not attached, so it moves with screen
-//        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(stage);
 
         board();
         camera();
@@ -183,9 +186,9 @@ public class Abalone implements Screen {
         }
 
         for (int i = 0; i < positionArrays.size(); i++) {
-            if(settings.getBoolean("colorSetting" ) && i == PLAYER_ID){
-                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"),positionArrays.get(i));
-            } else{
+            if (settings.getBoolean("colorSetting") && i == PLAYER_ID) {
+                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"), positionArrays.get(i));
+            } else {
                 GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i));
             }
             deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
@@ -452,7 +455,7 @@ public class Abalone implements Screen {
 
     private void unselect(Sprite sprite) {
         selectedSprites.unselect(sprite);
-        if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+        if (settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID) {
             sprite.setColor(new Color(settings.getInteger("rgbaValue")));
         } else {
             sprite.setColor(Color.WHITE);
@@ -464,7 +467,7 @@ public class Abalone implements Screen {
         for (int i = 0; i < selectedSprites.size(); i++) {
             Sprite s = selectedSprites.get(i);
             if (s != null) {
-                if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
+                if (settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID) {
                     s.setColor(new Color(settings.getInteger("rgbaValue")));
                 } else {
                     s.setColor(Color.WHITE);
@@ -570,6 +573,8 @@ public class Abalone implements Screen {
     public void reset() {
         board = null;
         GameSet.reset();
+        stage.clear();
+        Gdx.input.setInputProcessor(game.menuStage);
     }
 
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
@@ -650,7 +655,7 @@ public class Abalone implements Screen {
             }
         }
 
-        if(settings.getBoolean("colorSetting")){
+        if (settings.getBoolean("colorSetting")) {
             GameSet.getInstance().colorMarbleSet(settings.getInteger("rgbaValue"), PLAYER_ID);
         } else {
             GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID);
