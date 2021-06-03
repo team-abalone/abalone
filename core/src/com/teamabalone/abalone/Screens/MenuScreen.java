@@ -149,7 +149,7 @@ public class MenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Drawing logo.
-        SpriteBatch batch = new SpriteBatch();
+        SpriteBatch batch = game.batch;//new SpriteBatch();
         batch.begin();
         batch.draw(logo, Gdx.graphics.getWidth() / 2 - logo.getRegionWidth() / 2, Gdx.graphics.getHeight() / 1.8f); //550 is X and 380 is Y position.
         batch.end();

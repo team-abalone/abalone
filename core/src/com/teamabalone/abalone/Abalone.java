@@ -573,7 +573,7 @@ public class Abalone implements Screen {
     public void reset() {
         board = null;
         GameSet.reset();
-        stage.clear();
+//        stage.clear();
         Gdx.input.setInputProcessor(game.menuStage);
     }
 

@@ -40,7 +40,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     private ResponseHandler responseHandler;
 
-
     /**
      * Constructor for Field.
      *
@@ -55,20 +54,24 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         for (HexCoordinate hex : iterateOverHexagons()) {
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
-//        fieldSetUp();
-        if (gameStartedResponse != null) {
-            setInitialValues(gameStartedResponse);
-        } else {
-            fieldSetUp();
-        }
 
+        setInitialValues(gameStartedResponse);
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
+
         System.out.println(iterateOverHexagons());
     }
 
     public Field(int radius) {
-        this(radius, null);
+        this.radius = radius;
+        this.hexFields = getHexagonCount(radius);
+        this.field = new HashMap<>(this.hexFields);
+        int i = 1;
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            this.setHexagon(hex, new Hexagon(hex, i++));
+        }
+
+        fieldSetUp();
     }
 
     /**

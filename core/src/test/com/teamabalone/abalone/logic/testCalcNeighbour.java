@@ -4,6 +4,7 @@ import com.teamabalone.abalone.Gamelogic.Directions;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.HexCoordinate;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -160,7 +160,8 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
             // TODO: Handle start game -> response can be parsed to GameStartedResponse
             Field field = new Field(5, (GameStartedResponse) response);
-            game.setScreen(new Abalone(game, field));
+            Abalone abalone = new Abalone(game, field);
+            game.setScreen(abalone);
         }
     }
 }
