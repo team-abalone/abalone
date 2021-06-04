@@ -15,6 +15,7 @@ import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 
+import com.teamabalone.abalone.Client.Responses.ExceptionResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
@@ -84,6 +85,15 @@ public class ResponseHandlerService extends Service {
 
                             else if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
                                 response = gson.fromJson(responseString, GameStartedResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
                             }
 
 
