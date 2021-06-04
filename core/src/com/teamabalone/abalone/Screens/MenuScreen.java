@@ -79,12 +79,12 @@ public class MenuScreen implements Screen {
             ;
         });
 
-        GameInfo.getInstance().setSingleDeviceMode(true);
         createLocalGameButton = FactoryHelper.createButtonWithText("Local Game");
 
         createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                GameInfo.getInstance().setSingleDeviceMode(true);
                 Field field = new Field(GameInfo.getInstance().getMapSize());
                 game.setScreen(new Abalone(game, field));
             };

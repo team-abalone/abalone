@@ -104,8 +104,6 @@ public class Abalone implements Screen {
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
     private Label renegadeLabels = null;
 
-    Array<Actor> menuScreenActors;
-
     public Abalone(GameImpl game, Field field) {
         queries = field;
         settings = Gdx.app.getPreferences("UserSettings");
@@ -131,9 +129,8 @@ public class Abalone implements Screen {
     private void textures() {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
 
-        //TODO putString only temporary. should be in settings later on.
-        settings.putString("marbleSkin" + 0, "ball_white.png");
-        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
+        settings.putString("marbleSkin" + 0, "ball_white.png"); //TODO putString only temporary. should be in settings later on.
+//        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
@@ -502,8 +499,14 @@ public class Abalone implements Screen {
             renegadeKeepers[currentPlayer].takeDoubleTurn();
         } else {
             currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
-            nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
-            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+
+            if (SINGLE_DEVICE_MODE) {
+                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+            } else {
+                //TODO change label
+            }
+
             //TODO player communication server wont work that easily
         }
         return currentPlayer;
