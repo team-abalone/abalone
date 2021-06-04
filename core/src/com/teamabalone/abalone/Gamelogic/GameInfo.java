@@ -95,4 +95,8 @@ public class GameInfo implements GameInfos {
 
     public void setLocalPosition(LocalGameStartPositions type){ this.localPosition =LocalGameStartPositions.getPositions(type);}
 
+    public int [][]getLocalPosition(){
+        return this.localPosition;
+    }
+
 }
