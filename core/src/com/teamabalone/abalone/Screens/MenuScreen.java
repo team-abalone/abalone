@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Dialogs.CreateRoomDialog;
 import com.teamabalone.abalone.Dialogs.JoinGameDialog;
+import com.teamabalone.abalone.Dialogs.SelectLocalFieldDialog;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
@@ -83,8 +84,8 @@ public class MenuScreen implements Screen {
         createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Field field = new Field(GameInfo.getInstance().mapSize(), true);
-                game.setScreen(new Abalone(game, field));
+                SelectLocalFieldDialog selectLocalFieldDialog= new SelectLocalFieldDialog("Local Game", defaultSkin,stage);
+                selectLocalFieldDialog.show(stage);
             };
         });
 
