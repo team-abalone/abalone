@@ -4,14 +4,16 @@ import com.teamabalone.abalone.Client.Responses.BaseResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class ResponseHandler implements ICoreResponseMessageHandler {
-    private List<IResponseHandlerObserver> observers;
+    private CopyOnWriteArrayList<IResponseHandlerObserver> observers;
     private static ResponseHandler instance;
 
     private ResponseHandler() {
-        observers = new ArrayList<>();
+        observers = new CopyOnWriteArrayList<>();
     }
 
     public static ResponseHandler newInstance() {
