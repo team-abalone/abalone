@@ -84,10 +84,6 @@ public class SelectLocalFieldDialog extends Dialog {
         rootTable.add(initialFieldTypeSelect).left().padLeft(20);
 
     }
-//Field field = new Field(GameInfo.getInstance().mapSize(), true);
-
-    //game.setScreen(new Abalone(game, field));
-    //
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);

@@ -96,7 +96,6 @@ public class ResponseHandlerService extends Service {
                                 response = gson.fromJson(responseString, ExceptionResponse.class);
                             }
 
-
                             CoreResponseMessageHandler.HandleMessage(response);
                         }
                     } catch (IOException e) {

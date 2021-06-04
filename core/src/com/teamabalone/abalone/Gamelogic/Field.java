@@ -577,6 +577,15 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
                 //move ids
             }
+            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+                //Exception handling goes here : Maybe a small notification to be shown
+            }
+            else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+                //Exception handling goes here : Maybe a small notification to be shown
+            }
+            else if(response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()){
+                //Exception handling goes here : Maybe a small notification to be shown
+            }
         }
     }
 }

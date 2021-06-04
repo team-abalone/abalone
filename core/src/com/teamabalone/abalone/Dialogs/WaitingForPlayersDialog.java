@@ -162,5 +162,14 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             // TODO: Handle start game -> response can be parsed to GameStartedResponse
             MenuScreen.field = new Field(5, (GameStartedResponse) response);
         }
+        else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
     }
 }

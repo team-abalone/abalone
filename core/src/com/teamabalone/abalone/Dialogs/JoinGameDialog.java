@@ -130,5 +130,11 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
             waitingForPlayersDialog.show(stage);
             this.hide();
         }
+        else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
     }
 }
