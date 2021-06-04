@@ -7,7 +7,12 @@ public enum ResponseCommandCodes {
     ROOM_CREATED(40),
     ROOM_CLOSED(50),
     ROOM_JOINED_OTHER(60),
-    MADE_MOVE(70);
+    MADE_MOVE(70),
+    SERVER_EXCEPTION(100),
+    GAME_EXCEPTION(200),
+    CHAT_EXCEPTION(300),
+    ROOM_EXCEPTION(400);
+
 
     private final int value;
 
