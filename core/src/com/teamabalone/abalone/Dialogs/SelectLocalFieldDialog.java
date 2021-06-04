@@ -54,6 +54,7 @@ public class SelectLocalFieldDialog extends Dialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 GameInfo.getInstance().setSingleDeviceMode(false);
+                GameInfo.getInstance().setLocalPosition(null);
                 remove();
             }
         });
@@ -62,6 +63,7 @@ public class SelectLocalFieldDialog extends Dialog {
             public void clicked(InputEvent event, float x, float y) {
                 Preferences settings = Gdx.app.getPreferences("UserSettings");
                 LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
+                GameInfo.getInstance().setLocalPosition(ift);
 
                 Field localField = new Field(6);
                 //Maybe, to stay uniform with our parameters, we could build a pseudo-response here

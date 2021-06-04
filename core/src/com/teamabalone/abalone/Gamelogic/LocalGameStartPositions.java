@@ -13,8 +13,7 @@ public enum LocalGameStartPositions {
         return this.value;
     }
 
-    public int[][] getPositions(LocalGameStartPositions type){
-
+    public static int[][] getPositions(LocalGameStartPositions type){
         if(type.getValue() == 0){
             return new int[][]{
                     {1, 1, 1, 1, 1},

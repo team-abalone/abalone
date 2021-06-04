@@ -21,6 +21,7 @@ public class GameInfo implements GameInfos {
     private int maximalSelectableMarbles = 3;
     private int playerId = 0;
     private ArrayList<String> names;
+    private int [][] localPosition;
 
     private GameInfo() {
         //private constructor
@@ -91,4 +92,6 @@ public class GameInfo implements GameInfos {
     public void setNames(ArrayList<String> names) {
         this.names = names;
     }
+
+    public void setLocalPosition(LocalGameStartPositions type){ this.localPosition =LocalGameStartPositions.getPositions(type);}
 }
