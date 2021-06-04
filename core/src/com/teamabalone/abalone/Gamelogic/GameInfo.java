@@ -94,4 +94,5 @@ public class GameInfo implements GameInfos {
     }
 
     public void setLocalPosition(LocalGameStartPositions type){ this.localPosition =LocalGameStartPositions.getPositions(type);}
+
 }

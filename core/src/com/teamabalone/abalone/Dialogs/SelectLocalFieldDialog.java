@@ -18,6 +18,7 @@ import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.LocalGameStartPositions;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Screens.MenuScreen;
 
 public class SelectLocalFieldDialog extends Dialog {
     private ImageButton exitButton;
@@ -65,9 +66,9 @@ public class SelectLocalFieldDialog extends Dialog {
                 LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
                 GameInfo.getInstance().setLocalPosition(ift);
 
-                Field localField = new Field(6);
-                //Maybe, to stay uniform with our parameters, we could build a pseudo-response here
-                //MenuScreen.field =localField;
+
+                MenuScreen.field = new Field(5);
+
                 remove();
             };
         });

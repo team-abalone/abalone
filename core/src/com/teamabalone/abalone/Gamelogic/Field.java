@@ -1,5 +1,6 @@
 package com.teamabalone.abalone.Gamelogic;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
@@ -321,15 +322,17 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (localPushedOut) {                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
-            BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
-            try {
-                RequestSender rs = new RequestSender(makeMoveRequest);
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                Future future = executorService.submit(rs);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if(!GameInfo.getInstance().getSingleDeviceMode()) {
+                BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
+                try {
+                    RequestSender rs = new RequestSender(makeMoveRequest);
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    Future future = executorService.submit(rs);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
