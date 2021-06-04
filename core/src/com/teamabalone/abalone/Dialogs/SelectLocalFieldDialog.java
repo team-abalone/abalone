@@ -13,7 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.Requests.InititalFieldType;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
+import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.LocalGameStartPositions;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
@@ -22,6 +24,7 @@ public class SelectLocalFieldDialog extends Dialog {
     private Label headerLabel;
     private final Stage stage;
     private SelectBox<LocalGameStartPositions> initialFieldTypeSelect;
+    private GameImpl game;
 
     Table titleTable = getTitleTable();
     Table rootTable = getContentTable();
@@ -29,8 +32,10 @@ public class SelectLocalFieldDialog extends Dialog {
 
 
 
-    public SelectLocalFieldDialog(String title, Skin skin, Stage stage) {
+    public SelectLocalFieldDialog(String title, Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
+        this.game=game;
+        GameInfo.getInstance().setSingleDeviceMode(true);
         this.stage= stage;
         headerLabel = new Label("", skin);
 
@@ -48,6 +53,7 @@ public class SelectLocalFieldDialog extends Dialog {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                GameInfo.getInstance().setSingleDeviceMode(false);
                 remove();
             }
         });
@@ -57,7 +63,7 @@ public class SelectLocalFieldDialog extends Dialog {
                 Preferences settings = Gdx.app.getPreferences("UserSettings");
                 LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
 
-                Field localField = new Field(6,true);
+                Field localField = new Field(6);
                 //Maybe, to stay uniform with our parameters, we could build a pseudo-response here
                 //MenuScreen.field =localField;
                 remove();

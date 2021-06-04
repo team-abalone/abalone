@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class testCalcNeighbour {
     HexCoordinate should;
     HexCoordinate standard =  new HexCoordinate(0,0,0);
-    Field field = new Field(5,true);
+    Field field = new Field(5);
 
     @Test
     public void defaultTest(){
