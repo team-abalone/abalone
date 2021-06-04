@@ -11,9 +11,8 @@ public enum ResponseCommandCodes {
     SERVER_EXCEPTION(100),
     GAME_EXCEPTION(200),
     CHAT_EXCEPTION(300),
-    ROOM_EXCEPTION(400);
-
-
+    ROOM_EXCEPTION(400),
+    ;
     private final int value;
 
     private ResponseCommandCodes(int value) {

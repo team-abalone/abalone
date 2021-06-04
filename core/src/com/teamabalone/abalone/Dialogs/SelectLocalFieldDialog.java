@@ -12,27 +12,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.teamabalone.abalone.Client.RequestSender;
-import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.InititalFieldType;
-import com.teamabalone.abalone.Client.ResponseHandler;
-import com.teamabalone.abalone.Client.Responses.BaseResponse;
-import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Gamelogic.Field;
+import com.teamabalone.abalone.Gamelogic.LocalGameStartPositions;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Screens.MenuScreen;
-
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class SelectLocalFieldDialog extends Dialog {
     private ImageButton exitButton;
     private Label headerLabel;
     private final Stage stage;
-    private SelectBox<InititalFieldType> initialFieldTypeSelect;
+    private SelectBox<LocalGameStartPositions> initialFieldTypeSelect;
 
     Table titleTable = getTitleTable();
     Table rootTable = getContentTable();
@@ -66,7 +55,7 @@ public class SelectLocalFieldDialog extends Dialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Preferences settings = Gdx.app.getPreferences("UserSettings");
-                InititalFieldType ift = initialFieldTypeSelect.getSelected();
+                LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
 
                 Field localField = new Field(6,true);
                 //Maybe, to stay uniform with our parameters, we could build a pseudo-response here
@@ -77,7 +66,7 @@ public class SelectLocalFieldDialog extends Dialog {
         Label initialFieldTypeLabel = new Label("Select the initial field type:", skin);
 
         initialFieldTypeSelect = new SelectBox<>(skin);
-        initialFieldTypeSelect.setItems(InititalFieldType.values());
+        initialFieldTypeSelect.setItems(LocalGameStartPositions.values());
         rootTable.row().padTop(250);
 
         rootTable.add(initialFieldTypeLabel).left();
