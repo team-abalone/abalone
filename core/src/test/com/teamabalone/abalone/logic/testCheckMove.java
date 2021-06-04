@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class testCheckMove {
 
-    Field field = new Field(5);
+    Field field = new Field(5,true);
     //            #   #   #   #   #               5
     //          #   #   #   #   #   #             6
     //        #   #   #   #   #   #   #           7
@@ -42,7 +42,7 @@ public class testCheckMove {
     }
 
     public Field setUpAsWanted(int one, int two ,int three, int four){
-        Field test = new Field(5);
+        Field test = new Field(5,true);
         test = cleanDefaultField(test);
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if (test.getHexagon(hex).getId() == one || test.getHexagon(hex).getId() == two || test.getHexagon(hex).getId() == three || test.getHexagon(hex).getId() == four) {
@@ -53,7 +53,7 @@ public class testCheckMove {
     }
 
     public Field setUpAsWanted(int one, int two ,int three){
-        Field test = new Field(5);
+        Field test = new Field(5,true);
         test = cleanDefaultField(test);
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if (test.getHexagon(hex).getId() == one || test.getHexagon(hex).getId() == two || test.getHexagon(hex).getId() == three ) {
@@ -64,7 +64,7 @@ public class testCheckMove {
     }
 
     public Field setUpAsWanted(int one, int two){
-        Field test = new Field(5);
+        Field test = new Field(5,true);
         test = cleanDefaultField(test);
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if (test.getHexagon(hex).getId() == one || test.getHexagon(hex).getId() == two) {
@@ -75,7 +75,7 @@ public class testCheckMove {
     }
 
     public Field setUpAsWanted(int one){
-        Field test = new Field(5);
+        Field test = new Field(5,true);
         test = cleanDefaultField(test);
         for (HexCoordinate hex : test.iterateOverHexagons()) {
             if (test.getHexagon(hex).getId() == one) {

@@ -44,11 +44,9 @@ public class MenuScreen implements Screen {
     private ImageButton settingsButton;
 
     private TextureAtlas.AtlasRegion logo = FactoryHelper.getAtlas().findRegion("logo");
-    public static Field field;
 
     public MenuScreen(GameImpl game, String commitHash) {
         this.game = game;
-        stage = game.menuStage;
         this.commitHash = commitHash;
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         userId = UUID.fromString(preferences.getString("UserId"));
@@ -72,20 +70,20 @@ public class MenuScreen implements Screen {
                 Gdx.app.log("ClickListener", createRoomButton.toString() + " clicked");
 
                 //Game.setScreen(new Abalone(Game));
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage, game);
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(userId, "Create Room", defaultSkin, stage);
                 createRoomDialog.show(stage);
             }
 
             ;
         });
 
+        GameInfo.getInstance().setSingleDeviceMode(true);
         createLocalGameButton = FactoryHelper.createButtonWithText("Local Game");
 
         createLocalGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                GameInfo.getInstance().setSingleDeviceMode(true);
-                Field field = new Field(GameInfo.getInstance().getMapSize());
+                Field field = new Field(GameInfo.getInstance().mapSize(), true);
                 game.setScreen(new Abalone(game, field));
             };
         });
@@ -95,7 +93,7 @@ public class MenuScreen implements Screen {
         joinGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage, game);
+                JoinGameDialog createRoomDialog = new JoinGameDialog(userId, "Join Room", defaultSkin, stage);
                 createRoomDialog.show(stage);
             };
         });
@@ -124,8 +122,8 @@ public class MenuScreen implements Screen {
         Label versionLabel = new Label(commitHash, defaultSkin);
         versionLabel.setFontScale(0.7f);
 
-//        stage = new Stage();
-//        Gdx.input.setInputProcessor(stage);
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
         // Adding buttons.
         buttonTable.row().fillX().expandX().padTop(120);
@@ -150,16 +148,12 @@ public class MenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Drawing logo.
-        SpriteBatch batch = game.batch;//new SpriteBatch();
+        SpriteBatch batch = new SpriteBatch();
         batch.begin();
         batch.draw(logo, Gdx.graphics.getWidth() / 2 - logo.getRegionWidth() / 2, Gdx.graphics.getHeight() / 1.8f); //550 is X and 380 is Y position.
         batch.end();
         stage.act();
         stage.draw();
-        if(field != null){
-            Abalone abalone = new Abalone(game, field);
-            game.setScreen(abalone);
-        }
     }
 
     @Override
