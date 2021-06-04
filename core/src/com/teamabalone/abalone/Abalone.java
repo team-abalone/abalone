@@ -38,6 +38,7 @@ import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.GameInfos;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
+import com.teamabalone.abalone.Screens.MenuScreen;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
 import com.teamabalone.abalone.View.MarbleSet;
@@ -565,16 +566,17 @@ public class Abalone implements Screen {
     }
 
     private void exit() {
+        resetView();
+        MenuScreen.field = null;
         bgMusic.stop();
+
         game.setScreen(game.menuScreen);
-        reset();
+        Gdx.input.setInputProcessor(game.menuStage);
     }
 
-    public void reset() {
+    public void resetView() {
         board = null;
         GameSet.reset();
-//        stage.clear();
-        Gdx.input.setInputProcessor(game.menuStage);
     }
 
     public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
@@ -669,7 +671,7 @@ public class Abalone implements Screen {
 
     @Override
     public void pause() {
-        reset();
+        resetView();
     }
 
     @Override
@@ -696,6 +698,6 @@ public class Abalone implements Screen {
         for (int i = 0; i < playerTextures.size(); i++) {
             playerTextures.get(i).dispose();
         }
-        reset();
+        resetView();
     }
 }

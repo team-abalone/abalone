@@ -44,6 +44,7 @@ public class MenuScreen implements Screen {
     private ImageButton settingsButton;
 
     private TextureAtlas.AtlasRegion logo = FactoryHelper.getAtlas().findRegion("logo");
+    public static Field field;
 
     public MenuScreen(GameImpl game, String commitHash) {
         this.game = game;
@@ -155,6 +156,10 @@ public class MenuScreen implements Screen {
         batch.end();
         stage.act();
         stage.draw();
+        if(field != null){
+            Abalone abalone = new Abalone(game, field);
+            game.setScreen(abalone);
+        }
     }
 
     @Override

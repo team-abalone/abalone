@@ -22,6 +22,7 @@ import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Screens.MenuScreen;
 
 import java.io.IOException;
 import java.util.List;
@@ -159,9 +160,8 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         // TODO: Init client side field with data from server.
         else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
             // TODO: Handle start game -> response can be parsed to GameStartedResponse
-            Field field = new Field(5, (GameStartedResponse) response);
-            Abalone abalone = new Abalone(game, field);
-            game.setScreen(abalone);
+            MenuScreen.field = new Field(5, (GameStartedResponse) response);
+            remove();
         }
     }
 }
