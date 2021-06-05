@@ -1,18 +1,10 @@
 package com.teamabalone.abalone.Gamelogic;
 
 public enum LocalGameStartPositions {
-    DEFAULT(0),
-    GERMAN_DAISY(1);
-
-    private final int value;
-
-    LocalGameStartPositions(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
+    DEFAULT,
+    GERMAN_DAISY,
+    SNAKES,
+    THE_WALL;
 
     public static int[][] getPositions(LocalGameStartPositions startPositions) {
         switch (startPositions) {
@@ -27,6 +19,30 @@ public enum LocalGameStartPositions {
                         {2, 2, 2, 0, 1, 1, 1},
                         {2, 2, 0, 0, 1, 1},
                         {0, 0, 0, 0, 0}
+                };
+            case SNAKES:
+                return new int[][]{
+                        {1, 1, 1, 1, 1},
+                        {1, 0, 0, 0, 0, 0},
+                        {1, 0, 0, 0, 0, 0, 0},
+                        {1, 0, 0, 1, 1, 2, 2, 0},
+                        {0, 1, 0, 1, 0, 2, 0, 2, 0},
+                        {0, 1, 1, 2, 2, 0, 0, 2},
+                        {0, 0, 0, 0, 0, 0, 2},
+                        {0, 0, 0, 0, 0, 2},
+                        {2, 2, 2, 2, 2}
+                };
+            case THE_WALL:
+                return new int[][]{
+                        {0, 0, 2, 0, 0},
+                        {0, 0, 0, 0, 0, 0},
+                        {0, 2, 2, 2, 2, 2, 0},
+                        {2, 2, 2, 2, 2, 2, 2, 2},
+                        {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                        {1, 1, 1, 1, 1, 1, 1, 1},
+                        {0, 1, 1, 1, 1, 1, 0},
+                        {0, 0, 0, 0, 0, 0},
+                        {0, 0, 1, 0, 0}
                 };
             default:
                 return new int[][]{
