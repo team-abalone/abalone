@@ -367,7 +367,7 @@ public class Abalone implements Screen {
 
                 if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
                     winner = currentPlayer;
-                    exitLabel();
+                    winnerLabel();
                 }
             }
 
@@ -565,7 +565,7 @@ public class Abalone implements Screen {
         label.setY((label.getHeight() + 60));
     }
 
-    public void exitLabel() {
+    public void winnerLabel() {
         //TODO proper style?
         Label winLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
@@ -581,6 +581,24 @@ public class Abalone implements Screen {
         });
 
         stage.addActor(winLabel);
+    }
+
+    public void capitulationLabel() {
+        //TODO proper style?
+        Label capitulateLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White capitulates" : "Black capitulates", screenWidth, screenHeight);
+        capitulateLabel.setAlignment(Align.center);
+
+        Abalone currentGame = this;
+        capitulateLabel.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Open settings overlay.
+                Gdx.app.log("ClickListener", capitulateLabel.toString() + " clicked");
+                currentGame.exitCurrentGame();
+            }
+        });
+
+        stage.addActor(capitulateLabel);
     }
 
     private void exitCurrentGame() {
@@ -636,7 +654,7 @@ public class Abalone implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
-                currentGame.exitCurrentGame();
+                capitulationLabel();
             }
         });
 
