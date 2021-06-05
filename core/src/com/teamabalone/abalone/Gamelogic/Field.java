@@ -553,6 +553,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     @Override
     public void HandleResponse(BaseResponse response) {
+        if(!GameInfo.getInstance().getSingleDeviceMode()){
         if (response instanceof MadeMoveResponse) {
             if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
                 //Recreate opponents move. This will be broadcast by our api
@@ -566,6 +567,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                 //Exception handling goes here : Maybe a small notification to be shown
             }
+        }
         }
     }
 }
