@@ -405,7 +405,7 @@ public class Abalone implements Screen {
             } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
                 renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
-                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
 
             return;
@@ -516,7 +516,7 @@ public class Abalone implements Screen {
             currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
 
             if (SINGLE_DEVICE_MODE) {
-                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
                 renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
             } else {
                 //TODO change label
@@ -539,8 +539,8 @@ public class Abalone implements Screen {
     }
 
     public void playerLabel() {
-        //TODO proper style?
-        nextLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
+        nextLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer), 200, 60);
+        nextLabel.setAlignment(Align.right);
         stage.addActor(nextLabel);
         Actor label = stage.getActors().peek();
         label.setX(screenWidth - (label.getWidth() + 220));
@@ -567,7 +567,7 @@ public class Abalone implements Screen {
 
     public void winnerLabel() {
         //TODO proper style?
-        Label winLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
+        Label winLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -585,7 +585,7 @@ public class Abalone implements Screen {
 
     public void capitulationLabel() {
         //TODO proper style?
-        Label capitulateLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White capitulates" : "Black capitulates", screenWidth, screenHeight);
+        Label capitulateLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " capitulates", screenWidth, screenHeight);
         capitulateLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;

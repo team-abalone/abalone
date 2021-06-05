@@ -26,6 +26,9 @@ public class GameInfo implements GameInfos {
 
     private GameInfo() {
         //private constructor
+        names = new ArrayList<>();
+        names.add("White");
+        names.add("Black");
     }
 
     /**
@@ -66,7 +69,7 @@ public class GameInfo implements GameInfos {
     }
 
     @Override
-    public ArrayList<String> names() {
+    public ArrayList<String> getNames() {
         return names;
     }
 

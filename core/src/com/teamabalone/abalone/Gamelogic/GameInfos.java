@@ -9,5 +9,5 @@ public interface GameInfos {
     int getMapSize();
     int getMaximalSelectableMarbles();
     int getPlayerId();
-    ArrayList<String> names();
+    ArrayList<String> getNames();
 }
