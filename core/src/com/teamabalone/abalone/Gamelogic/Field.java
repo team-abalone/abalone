@@ -1,6 +1,5 @@
 package com.teamabalone.abalone.Gamelogic;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
@@ -11,11 +10,10 @@ import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
-import com.teamabalone.abalone.Client.Responses.StartGameResponse;
+import com.teamabalone.abalone.Dialogs.SelectLocalFieldDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -72,7 +70,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             this.setHexagon(hex, new Hexagon(hex, i++));
         }
 
-        fieldSetUp();
+        fieldSetUp(toOneDimension(LocalGameStartPositions.getPositions(GameInfo.getInstance().getStartPosition())));
     }
 
     /**
@@ -103,17 +101,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     }
 
     /**
-     * Loads default marble positions into the hashmap for the game start
+     * Loads default marble positions into the hashmap for the game start TODO ??still appropriate
      */
-    public void fieldSetUp() {
-        for (HexCoordinate hex : iterateOverHexagons()) {
-            if (getHexagon(hex).getId() <= 11 || getHexagon(hex).getId() >= 14 && getHexagon(hex).getId() <= 16) {
-                getHexagon(hex).setMarble(new Marble(Team.WHITE));
-            } else if (getHexagon(hex).getId() >= 51 || getHexagon(hex).getId() >= 46 && getHexagon(hex).getId() <= 48) {
-                getHexagon(hex).setMarble(new Marble(Team.BLACK));
-            }
-        }
-    }
 
     public void setInitialValues(GameStartedResponse gameStartedResponse) {
         GameInfo gameInfo = GameInfo.getInstance();
@@ -128,7 +117,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
         gameInfo.setNames(names);
 
-        fieldSetUpServer(toOneDimension(gameStartedResponse.getGameField()));
+        fieldSetUp(toOneDimension(gameStartedResponse.getGameField()));
     }
 
     public int[] toOneDimension(int[][] array) {
@@ -149,7 +138,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     //0 - 6
     //0 - 5
-    public void fieldSetUpServer(int[] field) {
+    public void fieldSetUp(int[] field) {
         if (field.length != this.field.size()) {
             throw new IllegalArgumentException("field size not matching hash map");
         }
@@ -322,7 +311,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (localPushedOut) {                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
-            if(!GameInfo.getInstance().getSingleDeviceMode()) {
+            if (!GameInfo.getInstance().getSingleDeviceMode()) {
                 BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
                 try {
                     RequestSender rs = new RequestSender(makeMoveRequest);
@@ -579,14 +568,11 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 Directions direction = ((MadeMoveResponse) response).getDirection();
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
                 //move ids
-            }
-            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+            } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                 //Exception handling goes here : Maybe a small notification to be shown
-            }
-            else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+            } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
                 //Exception handling goes here : Maybe a small notification to be shown
-            }
-            else if(response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()){
+            } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                 //Exception handling goes here : Maybe a small notification to be shown
             }
         }

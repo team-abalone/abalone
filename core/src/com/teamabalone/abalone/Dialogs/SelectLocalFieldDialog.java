@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.teamabalone.abalone.Client.Requests.InititalFieldType;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.GameInfo;
@@ -55,16 +54,16 @@ public class SelectLocalFieldDialog extends Dialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 GameInfo.getInstance().setSingleDeviceMode(false);
-                GameInfo.getInstance().setLocalPosition(null);
+                GameInfo.getInstance().setStartPosition(null);
                 remove();
             }
         });
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Preferences settings = Gdx.app.getPreferences("UserSettings");
+//                Preferences settings = Gdx.app.getPreferences("UserSettings");
                 LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
-                GameInfo.getInstance().setLocalPosition(ift);
+                GameInfo.getInstance().setStartPosition(ift);
 
 
                 MenuScreen.field = new Field(5);
