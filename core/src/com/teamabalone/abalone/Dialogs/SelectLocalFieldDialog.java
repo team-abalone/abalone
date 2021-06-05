@@ -29,12 +29,11 @@ public class SelectLocalFieldDialog extends Dialog {
     Table buttonTable = getButtonTable();
 
 
-
     public SelectLocalFieldDialog(String title, Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
-        this.game=game;
+        this.game = game;
         GameInfo.getInstance().setSingleDeviceMode(true);
-        this.stage= stage;
+        this.stage = stage;
         headerLabel = new Label("", skin);
 
         exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
@@ -62,10 +61,12 @@ public class SelectLocalFieldDialog extends Dialog {
                 GameStartPositions ift = initialFieldTypeSelect.getSelected();
                 GameInfo.getInstance().setStartPosition(ift);
 
-                MenuScreen.field = new Field(5);
+                game.menuScreen.setField(new Field(5));
 
                 remove();
-            };
+            }
+
+            ;
         });
         Label initialFieldTypeLabel = new Label("Select the initial field type:", skin);
 
@@ -77,6 +78,7 @@ public class SelectLocalFieldDialog extends Dialog {
         rootTable.add(initialFieldTypeSelect).left().padLeft(20);
 
     }
+
     @Override
     public Dialog show(Stage stage) {
         return super.show(stage);

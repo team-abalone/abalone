@@ -109,8 +109,7 @@ public class Abalone implements Screen {
 
         this.game = game;
         batch = game.batch;
-        stage = game.gameStage;
-//        stage = new Stage(); //stage not attached, so it moves with screen
+        stage = game.gameStage; //stage not attached, so it moves with screen
         Gdx.input.setInputProcessor(stage);
 
         board();
@@ -569,10 +568,11 @@ public class Abalone implements Screen {
 
     private void exitCurrentGame() {
         resetView();
-        MenuScreen.field = null;
         bgMusic.stop();
 
-        game.setScreen(game.menuScreen);
+        MenuScreen menuScreen = game.menuScreen;
+        menuScreen.setField(null);
+        game.setScreen(menuScreen);
         Gdx.input.setInputProcessor(game.menuStage);
     }
 
