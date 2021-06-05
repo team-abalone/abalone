@@ -22,7 +22,7 @@ public class GameInfo implements GameInfos {
     private int maximalSelectableMarbles = 3;
     private int playerId = 0;
     private ArrayList<String> names;
-    private GameStartPositions startPosition;
+    private GameStartPositions startPosition = GameStartPositions.DEFAULT;
 
     private GameInfo() {
         //private constructor

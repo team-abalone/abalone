@@ -50,8 +50,10 @@ public class Abalone implements Screen {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int SWIPE_SENSITIVITY = 40;
     private final int NUMBER_CAPTURES_TO_WIN = 6;
+    private final int SWIPE_SENSITIVITY = 40;
+    private final double TILT_SENSITIVITY = 2.5;
+    private boolean tiltActive = true;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.getSingleDeviceMode();
     private final int MAX_SELECT = gameInfos.getMaximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.getNumberPlayers();
@@ -249,6 +251,20 @@ public class Abalone implements Screen {
             firstTouchX = Gdx.input.getX();
             firstTouchY = Gdx.input.getY();
             justTouched = true;
+        }
+
+        if (tiltActive) { //move via tilting phone
+            float accelX = -Gdx.input.getAccelerometerX();
+            float accelY = Gdx.input.getAccelerometerY();
+            if (Math.abs(accelX) > TILT_SENSITIVITY || Math.abs(accelY) > TILT_SENSITIVITY) {
+                lastDirection = Directions.calculateDirectionFromAcceleration(accelY, accelX);
+
+                if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
+                    if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+                        makeMove();
+                    }
+                }
+            }
         }
 
         if (justTouched && !firstFingerTouching) { //on touch ends
