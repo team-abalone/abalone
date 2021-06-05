@@ -319,6 +319,8 @@ public class Board {
                 break;
             case LEFTDOWN:
                 center = shiftLeftDown(center);
+            default:
+                throw new IllegalArgumentException("no such direction");
         }
 
         sprite.setCenter(center.x, center.y);

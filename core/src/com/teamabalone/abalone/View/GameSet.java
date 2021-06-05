@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton instance containing all marble sets of a game in one collection.
@@ -69,7 +70,7 @@ public class GameSet { //singleton
      * @return list of created sprites
      * @throws IllegalArgumentException  in case of an coordinate that's not even
      */
-    public ArrayList<Sprite> createMarbles(Texture texture, int rgbaValue,  float... coordinates) {
+    public List<Sprite> createMarbles(Texture texture, int rgbaValue,  float... coordinates) {
         if (texture == null) {
             throw new IllegalArgumentException("no texture passed");
         }
@@ -94,7 +95,7 @@ public class GameSet { //singleton
     }
 
 
-    public ArrayList<Sprite> createMarbles(Texture texture,  float... coordinates) {
+    public List<Sprite> createMarbles(Texture texture,  float... coordinates) {
         return createMarbles(texture, 0, coordinates);
     }
 
@@ -103,7 +104,7 @@ public class GameSet { //singleton
      *
      * @return  the marbleSet
      */
-    public ArrayList<MarbleSet> getMarbleSets() {
+    public List<MarbleSet> getMarbleSets() {
         return marbleSets;
     }
 

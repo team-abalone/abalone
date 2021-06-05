@@ -41,7 +41,8 @@ public class RenegadeKeeper {
     public boolean expose(int suspectedSpriteId) {
         if (hasExposeAttempt) {
             if (suspectedSpriteId == lastRenegadeId) {
-                return doubleTurn = true;
+                doubleTurn = true;
+                return doubleTurn;
             }
             hasExposeAttempt = false;
         }

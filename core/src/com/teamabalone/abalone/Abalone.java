@@ -112,6 +112,7 @@ public class Abalone implements Screen {
         this.game = game;
         batch = game.batch;
         stage = game.gameStage; //stage not attached, so it moves with screen
+        stage.getActors().clear();
         Gdx.input.setInputProcessor(stage);
 
         board();
@@ -130,7 +131,7 @@ public class Abalone implements Screen {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
 
         settings.putString("marbleSkin" + 0, "ball_white.png"); //TODO putString only temporary. should be in settings later on.
-//        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
+        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
