@@ -10,7 +10,6 @@ import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
-import com.teamabalone.abalone.Dialogs.SelectLocalFieldDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ import java.util.List;
 /**
  * This Class manages the data of the game field.
  * <p></p>
- * I holds a {@link HashMap} called field in which the {@link HexCoordinate Hexcoordinates} and {@link Marble Marbles} are stored.
- * Futhermore it has several methods to change the {@code field} and to communicate with a View.
+ * Holds a {@link HashMap} called field in which the {@link HexCoordinate Hexcoordinates} and {@link Marble Marbles} are stored.
+ * Furthermore it has several methods to change the {@code field} and to communicate with a View.
  */
 public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, AbaloneQueries {
 
@@ -34,10 +33,19 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+
     private int renegade = -1;
     private UUID userId;
 
-    private ResponseHandler responseHandler;
+    public void basicFieldInitialisation(int radius) {
+        this.radius = radius;
+        this.hexFields = getHexagonCount(radius);
+        this.field = new HashMap<>(this.hexFields);
+        int i = 1;
+        for (HexCoordinate hex : iterateOverHexagons()) {
+            this.setHexagon(hex, new Hexagon(hex, i++));
+        }
+    }
 
     /**
      * Constructor for Field.
@@ -45,32 +53,18 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param radius the side length of the Field.
      */
     public Field(int radius, GameStartedResponse gameStartedResponse) {
-        this.radius = radius;
-        this.userId = UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId"));
-        this.hexFields = getHexagonCount(radius);
-        this.field = new HashMap<>(this.hexFields);
-        int i = 1;
-        for (HexCoordinate hex : iterateOverHexagons()) {
-            this.setHexagon(hex, new Hexagon(hex, i++));
-        }
+        basicFieldInitialisation(radius);
+        userId = UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId"));
 
         setInitialValues(gameStartedResponse);
-        responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
-        responseHandler.addObserver(this);
+        ResponseHandler.newInstance().addObserver(this);
 
         System.out.println(iterateOverHexagons());
     }
 
     public Field(int radius) {
-        this.radius = radius;
-        this.hexFields = getHexagonCount(radius);
-        this.field = new HashMap<>(this.hexFields);
-        int i = 1;
-        for (HexCoordinate hex : iterateOverHexagons()) {
-            this.setHexagon(hex, new Hexagon(hex, i++));
-        }
-
-        fieldSetUp(toOneDimension(LocalGameStartPositions.getPositions(GameInfo.getInstance().getStartPosition())));
+        basicFieldInitialisation(radius);
+        fieldSetUp(to1DArray(GameStartPositions.getStartPosition()));
     }
 
     /**
@@ -101,9 +95,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     }
 
     /**
-     * Loads default marble positions into the hashmap for the game start TODO ??still appropriate
+     * Loads default marble positions into the hashmap for the game start
      */
-
     public void setInitialValues(GameStartedResponse gameStartedResponse) {
         GameInfo gameInfo = GameInfo.getInstance();
 
@@ -117,10 +110,10 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
         gameInfo.setNames(names);
 
-        fieldSetUp(toOneDimension(gameStartedResponse.getGameField()));
+        fieldSetUp(to1DArray(gameStartedResponse.getGameField()));
     }
 
-    public int[] toOneDimension(int[][] array) {
+    public int[] to1DArray(int[][] array) {
         int elements = 0;
         for (int[] row : array) {
             elements += row.length;
@@ -136,8 +129,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         return oneDimensionArray;
     }
 
-    //0 - 6
-    //0 - 5
     public void fieldSetUp(int[] field) {
         if (field.length != this.field.size()) {
             throw new IllegalArgumentException("field size not matching hash map");

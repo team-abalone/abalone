@@ -1,12 +1,16 @@
 package com.teamabalone.abalone.Gamelogic;
 
-public enum LocalGameStartPositions {
+public enum GameStartPositions {
     DEFAULT,
     GERMAN_DAISY,
     SNAKES,
     THE_WALL;
 
-    public static int[][] getPositions(LocalGameStartPositions startPositions) {
+    public static int[][] getStartPosition() {
+        return getPositionArray(GameInfo.getInstance().getStartPosition());
+    }
+
+    private static int[][] getPositionArray(GameStartPositions startPositions) {
         switch (startPositions) {
             case GERMAN_DAISY:
                 return new int[][]{
@@ -44,6 +48,7 @@ public enum LocalGameStartPositions {
                         {0, 0, 0, 0, 0, 0},
                         {0, 0, 1, 0, 0}
                 };
+            case DEFAULT:
             default:
                 return new int[][]{
                         {1, 1, 1, 1, 1},

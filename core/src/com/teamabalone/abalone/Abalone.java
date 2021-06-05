@@ -26,7 +26,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 
@@ -561,14 +560,14 @@ public class Abalone implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", winLabel.toString() + " clicked");
-                currentGame.exit();
+                currentGame.exitCurrentGame();
             }
         });
 
         stage.addActor(winLabel);
     }
 
-    private void exit() {
+    private void exitCurrentGame() {
         resetView();
         MenuScreen.field = null;
         bgMusic.stop();
@@ -620,7 +619,7 @@ public class Abalone implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
-                currentGame.exit();
+                currentGame.exitCurrentGame();
             }
         });
 
@@ -645,7 +644,7 @@ public class Abalone implements Screen {
             background = new Texture(boardTexturePath);
         }
 
-        for (int k = 0; k < playerTextures.size(); k++) {
+        for (int k = 0; k < playerTextures.size(); k++) { //TODO clearer code
             Texture oldTexture = playerTextures.get(k);
             playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
             Texture newTexture = playerTextures.get(k);
@@ -674,12 +673,11 @@ public class Abalone implements Screen {
 
     @Override
     public void pause() {
-        resetView();
+        exitCurrentGame();
     }
 
     @Override
     public void resume() {
-        //TODO you get more murbles if you close the up and start it up again
     }
 
     @Override
@@ -701,6 +699,7 @@ public class Abalone implements Screen {
         for (int i = 0; i < playerTextures.size(); i++) {
             playerTextures.get(i).dispose();
         }
-        resetView();
+
+        exitCurrentGame();
     }
 }

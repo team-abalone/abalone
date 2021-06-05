@@ -1,7 +1,5 @@
 package com.teamabalone.abalone.Dialogs;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -15,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.GameInfo;
-import com.teamabalone.abalone.Gamelogic.LocalGameStartPositions;
+import com.teamabalone.abalone.Gamelogic.GameStartPositions;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Screens.MenuScreen;
 
@@ -23,7 +21,7 @@ public class SelectLocalFieldDialog extends Dialog {
     private ImageButton exitButton;
     private Label headerLabel;
     private final Stage stage;
-    private SelectBox<LocalGameStartPositions> initialFieldTypeSelect;
+    private SelectBox<GameStartPositions> initialFieldTypeSelect;
     private GameImpl game;
 
     Table titleTable = getTitleTable();
@@ -61,10 +59,8 @@ public class SelectLocalFieldDialog extends Dialog {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                Preferences settings = Gdx.app.getPreferences("UserSettings");
-                LocalGameStartPositions ift = initialFieldTypeSelect.getSelected();
+                GameStartPositions ift = initialFieldTypeSelect.getSelected();
                 GameInfo.getInstance().setStartPosition(ift);
-
 
                 MenuScreen.field = new Field(5);
 
@@ -74,7 +70,7 @@ public class SelectLocalFieldDialog extends Dialog {
         Label initialFieldTypeLabel = new Label("Select the initial field type:", skin);
 
         initialFieldTypeSelect = new SelectBox<>(skin);
-        initialFieldTypeSelect.setItems(LocalGameStartPositions.values());
+        initialFieldTypeSelect.setItems(GameStartPositions.values());
         rootTable.row().padTop(250);
 
         rootTable.add(initialFieldTypeLabel).left();

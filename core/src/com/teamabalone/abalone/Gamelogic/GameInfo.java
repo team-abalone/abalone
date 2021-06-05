@@ -15,13 +15,14 @@ import java.util.ArrayList;
  */
 public class GameInfo implements GameInfos {
     private static GameInfo singletonInstance;
+
     private boolean singleDeviceMode = false;
     private int numberPlayers = 2;
     private int mapSize = 5;
     private int maximalSelectableMarbles = 3;
     private int playerId = 0;
     private ArrayList<String> names;
-    private LocalGameStartPositions startPosition;
+    private GameStartPositions startPosition;
 
     private GameInfo() {
         //private constructor
@@ -93,11 +94,11 @@ public class GameInfo implements GameInfos {
         this.names = names;
     }
 
-    public void setStartPosition(LocalGameStartPositions startPosition) {
+    public void setStartPosition(GameStartPositions startPosition) {
         this.startPosition = startPosition;
     }
 
-    public LocalGameStartPositions getStartPosition() {
+    public GameStartPositions getStartPosition() {
         return startPosition;
     }
 

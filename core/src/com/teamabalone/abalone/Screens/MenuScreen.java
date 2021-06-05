@@ -156,6 +156,7 @@ public class MenuScreen implements Screen {
         batch.end();
         stage.act();
         stage.draw();
+
         if(field != null){
             Abalone abalone = new Abalone(game, field);
             game.setScreen(abalone);
