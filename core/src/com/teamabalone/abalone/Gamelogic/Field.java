@@ -1,7 +1,6 @@
 package com.teamabalone.abalone.Gamelogic;
 
 import com.badlogic.gdx.Gdx;
-import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
@@ -15,12 +14,12 @@ import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * This Class manages the data of the game field.
@@ -340,7 +339,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (getHexagon(target).getMarble() == null || selectedItems.contains(target)) {
                 //in this case the target field is empty. we dond't need to check for ally marbles since the checkMove already does this
             } else {     //this case will have a enemy marble
-                HexCoordinate behindAlly = calcNeighbour(hex, mirrorDirection(direction));
+                HexCoordinate behindAlly = calcNeighbour(hex, Directions.mirrorDirection(direction));
                 if (!selectedItems.contains(behindAlly)) {       //in this case we push normal to the marble line and therefore can't push anything
                     return null;
                 }
@@ -516,40 +515,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 throw new IllegalStateException("Unexpected value: " + direction);
         }
         return neighbour;
-    }
-
-
-    /**
-     * Turns the Direction 180° around.
-     *
-     * @param direction the direction
-     * @return the turned direction
-     */
-    public Directions mirrorDirection(Directions direction) {
-        Directions mirror;
-        switch (direction) {
-            case LEFT:
-                mirror = Directions.RIGHT;
-                break;
-            case RIGHT:
-                mirror = Directions.LEFT;
-                break;
-            case LEFTUP:
-                mirror = Directions.RIGHTDOWN;
-                break;
-            case RIGHTUP:
-                mirror = Directions.LEFTDOWN;
-                break;
-            case LEFTDOWN:
-                mirror = Directions.RIGHTUP;
-                break;
-            case RIGHTDOWN:
-                mirror = Directions.LEFTUP;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + direction);
-        }
-        return mirror;
     }
 
     @Override

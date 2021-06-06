@@ -79,4 +79,29 @@ public enum Directions {
                 return NOTSET;
         }
     }
+
+    /**
+     * Turns the Direction 180° around.
+     *
+     * @param direction the direction
+     * @return the turned direction
+     */
+    public static Directions mirrorDirection(Directions direction) {
+        switch (direction) {
+            case LEFT:
+                return RIGHT;
+            case RIGHT:
+                return LEFT;
+            case LEFTUP:
+                return RIGHTDOWN;
+            case RIGHTUP:
+                return LEFTDOWN;
+            case LEFTDOWN:
+                return RIGHTUP;
+            case RIGHTDOWN:
+                return LEFTUP;
+            default:
+                throw new IllegalStateException("Unexpected value: " + direction);
+        }
+    }
 }
