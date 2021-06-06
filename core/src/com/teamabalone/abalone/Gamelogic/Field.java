@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Gamelogic;
 
 import com.badlogic.gdx.Gdx;
+import com.google.gson.Gson;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;

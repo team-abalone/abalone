@@ -11,6 +11,8 @@ import android.os.Message;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
@@ -66,10 +68,15 @@ public class ResponseHandlerService extends Service {
 
                         String responseString = in.readLine();
 
+                        // If this fails input isn't valid json.
+                        new JsonParser().parse(responseString);
+
                         Gson gson = Helpers.GetGsonInstance();
+
 
                         if (CoreResponseMessageHandler != null) {
                             BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
+
                             if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
                                 response = gson.fromJson(responseString, CreateRoomResponse.class);
                             }
@@ -96,11 +103,16 @@ public class ResponseHandlerService extends Service {
                                 response = gson.fromJson(responseString, ExceptionResponse.class);
                             }
 
-                            CoreResponseMessageHandler.HandleMessage(response);
+                            if(response.getCommandCode() != 0) {
+                                CoreResponseMessageHandler.HandleMessage(response);
+                            }
                         }
                     } catch (IOException e) {
                         // Restore interrupt status.
                         Thread.currentThread().interrupt();
+                    }
+                    catch(JsonSyntaxException e) {
+                        // Ignore message if server sent invalid json.
                     }
                 }
             }
