@@ -107,6 +107,7 @@ public class Abalone implements Screen {
 
     public Abalone(GameImpl game, Field field) {
         queries = field;
+        field.setAbalone(this);
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
@@ -525,6 +526,50 @@ public class Abalone implements Screen {
             //TODO player communication server wont work that easily
         }
         return currentPlayer;
+    }
+
+    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy) {
+        lastDirection = direction;
+        SelectionList<Sprite> marblesToMove = new SelectionList<>(MAX_SELECT);
+        for (int id : ids) {
+            Vector2 field = board.get(id);
+            marblesToMove.select(GameSet.getInstance().getMarble(field.x, field.y));
+        }
+
+        moveSelectedMarbles(marblesToMove);
+
+        //unmark renegade
+        if (renegadeLabels != null) {
+            stage.getActors().pop();
+            renegadeLabels = null;
+        }
+
+        if (enemy && queries.isPushedOutOfBound()) {
+            Sprite capturedMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
+
+            //choose renegade = true
+            renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
+
+            GameSet.getInstance().removeMarble(capturedMarble);
+
+            ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
+            deletionList.add(capturedMarble);
+            deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+            deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
+            if (currentPlayer == 1) {
+                capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
+            } else {
+                capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+            }
+
+            if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+                winner = currentPlayer;
+                winnerLabel();
+            }
+        }
+
+        nextPlayer();
     }
 
     @Override

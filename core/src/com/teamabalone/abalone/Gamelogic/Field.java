@@ -1,6 +1,7 @@
 package com.teamabalone.abalone.Gamelogic;
 
 import com.badlogic.gdx.Gdx;
+import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
@@ -35,6 +36,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     private int renegade = -1;
     private UUID userId;
+
+    private Abalone abalone;
 
     public void basicFieldInitialisation(int radius) {
         this.radius = radius;
@@ -243,6 +246,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 } else {
                     //will push enemy marbles here
                     move(result, direction); //enemy
+                    if (fromHandler) {
+                        updateView(result, direction, true);
+                    }
                     //Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
                 }
             } else {
@@ -252,6 +258,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
         //Gdx.app.log("Logic", "Method checkMove said the move can be done");
         move(ids, direction);            //ally
+        if (fromHandler) {
+            updateView(ids, direction, false);
+        }
         if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
             BaseRequest makeMoveRequest = new MakeMoveRequest(userId, ids, direction);
             try {
@@ -527,7 +536,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
                     //Recreate opponents move. This will be broadcast by our api
                     Directions direction = ((MadeMoveResponse) response).getDirection();
-                    int ids[] = ((MadeMoveResponse) response).getMarbles();
+                    int[] ids = ((MadeMoveResponse) response).getMarbles();
                     checkMove(ids, direction, true);
                 } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
@@ -538,5 +547,13 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 }
             }
         }
+    }
+
+    public void setAbalone(Abalone abalone) {
+        this.abalone = abalone;
+    }
+
+    public void updateView(int[] ids, Directions directions, boolean enemy) {
+        abalone.makeRemoteMove(ids, directions, enemy);
     }
 }
