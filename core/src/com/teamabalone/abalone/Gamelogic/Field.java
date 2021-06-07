@@ -265,7 +265,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         return result;
     }
 
-    public int[] checkMove(int[] ids, Directions direction){
+    public int[] checkMove(int[] ids, Directions direction) {
         return checkMove(ids, direction, false);
     }
 
@@ -522,22 +522,21 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     @Override
     public void HandleResponse(BaseResponse response) {
-        if(!GameInfo.getInstance().getSingleDeviceMode()){
-        if (response instanceof MadeMoveResponse) {
-            if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
-                //Recreate opponents move. This will be broadcast by our api
-                Directions direction = ((MadeMoveResponse) response).getDirection();
-                int ids[] = ((MadeMoveResponse) response).getMarbles();
-                //move ids
-                checkMove(ids, direction, true);
-            } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
-                //Exception handling goes here : Maybe a small notification to be shown
-            } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
-                //Exception handling goes here : Maybe a small notification to be shown
-            } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
-                //Exception handling goes here : Maybe a small notification to be shown
+        if (!GameInfo.getInstance().getSingleDeviceMode()) {
+            if (response instanceof MadeMoveResponse) {
+                if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+                    //Recreate opponents move. This will be broadcast by our api
+                    Directions direction = ((MadeMoveResponse) response).getDirection();
+                    int ids[] = ((MadeMoveResponse) response).getMarbles();
+                    checkMove(ids, direction, true);
+                } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                }
             }
-        }
         }
     }
 }
