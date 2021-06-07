@@ -11,7 +11,6 @@ import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -209,7 +208,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param direction the direction to push
      * @return an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
      */
-    public int[] checkMove(int[] ids, Directions direction) {  //return.length == 0 == false
+    public int[] checkMove(int[] ids, Directions direction, boolean fromHandler) {  //return.length == 0 == false
         //TODO
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         Team playersTeam;
@@ -243,7 +242,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                     return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
                 } else {
                     //will push enemy marbles here
-                    move(result, direction); //enemy
+                    move(result, direction, fromHandler); //enemy
                     //Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
                 }
             } else {
@@ -252,9 +251,14 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             }
         }
         //Gdx.app.log("Logic", "Method checkMove said the move can be done");
-        move(ids, direction);            //ally
+        move(ids, direction, fromHandler);            //ally
         return result;
     }
+
+    public int[] checkMove(int[] ids, Directions direction){
+        return checkMove(ids, direction, false);
+    }
+
 
     /**
      * Moves the marbles within the {@code field} data.
@@ -266,7 +270,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param marbleID  the selected hexes, not null
      * @param direction the direction to push
      */
-    public void move(int[] marbleID, Directions direction) {
+    public void move(int[] marbleID, Directions direction, boolean fromHandler) {
         boolean localPushedOut = false;
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         //get the hexCoordinates so it's easier to navigate
@@ -302,19 +306,21 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (localPushedOut) {                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
-            if (!GameInfo.getInstance().getSingleDeviceMode()) {
+            if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
                 BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
                 try {
                     RequestSender rs = new RequestSender(makeMoveRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
                     Future future = executorService.submit(rs);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    public void move(int[] ids, Directions direction){
+        move(ids, direction, false);
     }
 
 
@@ -526,6 +532,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                 Directions direction = ((MadeMoveResponse) response).getDirection();
                 int ids[] = ((MadeMoveResponse) response).getMarbles();
                 //move ids
+                checkMove(ids, direction, true);
             } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                 //Exception handling goes here : Maybe a small notification to be shown
             } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {

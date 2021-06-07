@@ -53,7 +53,7 @@ public class Abalone implements Screen {
     private final int NUMBER_CAPTURES_TO_WIN = 6;
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
-    private boolean tiltActive = true;
+    private boolean tiltActive = false;
     private final boolean SINGLE_DEVICE_MODE = gameInfos.getSingleDeviceMode();
     private final int MAX_SELECT = gameInfos.getMaximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.getNumberPlayers();
