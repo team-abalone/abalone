@@ -55,9 +55,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         rootTable.setFillParent(true);
 
         Label header = new Label(title, skin);
-        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override
