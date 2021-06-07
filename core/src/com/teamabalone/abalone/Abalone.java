@@ -511,10 +511,13 @@ public class Abalone implements Screen {
     }
 
     public int nextPlayer() { //TODO has to be called if server sends move of opponent
-        if (renegadeKeepers[currentPlayer].hasDoubleTurn()) {
+        if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
             renegadeKeepers[currentPlayer].takeDoubleTurn();
+
+            //TODO repeat
         } else {
             currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+            nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
 
             if (SINGLE_DEVICE_MODE) {
                 nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
