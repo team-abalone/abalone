@@ -242,7 +242,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                     return null;  //the is pushable returns an empty array if it's not possible so our move is not legit
                 } else {
                     //will push enemy marbles here
-                    move(result, direction, fromHandler); //enemy
+                    move(result, direction); //enemy
                     //Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
                 }
             } else {
@@ -251,7 +251,17 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             }
         }
         //Gdx.app.log("Logic", "Method checkMove said the move can be done");
-        move(ids, direction, fromHandler);            //ally
+        move(ids, direction);            //ally
+        if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
+            BaseRequest makeMoveRequest = new MakeMoveRequest(userId, ids, direction);
+            try {
+                RequestSender rs = new RequestSender(makeMoveRequest);
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                Future future = executorService.submit(rs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return result;
     }
 
@@ -270,7 +280,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param marbleID  the selected hexes, not null
      * @param direction the direction to push
      */
-    public void move(int[] marbleID, Directions direction, boolean fromHandler) {
+    public void move(int[] marbleID, Directions direction) {
         boolean localPushedOut = false;
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         //get the hexCoordinates so it's easier to navigate
@@ -306,21 +316,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (localPushedOut) {                                 //we need to check if in the current call one marble got pushed out otherwise concurrent pushes will be buggy
                 getHexagon(hex).setMarble(null);
             }
-            if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
-                BaseRequest makeMoveRequest = new MakeMoveRequest(userId, marbleID, direction);
-                try {
-                    RequestSender rs = new RequestSender(makeMoveRequest);
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
-    public void move(int[] ids, Directions direction){
-        move(ids, direction, false);
+        }
     }
 
 
