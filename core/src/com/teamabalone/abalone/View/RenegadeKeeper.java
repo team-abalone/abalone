@@ -1,8 +1,5 @@
 package com.teamabalone.abalone.View;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-
 public class RenegadeKeeper {
 
     private boolean canPickRenegade = false;
@@ -11,20 +8,13 @@ public class RenegadeKeeper {
     private boolean hasExposeAttempt = false;
     private boolean doubleTurn = false;
 
-    public void setCanPickRenegade() {
+    public void setRenegade(int renegadeId) {
+        lastRenegadeId = renegadeId;
         canPickRenegade = true;
     }
 
     public boolean isCanPickRenegade() {
         return canPickRenegade;
-    }
-
-    public void chooseRenegade(Sprite sprite, Texture texture, int currentPlayer, Board board) {
-        GameSet.getInstance().removeMarble(sprite);
-        sprite.setTexture(texture); //set texture
-        GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(sprite);
-        lastRenegadeId = board.getTileId(sprite);
-        canPickRenegade = false;
     }
 
     public void checkNewRenegade(int currentRenegadeId) { //only one expose attempt per renegade
@@ -42,7 +32,7 @@ public class RenegadeKeeper {
         if (hasExposeAttempt) {
             if (suspectedSpriteId == lastRenegadeId) {
                 doubleTurn = true;
-                return doubleTurn;
+                return true;
             }
             hasExposeAttempt = false;
         }

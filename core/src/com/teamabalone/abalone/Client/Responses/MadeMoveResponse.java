@@ -9,7 +9,7 @@ direction contains the Directions(enum) where the marbles will move
 public class MadeMoveResponse extends BaseResponse{
     protected int [] ids;
     protected Directions direction;
-    protected int renegadeId;
+    protected int renegadeId = 99;
     protected boolean secondTurn;
 
     public int [] getMarbles(){

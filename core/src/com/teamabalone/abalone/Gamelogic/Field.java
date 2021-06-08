@@ -38,6 +38,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     private UUID userId;
 
     private Abalone abalone;
+    private boolean enemySecondTurn = false;
 
     public void basicFieldInitialisation(int radius) {
         this.radius = radius;
@@ -189,6 +190,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     @Override
     public void resetRenegade() {
         renegade = -1;
+//        enemySecondTurn = true; //is set before exposing player moves //marked to delete
     }
 
     //invalid move -> null
@@ -262,7 +264,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             updateView(ids, direction, false);
         }
         if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
-            BaseRequest makeMoveRequest = new MakeMoveRequest(userId, ids, direction);
+            BaseRequest makeMoveRequest = new MakeMoveRequest(userId, ids, direction, renegade, enemySecondTurn);
+            enemySecondTurn = false;
             try {
                 RequestSender rs = new RequestSender(makeMoveRequest);
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -535,9 +538,15 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             if (response instanceof MadeMoveResponse) {
                 if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
                     //Recreate opponents move. This will be broadcast by our api
+
+                    enemySecondTurn = ((MadeMoveResponse) response).getSecondTurn();
+                    renegade = ((MadeMoveResponse) response).getRenegadeId();
+
                     Directions direction = ((MadeMoveResponse) response).getDirection();
                     int[] ids = ((MadeMoveResponse) response).getMarbles();
+
                     checkMove(ids, direction, true);
+
                 } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
@@ -554,10 +563,11 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     }
 
     public void updateView(int[] ids, Directions directions, boolean enemy) {
-        abalone.makeRemoteMove(ids, directions, enemy/*, response.enemySecondTurn*/);
+        abalone.makeRemoteMove(ids, directions, enemy, enemySecondTurn); //should move marbles and only call nextPlayer if enemySecondTurn false
 
-        //renegade = resopnes.renegade
         //change marble style in view
-
+        if (renegade != -1) {
+            abalone.updateRemoteRenegade(renegade);
+        }
     }
 }

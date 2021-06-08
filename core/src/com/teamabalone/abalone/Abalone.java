@@ -3,9 +3,7 @@ package com.teamabalone.abalone;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
-
 import com.badlogic.gdx.audio.Music;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,23 +14,28 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.teamabalone.abalone.Client.IResponseHandlerObserver;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
-
 import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
-import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
-
+import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.GameInfos;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
@@ -45,12 +48,16 @@ import com.teamabalone.abalone.View.RenegadeKeeper;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class Abalone implements Screen {
+public class Abalone implements Screen, IResponseHandlerObserver {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int NUMBER_CAPTURES_TO_WIN = 1;
+    private final int NUMBER_CAPTURES_TO_WIN = 2;
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
     private boolean tiltActive = false;
@@ -384,7 +391,7 @@ public class Abalone implements Screen {
         }
     }
 
-    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy/*, boolean enemySecondTurn*/) {
+    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy, boolean enemySecondTurn) {
         lastDirection = direction;
         SelectionList<Sprite> marblesToMove = new SelectionList<>(MAX_SELECT);
         for (int id : ids) {
@@ -418,7 +425,7 @@ public class Abalone implements Screen {
 
         if (winner != -1) {
             nextLabel.setText("");
-        } else if (!enemy /*&& !enemySecondTurn*/) {
+        } else if (!enemy && !enemySecondTurn) {
             nextPlayer();
         }
     }
@@ -459,6 +466,34 @@ public class Abalone implements Screen {
         label.setY(vector.y - mark.getHeight() / 2);
     }
 
+    public void updateRemoteRenegade(int renegadeId) {
+        Vector2 spriteCenter = board.get(renegadeId);
+        Sprite renegadeSprite = GameSet.getInstance().getMarble(spriteCenter.x, spriteCenter.y);
+
+        if (renegadeSprite == null) {
+            throw new IllegalArgumentException("no valid renegade");
+        }
+
+        Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
+        chooseRenegade(renegadeSprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor()); //playerTextures.get(currentPlayer));
+        queries.changeTo(renegadeId, currentPlayer); //updates logic that marble changed team
+//        nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+    }
+
+    public void chooseRenegade(Sprite renegade, Texture texture, Color color) {
+        transitionRenegade(renegade, texture, color);
+        if (SINGLE_DEVICE_MODE) {
+            renegadeKeepers[currentPlayer].setRenegade(board.getTileId(renegade));
+        }
+    }
+
+    public void transitionRenegade(Sprite renegade, Texture texture, Color color) {
+        GameSet.getInstance().removeMarble(renegade);
+        renegade.setTexture(texture); //set texture
+        renegade.setColor(color);
+        GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(renegade);
+    }
+
     private void selectMarbleIfTouched() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
@@ -470,7 +505,8 @@ public class Abalone implements Screen {
                 queries.resetRenegade();
                 createRenegadeMark(board.getCenter(potentialSprite));
             } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) { //then pick
-                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
+                Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
+                chooseRenegade(potentialSprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor());
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
                 nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
@@ -706,8 +742,15 @@ public class Abalone implements Screen {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                 capitulationLabel();
-                if(!SINGLE_DEVICE_MODE){
-                    //send capitulation
+                if (!SINGLE_DEVICE_MODE) {
+                    BaseRequest surrenderRequest = new SurrenderRequest(UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId")));
+                    try {
+                        RequestSender rs = new RequestSender(surrenderRequest);
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        Future future = executorService.submit(rs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -790,5 +833,22 @@ public class Abalone implements Screen {
         }
 
         exitCurrentGame();
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        if (!GameInfo.getInstance().getSingleDeviceMode()) {
+            if (response instanceof MadeMoveResponse) {
+                if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+                    capitulationLabel();
+                } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                }
+            }
+        }
     }
 }
