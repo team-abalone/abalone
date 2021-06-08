@@ -10,7 +10,9 @@ public enum RequestCommandCodes {
     CLOSE_ROOM(40),
     SEND_CHAT_MESSAGE(50),
     GET_USER_ID(60),
-    START_GAME(70);
+    START_GAME(70),
+    CLOSE_GAME(80),
+    SURRENDER(90);
 
     private final int value;
 

@@ -18,6 +18,7 @@ import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 
 import com.teamabalone.abalone.Client.Responses.ExceptionResponse;
+import com.teamabalone.abalone.Client.Responses.GameClosedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
@@ -25,6 +26,7 @@ import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Client.Responses.StartGameResponse;
+import com.teamabalone.abalone.Client.Responses.SurrenderResponse;
 import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
@@ -92,6 +94,12 @@ public class ResponseHandlerService extends Service {
 
                             else if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
                                 response = gson.fromJson(responseString, GameStartedResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.GAME_CLOSED.getValue()){
+                                response = gson.fromJson(responseString, GameClosedResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()){
+                                response = gson.fromJson(responseString, SurrenderResponse.class);
                             }
                             else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
                                 response = gson.fromJson(responseString, ExceptionResponse.class);
