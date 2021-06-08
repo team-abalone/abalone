@@ -247,7 +247,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
                     //will push enemy marbles here
                     move(result, direction); //enemy
                     if (fromHandler) {
-                        updateView(result, direction, true);
+                        updateView(result, direction, true); //will be moved first (?)
                     }
                     //Gdx.app.log("Logic", "Method checkMove said you will push an enemy marble.");
                 }

@@ -572,7 +572,9 @@ public class Abalone implements Screen {
             }
         }
 
-        nextPlayer();
+        if (!enemy) {
+            nextPlayer();
+        }
     }
 
     @Override
