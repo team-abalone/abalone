@@ -1,5 +1,8 @@
 package com.teamabalone.abalone.Dialogs;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -8,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CloseRoomRequest;
@@ -22,9 +25,9 @@ import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
-import com.teamabalone.abalone.Screens.MenuScreen;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -33,11 +36,11 @@ import java.util.concurrent.Future;
 
 
 public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerObserver {
-    private com.badlogic.gdx.scenes.scene2d.ui.List<UUID> currentPlayersList;
+    private com.badlogic.gdx.scenes.scene2d.ui.List<String> currentPlayersList;
     private ImageButton exitButton;
     private Label headerLabel;
     private String roomKey;
-    private UUID[] playerList;
+    private String[] playerList;
 
     private GameImpl game;
 
@@ -49,7 +52,6 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         Table buttonTable = getButtonTable();
         Table titleTable = getTitleTable();
         rootTable.setFillParent(true);
-
 
         ResponseHandler responseHandler = ResponseHandler.newInstance();
         responseHandler.addObserver(this);
@@ -66,7 +68,15 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             };
         });
 
-        currentPlayersList = new com.badlogic.gdx.scenes.scene2d.ui.List<UUID>(skin);
+        currentPlayersList = new com.badlogic.gdx.scenes.scene2d.ui.List<String>(skin);
+
+        // This is a workaround to avoid selections being made.
+        currentPlayersList.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                currentPlayersList.setSelectedIndex(-1);
+            }
+        });
 
         // Only the creator of the room can start it.
         if (isRoomCreator) {
@@ -74,8 +84,11 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             buttonTable.add(startGameButton).width(800);
             buttonTable.setWidth(getWidth());
 
+            Preferences settings = Gdx.app.getPreferences("UserSettings");
+            String userName = settings.getString("UserName");
+
             // Add self to current player list if room creator.
-            playerList = new UUID[] { userId };
+            playerList = new String[] { userName };
             currentPlayersList.setItems(playerList);
 
             startGameButton.addListener(new ClickListener() {
@@ -138,7 +151,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         this.roomKey = roomKey;
     }
 
-    public void setPlayers(UUID[] players) {
+    public void setPlayers(String[] players) {
         this.playerList = players;
         currentPlayersList.setItems(players);
     }
@@ -152,8 +165,8 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         // Other players has joined room.
         else if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED_OTHER.getValue()) {
             // Updating player list.
-            List<UUID> playerListTemp = ((RoomJoinedResponse) response).getPlayers();
-            playerList = playerListTemp.toArray(new UUID[playerListTemp.size()]);
+            Collection<String> playerListTemp = ((RoomJoinedResponse) response).getPlayerMap().values();
+            playerList = playerListTemp.toArray(new String[playerListTemp.size()]);
             currentPlayersList.setItems(playerList);
         }
         // Game has started.

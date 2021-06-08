@@ -23,6 +23,7 @@ import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -124,8 +125,8 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         // User joined successfully.
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
             waitingForPlayersDialog.setTitle(String.format("Waiting for players (%s) ... ", ((RoomJoinedResponse) response).getRoomKey()));
-            List<UUID> playerListTemp = ((RoomJoinedResponse) response).getPlayers();
-            UUID[] playerList = playerListTemp.toArray(new UUID[playerListTemp.size()]);
+            Collection<String> playerListTemp = ((RoomJoinedResponse) response).getPlayerMap().values();
+            String[] playerList = playerListTemp.toArray(new String[playerListTemp.size()]);
             waitingForPlayersDialog.setPlayers(playerList);
             waitingForPlayersDialog.show(stage);
             this.hide();
