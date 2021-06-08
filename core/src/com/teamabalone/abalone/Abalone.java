@@ -50,7 +50,7 @@ public class Abalone implements Screen {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int NUMBER_CAPTURES_TO_WIN = 6;
+    private final int NUMBER_CAPTURES_TO_WIN = 1;
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
     private boolean tiltActive = false;
@@ -376,6 +376,8 @@ public class Abalone implements Screen {
 
             if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
                 renegadeKeepers[currentPlayer].takeDoubleTurn();
+            } else if (winner != -1) {
+                nextLabel.setText("");
             } else {
                 nextPlayer();
             }
@@ -414,7 +416,9 @@ public class Abalone implements Screen {
             }
         }
 
-        if (!enemy /*&& !enemySecondTurn*/) {
+        if (winner != -1) {
+            nextLabel.setText("");
+        } else if (!enemy /*&& !enemySecondTurn*/) {
             nextPlayer();
         }
     }
@@ -702,6 +706,9 @@ public class Abalone implements Screen {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                 capitulationLabel();
+                if(!SINGLE_DEVICE_MODE){
+                    //send capitulation
+                }
             }
         });
 
