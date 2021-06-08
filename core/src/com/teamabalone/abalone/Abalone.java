@@ -351,7 +351,7 @@ public class Abalone implements Screen {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
 
                 //choose renegade = true
-                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
+//                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade(); //TODO make it work
 
                 GameSet.getInstance().removeMarble(capturedMarble);
 
@@ -373,8 +373,71 @@ public class Abalone implements Screen {
             }
 
             lastDirection = Directions.NOTSET;
+
+            if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
+                renegadeKeepers[currentPlayer].takeDoubleTurn();
+            } else {
+                nextPlayer();
+            }
+        }
+    }
+
+    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy/*, boolean enemySecondTurn*/) {
+        lastDirection = direction;
+        SelectionList<Sprite> marblesToMove = new SelectionList<>(MAX_SELECT);
+        for (int id : ids) {
+            Vector2 field = board.get(id);
+            marblesToMove.select(GameSet.getInstance().getMarble(field.x, field.y));
+        }
+
+        moveSelectedMarbles(marblesToMove);
+
+        if (enemy && queries.isPushedOutOfBound()) {
+            Sprite capturedMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
+
+            GameSet.getInstance().removeMarble(capturedMarble);
+
+            ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer);
+            deletionList.add(capturedMarble);
+            deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+            deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
+            if (currentPlayer == 1) {
+                capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
+            } else {
+                capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+            }
+
+            if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+                winner = currentPlayer;
+                winnerLabel();
+            }
+        }
+
+        if (!enemy /*&& !enemySecondTurn*/) {
             nextPlayer();
         }
+    }
+
+    public int nextPlayer() { //TODO has to be called if server sends move of opponent
+        currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+        nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
+
+        RenegadeKeeper renegadeKeeper = null;
+        if (SINGLE_DEVICE_MODE) {
+            renegadeKeeper = renegadeKeepers[currentPlayer];
+        } else if (currentPlayer == GameInfo.getInstance().getPlayerId()) {
+            renegadeKeeper = renegadeKeepers[0];
+        }
+
+        if (renegadeKeeper != null) {
+            nextLabel.setText(nextLabel.getText() + (renegadeKeeper.isCanPickRenegade() ? "*" : ""));
+            renegadeKeeper.checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+        }
+
+        //online game.. you cant see renegade status of other player yet.
+
+        return currentPlayer;
     }
 
     public void createRenegadeMark(Vector2 center) {
@@ -399,15 +462,16 @@ public class Abalone implements Screen {
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
         if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
 
-            //TODO first turns marble before expose enemy marble
-            if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+            if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) { //first expose
                 queries.resetRenegade();
                 createRenegadeMark(board.getCenter(potentialSprite));
-            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
+            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) { //then pick
                 renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
                 queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
                 nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
+
+            //else nothing
 
             return;
         }
@@ -507,73 +571,6 @@ public class Abalone implements Screen {
     private void moveSelectedMarbles(SelectionList<Sprite> list) {
         for (int i = 0; i < list.size(); i++) {
             board.move(list.get(i), lastDirection);
-        }
-    }
-
-    public int nextPlayer() { //TODO has to be called if server sends move of opponent
-        if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
-            renegadeKeepers[currentPlayer].takeDoubleTurn();
-
-            //TODO repeat
-        } else {
-            currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
-            nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
-
-            if (SINGLE_DEVICE_MODE) {
-                nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
-                renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
-            } else {
-                //TODO change label
-            }
-
-            //TODO player communication server wont work that easily
-        }
-        return currentPlayer;
-    }
-
-    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy) {
-        lastDirection = direction;
-        SelectionList<Sprite> marblesToMove = new SelectionList<>(MAX_SELECT);
-        for (int id : ids) {
-            Vector2 field = board.get(id);
-            marblesToMove.select(GameSet.getInstance().getMarble(field.x, field.y));
-        }
-
-        moveSelectedMarbles(marblesToMove);
-
-        //unmark renegade
-        if (renegadeLabels != null) {
-            stage.getActors().pop();
-            renegadeLabels = null;
-        }
-
-        if (enemy && queries.isPushedOutOfBound()) {
-            Sprite capturedMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
-
-            //choose renegade = true
-            renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
-
-            GameSet.getInstance().removeMarble(capturedMarble);
-
-            ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
-            deletionList.add(capturedMarble);
-            deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
-            deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
-
-            if (currentPlayer == 1) {
-                capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
-            } else {
-                capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
-            }
-
-            if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
-                winner = currentPlayer;
-                winnerLabel();
-            }
-        }
-
-        if (!enemy) {
-            nextPlayer();
         }
     }
 

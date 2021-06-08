@@ -554,6 +554,10 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     }
 
     public void updateView(int[] ids, Directions directions, boolean enemy) {
-        abalone.makeRemoteMove(ids, directions, enemy);
+        abalone.makeRemoteMove(ids, directions, enemy/*, response.enemySecondTurn*/);
+
+        //renegade = resopnes.renegade
+        //change marble style in view
+
     }
 }
