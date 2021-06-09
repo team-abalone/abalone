@@ -139,7 +139,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
 
         settings.putString("marbleSkin" + 0, "ball_white.png"); //TODO putString only temporary. should be in settings later on.
-        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
+//        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
@@ -358,7 +358,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
                 Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
 
                 //choose renegade = true
-//                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade(); //TODO make it work
+                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegadeTrue(); //TODO make it work
 
                 GameSet.getInstance().removeMarble(capturedMarble);
 
@@ -670,22 +670,22 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         stage.addActor(winLabel);
     }
 
-    public void capitulationLabel() {
+    public void surrenderLabel() {
         //TODO proper style?
-        Label capitulateLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " capitulates", screenWidth, screenHeight);
-        capitulateLabel.setAlignment(Align.center);
+        Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
+        surrenderLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
-        capitulateLabel.addListener(new ClickListener() {
+        surrenderLabel.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
-                Gdx.app.log("ClickListener", capitulateLabel.toString() + " clicked");
+                Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
                 currentGame.exitCurrentGame();
             }
         });
 
-        stage.addActor(capitulateLabel);
+        stage.addActor(surrenderLabel);
     }
 
     private void exitCurrentGame() {
@@ -741,7 +741,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
-                capitulationLabel();
+                surrenderLabel();
                 if (!SINGLE_DEVICE_MODE) {
                     BaseRequest surrenderRequest = new SurrenderRequest(UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId")));
                     try {
@@ -840,7 +840,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         if (!GameInfo.getInstance().getSingleDeviceMode()) {
             if (response instanceof MadeMoveResponse) {
                 if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
-                    capitulationLabel();
+                    surrenderLabel();
                 } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
