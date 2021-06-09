@@ -299,31 +299,8 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     public void background() {
-        float backgroundWidth = background.getWidth();
-        float backgroundHeight = background.getHeight();
-        float startX = boardWidth / 2 - backgroundWidth;
-        float startY = boardHeight / 2 - backgroundHeight;
-
         batch.begin();
-        batch.draw(background, startX, startY);
-        batch.draw(background, startX, startY + backgroundHeight);
-        batch.draw(background, startX, startY + backgroundHeight * 2);
-        batch.draw(background, startX, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth, startY);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth * 2, startY);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
-
-        batch.draw(background, startX - backgroundWidth, startY);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
+        batch.draw(background, (boardWidth - background.getWidth()) / 2f, (boardHeight -  background.getHeight()) / 2f);
         batch.end();
     }
 
