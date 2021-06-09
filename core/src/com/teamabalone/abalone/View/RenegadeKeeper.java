@@ -10,6 +10,10 @@ public class RenegadeKeeper {
 
     public void setRenegade(int renegadeId) {
         lastRenegadeId = renegadeId;
+        canPickRenegade = false;
+    }
+
+    public void setCanPickRenegadeTrue() {
         canPickRenegade = true;
     }
 
@@ -45,9 +49,5 @@ public class RenegadeKeeper {
 
     public void takeDoubleTurn() {
         doubleTurn = false;
-    }
-
-    public void setCanPickRenegadeTrue() {
-        canPickRenegade = true;
     }
 }

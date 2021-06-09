@@ -108,7 +108,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private int winner = -1;
 
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
-    private Label renegadeLabels = null;
+    private Label renegadeLabel = null;
 
     private final float min_zoom = 0.3f;
     private final float max_zoom = 0.7f;
@@ -365,51 +365,33 @@ public class Abalone implements Screen, IResponseHandlerObserver {
                 }
             }
 
-            moveSelectedMarbles(selectedSprites); //move
+            moveSelectedMarbles(selectedSprites);
             moveSelectedMarbles(selectedEnemySprites);
 
             unselectAllSelectedSprites();
-
-            //unmark renegade
-            if (renegadeLabels != null) {
-                stage.getActors().pop();
-                renegadeLabels = null;
-            }
+            unmarkRenegade();
+            lastDirection = Directions.NOTSET;
 
             if (queries.isPushedOutOfBound()) {
-                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
-
-                //choose renegade = true
-                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegadeTrue(); //TODO make it work
-
-                GameSet.getInstance().removeMarble(capturedMarble);
-
-                ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
-                deletionList.add(capturedMarble);
-                deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
-                deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
-
-                if (currentPlayer == 1) {
-                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
-                } else {
-                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
-                }
-
-                if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
-                    winner = currentPlayer;
-                    createWinnerLabel();
-                }
+                Sprite pushedOutMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
+                renegadeKeepers[GameSet.getInstance().getTeamIndex(pushedOutMarble)].setCanPickRenegadeTrue(); //TODO make it work
+                capture(pushedOutMarble);
             }
-
-            lastDirection = Directions.NOTSET;
 
             if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
                 renegadeKeepers[currentPlayer].takeDoubleTurn();
             } else if (winner != -1) {
-                currentPlayerLabel.setText("");
+                stage.getActors().removeValue(currentPlayerLabel, true);
             } else {
                 nextPlayer();
             }
+        }
+    }
+
+    public void unmarkRenegade(){
+        if (renegadeLabel != null) {
+            stage.getActors().pop();
+            renegadeLabel = null;
         }
     }
 
@@ -424,35 +406,38 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         moveSelectedMarbles(marblesToMove);
 
         if (enemy && queries.isPushedOutOfBound()) {
-            Sprite capturedMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
-
-            GameSet.getInstance().removeMarble(capturedMarble);
-
-            ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer);
-            deletionList.add(capturedMarble);
-            deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
-            deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
-
-            if (currentPlayer == 1) {
-                capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
-            } else {
-                capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
-            }
-
-            if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
-                winner = currentPlayer;
-                createWinnerLabel();
-            }
+            Sprite pushedOutMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
+            capture(pushedOutMarble);
         }
 
         if (winner != -1) {
-            currentPlayerLabel.setText("");
+            stage.getActors().removeValue(currentPlayerLabel, true);
         } else if (!enemy && !enemySecondTurn) {
             nextPlayer();
         }
     }
 
-    public int nextPlayer() { //TODO has to be called if server sends move of opponent
+    public void capture(Sprite sprite) {
+        GameSet.getInstance().removeMarble(sprite);
+
+        ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer);
+        deletionList.add(sprite);
+        deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+        deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
+        if (currentPlayer == 1) {
+            sprite.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
+        } else {
+            sprite.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+        }
+
+        if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+            winner = currentPlayer;
+            createWinnerLabel();
+        }
+    }
+
+    public void nextPlayer() {
         currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
         currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
 
@@ -469,27 +454,24 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
 
         //online game.. you cant see renegade status of other player yet.
-
-        return currentPlayer;
     }
 
     public void createRenegadeMark(Vector2 center) {
-        Label mark = FactoryHelper.createLabelWithText("R", 20, 20);
-        mark.setAlignment(Align.center);
-        mark.setColor(Color.GOLD);
-        renegadeLabels = mark;
+        renegadeLabel = FactoryHelper.createLabelWithText("R", 20, 20);
+        renegadeLabel.setAlignment(Align.center);
+        renegadeLabel.setColor(Color.GOLD);
 
-        stage.addActor(mark);
+        stage.addActor(renegadeLabel);
         Actor label = stage.getActors().peek();
 
         Vector3 vector = new Vector3(center.x, center.y, 0f);
         viewport.project(vector);
-        label.setX(vector.x - mark.getWidth() / 2);
-        label.setY(vector.y - mark.getHeight() / 2);
+        label.setX(vector.x - renegadeLabel.getWidth() / 2);
+        label.setY(vector.y - renegadeLabel.getHeight() / 2);
     }
 
-    public void updateRemoteRenegade(int renegadeId) {
-        Vector2 spriteCenter = board.get(renegadeId);
+    public void updateRemoteRenegade(int fieldId) {
+        Vector2 spriteCenter = board.get(fieldId);
         Sprite renegadeSprite = GameSet.getInstance().getMarble(spriteCenter.x, spriteCenter.y);
 
         if (renegadeSprite == null) {
@@ -497,23 +479,23 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
 
         Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
-        chooseRenegade(renegadeSprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor()); //playerTextures.get(currentPlayer));
-        queries.changeTo(renegadeId, currentPlayer); //updates logic that marble changed team
+        selectRenegade(renegadeSprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor()); //playerTextures.get(currentPlayer));
+        queries.changeTo(fieldId, currentPlayer); //updates logic that marble changed team
 //        nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
     }
 
-    public void chooseRenegade(Sprite renegade, Texture texture, Color color) {
-        transitionRenegade(renegade, texture, color);
+    public void selectRenegade(Sprite renegade, Texture texture, Color color) {
+        changeTeam(renegade, texture, color);
         if (SINGLE_DEVICE_MODE) {
             renegadeKeepers[currentPlayer].setRenegade(board.getTileId(renegade));
         }
     }
 
-    public void transitionRenegade(Sprite renegade, Texture texture, Color color) {
-        GameSet.getInstance().removeMarble(renegade);
-        renegade.setTexture(texture); //set texture
-        renegade.setColor(color);
-        GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(renegade);
+    public void changeTeam(Sprite sprite, Texture texture, Color color) {
+        GameSet.getInstance().removeMarble(sprite);
+        sprite.setTexture(texture); //set texture
+        sprite.setColor(color);
+        GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(sprite);
     }
 
     private void checkSelection() {
@@ -538,10 +520,9 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
             } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) { //then pick
                 Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
-                chooseRenegade(sprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor());
+                selectRenegade(sprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor());
                 queries.changeTo(board.getTileId(sprite), currentPlayer);
-                currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) +
-                        (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
             }
 
             return;
@@ -660,6 +641,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private void createCurrentPlayerLabel() {
         currentPlayerLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer), 200, 60);
         currentPlayerLabel.setAlignment(Align.right);
+        currentPlayerLabel.setColor(Color.RED);
 
         stage.addActor(currentPlayerLabel);
         Actor label = stage.getActors().peek();
