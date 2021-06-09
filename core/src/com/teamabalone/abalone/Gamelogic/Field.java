@@ -269,7 +269,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
             try {
                 RequestSender rs = new RequestSender(makeMoveRequest);
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
-                Future future = executorService.submit(rs);
+                executorService.submit(rs);
             } catch (Exception e) {
                 e.printStackTrace();
             }

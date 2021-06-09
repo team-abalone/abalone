@@ -14,11 +14,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
-import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Sphere;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -652,10 +649,10 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         playerLabel();
         deadBlackMarblesLabel();
         deadWhiteMarblesLabel();
-        settingsButton();
-        exitButton();
+        setUpSettingsButton();
+        setUpExitButton();
 
-        music();
+        startMusic();
     }
 
     public void playerLabel() {
@@ -686,7 +683,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     public void winnerLabel() {
-        //TODO proper style?
         Label winLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
 
@@ -694,7 +690,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         winLabel.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", winLabel.toString() + " clicked");
                 currentGame.exitCurrentGame();
             }
@@ -703,8 +698,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         stage.addActor(winLabel);
     }
 
-    public void surrenderLabel() {
-        //TODO proper style?
+    public void createSurrenderLabel() {
         Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
         surrenderLabel.setAlignment(Align.center);
 
@@ -712,7 +706,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         surrenderLabel.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
                 currentGame.exitCurrentGame();
             }
@@ -736,17 +729,16 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         GameSet.reset();
     }
 
-    public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
+    public void setUpSettingsButton() {
         Skin skin = FactoryHelper.getDefaultSkin();
         settingsButton = FactoryHelper.createImageButton(
                 skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
-                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+                150, 150, 0, 0);
 
         Abalone currentGame = this;
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
                 SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, currentGame);
@@ -758,33 +750,30 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         Actor button = stage.getActors().peek();
         button.setX(screenWidth - (button.getWidth() + 20));
         button.setY(screenHeight - (button.getHeight() + 20));
-
-        // TODO updating setting changes
     }
 
-    public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
+    public void setUpExitButton() {
         Skin skin = FactoryHelper.getDefaultSkin();
         ImageButton exitButton = FactoryHelper.createImageButton(
                 skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
-                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+                150, 150, 0, 0);
 
-        Abalone currentGame = this;
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
-                surrenderLabel();
+
                 if (!SINGLE_DEVICE_MODE) {
                     BaseRequest surrenderRequest = new SurrenderRequest(UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId")));
                     try {
                         RequestSender rs = new RequestSender(surrenderRequest);
                         ExecutorService executorService = Executors.newSingleThreadExecutor();
-                        Future future = executorService.submit(rs);
+                        executorService.submit(rs);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                createSurrenderLabel();
             }
         });
 
@@ -794,40 +783,43 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         button.setY(screenHeight - (button.getHeight() + 20));
     }
 
-    public void music() {
+    public void startMusic() {
         bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
+    /**
+     * Update values that have been changed in the settings menu during the game, so they take effect.
+     */
     public void updateSettings() {
+
+        //volume
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
 
+        //background
         String boardTexturePath = "boards/" + settings.getString("boardSkin");
         if (!background.toString().equals(boardTexturePath)) {
             background = new Texture(boardTexturePath);
         }
 
-        for (int k = 0; k < playerTextures.size(); k++) { //TODO clearer code
+        //player texture
+        for (int k = 0; k < playerTextures.size(); k++) {
             Texture oldTexture = playerTextures.get(k);
             playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
             Texture newTexture = playerTextures.get(k);
-            if (!newTexture.toString().equals(oldTexture.toString())) { //if texture type changed
-                MarbleSet marbleSet = GameSet.getInstance().getMarbleSets().get(k);
-                if (marbleSet.getMarble(0) != null) {
-                    for (int i = 0; i < marbleSet.size(); i++) {
-                        marbleSet.getMarble(i).setTexture(newTexture);
-                    }
-                }
 
+            if (!newTexture.toString().equals(oldTexture.toString())) {
+                GameSet.getInstance().setTextureOfMarbleSet(newTexture, k);
             }
         }
 
+        //player color
         if (settings.getBoolean("colorSetting")) {
             GameSet.getInstance().colorMarbleSet(settings.getInteger("rgbaValue"), PLAYER_ID);
         } else {
-            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID);
+            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID); //no color
         }
     }
 
@@ -873,7 +865,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         if (!GameInfo.getInstance().getSingleDeviceMode()) {
             if (response instanceof MadeMoveResponse) {
                 if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
-                    surrenderLabel();
+                    createSurrenderLabel();
                 } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {

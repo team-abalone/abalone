@@ -99,7 +99,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
                     try {
                         RequestSender rs = new RequestSender(startGameRequest);
                         ExecutorService executorService = Executors.newSingleThreadExecutor();
-                        Future future = executorService.submit(rs);
+                        executorService.submit(rs);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -117,7 +117,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
                 try {
                     RequestSender rs = new RequestSender(closeRoomRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
+                    executorService.submit(rs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

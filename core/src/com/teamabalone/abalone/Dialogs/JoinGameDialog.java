@@ -87,7 +87,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
+                    executorService.submit(rs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

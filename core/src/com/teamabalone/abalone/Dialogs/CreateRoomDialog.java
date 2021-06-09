@@ -81,7 +81,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
                 try {
                     RequestSender rs = new RequestSender(createRoomRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
+                    executorService.submit(rs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
