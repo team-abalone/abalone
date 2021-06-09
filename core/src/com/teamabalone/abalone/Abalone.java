@@ -112,6 +112,9 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
     private Label renegadeLabels = null;
 
+    private final float min_zoom = 0.3f;
+    private final float max_zoom = 0.7f;
+
     public Abalone(GameImpl game, Field field) {
         queries = field;
         field.setAbalone(this);
@@ -600,11 +603,17 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         int indexLeftFinger = zeroLeftFinger ? 0 : 1;
         int indexRightFinger = !zeroLeftFinger ? 0 : 1;
 
+        OrthographicCamera camera = ((OrthographicCamera) viewport.getCamera());
+
         if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
-            ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
+            if (camera.zoom > min_zoom) {
+                camera.zoom -= 0.02;
+            }
         }
         if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
-            ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
+            if (camera.zoom < max_zoom) {
+                camera.zoom += 0.02;
+            }
         }
     }
 
