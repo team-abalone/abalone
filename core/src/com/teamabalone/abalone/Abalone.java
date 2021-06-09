@@ -14,8 +14,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Sphere;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -249,8 +252,52 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
         //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
-            viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
+
+            OrthographicCamera camera = ((OrthographicCamera) viewport.getCamera());
+
+            float deltaX = -Gdx.input.getDeltaX(0) * camera.zoom;
+            float deltaY = Gdx.input.getDeltaY(0) * camera.zoom;
+
+//            Vector3 v = new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0);
+//            viewport.unproject(v);
+//
+//            float halfCameraWidth = v.x / 2f * camera.zoom;
+//            float halfCameraHeight = v.y / 2f * camera.zoom;
+//
+//            float viewBoarderLeft = camera.position.x - halfCameraWidth;
+//            float viewBoarderRight = camera.position.x + halfCameraWidth;
+//            float viewBoarderUp = camera.position.y + halfCameraHeight;
+//            float viewBoarderLow = camera.position.y - halfCameraHeight;
+//
+//            //empirically determined
+//            float leftBound = -120;
+//            float upperBound = 810;
+//            float rightBound = 1100;
+//            float lowerBound = 35;
+//
+//            float translateX = 0;
+//            float translateY = 0;
+//
+//            if (deltaX < 0) {
+//                translateX = (leftBound < (viewBoarderLeft + deltaX) ? deltaX : (viewBoarderLeft - leftBound));
+//            } else if (deltaX > 0) {
+//                translateX = (rightBound > (viewBoarderRight + deltaX) ? deltaX : (rightBound - viewBoarderRight));
+//            }
+//
+//            if (deltaY < 0) {
+//                translateY = (lowerBound < (viewBoarderLow + deltaY) ? deltaY : (viewBoarderLow - lowerBound));
+//            } else if (deltaX > 0) {
+//                translateY = (upperBound > (viewBoarderUp + deltaY) ? deltaY : (upperBound - viewBoarderUp));
+//            }
+//
+//            viewport.getCamera().translate(translateX, translateY, 0);
+
+            viewport.getCamera().translate(deltaX, deltaY, 0);
+
         }
+
+        if (firstFingerTouching)
+            System.out.println("point: ---" + Gdx.input.getX() + ", " + Gdx.input.getY());
 
         //zoom
         if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
@@ -300,7 +347,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
     public void background() {
         batch.begin();
-        batch.draw(background, (boardWidth - background.getWidth()) / 2f, (boardHeight -  background.getHeight()) / 2f);
+        batch.draw(background, (boardWidth - background.getWidth()) / 2f, (boardHeight - background.getHeight()) / 2f);
         batch.end();
     }
 
