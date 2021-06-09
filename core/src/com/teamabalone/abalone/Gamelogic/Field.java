@@ -214,7 +214,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @return an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
      */
     public int[] checkMove(int[] ids, Directions direction, boolean fromHandler) {  //return.length == 0 == false
-        //TODO
         ArrayList<HexCoordinate> selectedItems = new ArrayList<>();
         Team playersTeam;
         gotPushedOut = false;

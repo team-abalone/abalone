@@ -160,7 +160,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
     public void HandleResponse(BaseResponse response) {
         // Room closal done server side.
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_CLOSED.getValue()) {
-            remove(); //TODO NECESSARY? -> automatically removed on start
+            remove();
         }
         // Other players has joined room.
         else if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED_OTHER.getValue()) {
@@ -170,9 +170,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
             currentPlayersList.setItems(playerList);
         }
         // Game has started.
-        // TODO: Init client side field with data from server.
         else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
-            // TODO: Handle start game -> response can be parsed to GameStartedResponse
             game.menuScreen.setField(new Field(5, (GameStartedResponse) response));
             remove();
         }

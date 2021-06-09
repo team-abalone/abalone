@@ -63,7 +63,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final boolean SINGLE_DEVICE_MODE = gameInfos.getSingleDeviceMode();
     private final int MAX_SELECT = gameInfos.getMaximalSelectableMarbles();
     private final int NUMBER_PLAYERS = gameInfos.getNumberPlayers();
-    private final int MAP_SIZE = gameInfos.getMapSize(); //TODO make only setting valid value possible?
+    private final int MAP_SIZE = gameInfos.getMapSize();
     private final int PLAYER_ID = gameInfos.getPlayerId();
 
     private Music bgMusic;
@@ -84,6 +84,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final float screenWidth = Gdx.graphics.getWidth();
     private final float screenHeight = Gdx.graphics.getHeight();
     private final Stage stage;
+
     private Label currentPlayerLabel;
     private Label deadBlackMarbleLabel;
     private Label deadWhiteMarbleLabel;
@@ -164,7 +165,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;
-//        camera.rotate((360 / (float) NUMBER_PLAYERS) * PLAYER_ID); //player orientation //not working!
     }
 
     private void instantiateBoard() {
@@ -217,8 +217,43 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
+        drawSprites();
+        stage.act();
+        stage.draw();
 
+        boolean firstFingerTouching = Gdx.input.isTouched(0);
+        boolean secondFingerTouching = Gdx.input.isTouched(1);
+        boolean thirdFingerTouching = Gdx.input.isTouched(2);
+
+        //translate
+        if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
+            float deltaX = -Gdx.input.getDeltaX(0) * ((OrthographicCamera) viewport.getCamera()).zoom;
+            float deltaY = Gdx.input.getDeltaY(0) * ((OrthographicCamera) viewport.getCamera()).zoom;
+            viewport.getCamera().translate(deltaX, deltaY, 0);
+        }
+
+        //zoom
+        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
+            zoom();
+            firstTouchX = Gdx.input.getX(); //set anew, since position might have changed due to zooming
+            firstTouchY = Gdx.input.getY();
+        }
+
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
+            onTouchBeginns();
+        }
+
+        if (tiltActive) { //move via tilting phone
+            checkTiltMove();
+        }
+
+        if (justTouched && !firstFingerTouching) {
+            onTouchEnds();
+        }
+    }
+
+    private void drawSprites(){
+        batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
         for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
@@ -236,111 +271,46 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
 
         batch.end();
+    }
 
-
-        stage.act();
-        stage.draw();
-
-        boolean firstFingerTouching = Gdx.input.isTouched(0);
-        boolean secondFingerTouching = Gdx.input.isTouched(1);
-        boolean thirdFingerTouching = Gdx.input.isTouched(2);
-
-        //translate
-        if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
-
-            OrthographicCamera camera = ((OrthographicCamera) viewport.getCamera());
-
-            float deltaX = -Gdx.input.getDeltaX(0) * camera.zoom;
-            float deltaY = Gdx.input.getDeltaY(0) * camera.zoom;
-
-//            Vector3 v = new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0);
-//            viewport.unproject(v);
-//
-//            float halfCameraWidth = v.x / 2f * camera.zoom;
-//            float halfCameraHeight = v.y / 2f * camera.zoom;
-//
-//            float viewBoarderLeft = camera.position.x - halfCameraWidth;
-//            float viewBoarderRight = camera.position.x + halfCameraWidth;
-//            float viewBoarderUp = camera.position.y + halfCameraHeight;
-//            float viewBoarderLow = camera.position.y - halfCameraHeight;
-//
-//            //empirically determined
-//            float leftBound = -120;
-//            float upperBound = 810;
-//            float rightBound = 1100;
-//            float lowerBound = 35;
-//
-//            float translateX = 0;
-//            float translateY = 0;
-//
-//            if (deltaX < 0) {
-//                translateX = (leftBound < (viewBoarderLeft + deltaX) ? deltaX : (viewBoarderLeft - leftBound));
-//            } else if (deltaX > 0) {
-//                translateX = (rightBound > (viewBoarderRight + deltaX) ? deltaX : (rightBound - viewBoarderRight));
-//            }
-//
-//            if (deltaY < 0) {
-//                translateY = (lowerBound < (viewBoarderLow + deltaY) ? deltaY : (viewBoarderLow - lowerBound));
-//            } else if (deltaX > 0) {
-//                translateY = (upperBound > (viewBoarderUp + deltaY) ? deltaY : (upperBound - viewBoarderUp));
-//            }
-//
-//            viewport.getCamera().translate(translateX, translateY, 0);
-
-            viewport.getCamera().translate(deltaX, deltaY, 0);
-
-        }
-
-        if (firstFingerTouching)
-            System.out.println("point: ---" + Gdx.input.getX() + ", " + Gdx.input.getY());
-
-        //zoom
-        if (firstFingerTouching && secondFingerTouching && !thirdFingerTouching) {
-            zoom();
-            firstTouchX = Gdx.input.getX(); //set anew, since position might have changed due to zooming
-            firstTouchY = Gdx.input.getY();
-        }
-
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {  //on touch begins
-            firstTouchX = Gdx.input.getX();
-            firstTouchY = Gdx.input.getY();
-            justTouched = true;
-        }
-
-        if (tiltActive) { //move via tilting phone
-            float accelX = -Gdx.input.getAccelerometerX();
-            float accelY = Gdx.input.getAccelerometerY();
-            if (Math.abs(accelX) > TILT_SENSITIVITY || Math.abs(accelY) > TILT_SENSITIVITY) {
-                lastDirection = Directions.calculateDirectionFromAcceleration(accelY, accelX);
-
-                if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
-                    if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
-                        makeMove();
-                    }
-                }
-            }
-        }
-
-        if (justTouched && !firstFingerTouching) { //on touch ends
-            lastTouchX = Gdx.input.getX();
-            lastTouchY = Gdx.input.getY();
-
-            lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+    private void checkTiltMove() {
+        float accelerationX = -Gdx.input.getAccelerometerX();
+        float accelerationY = Gdx.input.getAccelerometerY();
+        if (Math.abs(accelerationX) > TILT_SENSITIVITY || Math.abs(accelerationY) > TILT_SENSITIVITY) {
+            lastDirection = Directions.calculateDirectionFromAcceleration(accelerationY, accelerationX);
 
             if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
                 if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
                     makeMove();
-                } else {
-                    checkSelection();
                 }
             }
-
-            justTouched = false;
         }
-
     }
 
-    public void background() {
+    private void onTouchBeginns() {
+        firstTouchX = Gdx.input.getX();
+        firstTouchY = Gdx.input.getY();
+        justTouched = true;
+    }
+
+    private void onTouchEnds() {
+        lastTouchX = Gdx.input.getX();
+        lastTouchY = Gdx.input.getY();
+
+        lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+
+        if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
+            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+                makeMove();
+            } else {
+                checkSelection();
+            }
+        }
+
+        justTouched = false;
+    }
+
+    private void background() {
         batch.begin();
         batch.draw(background, (boardWidth - background.getWidth()) / 2f, (boardHeight - background.getHeight()) / 2f);
         batch.end();
@@ -353,13 +323,11 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
 
         int[] enemyMarbles = queries.checkMove(marblesToCheck, lastDirection);
-        boolean validMove = enemyMarbles != null;
-        if (validMove) {
-            boolean marblesToPush = enemyMarbles.length > 0;
-
+        if (enemyMarbles != null) {
             SelectionList<Sprite> selectedEnemySprites = new SelectionList<>(MAX_SELECT);
-            if (marblesToPush) {
-                for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
+
+            if (enemyMarbles.length > 0) {
+                for (int enemyMarble : enemyMarbles) {
                     Vector2 field = board.get(enemyMarble);
                     selectedEnemySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                 }
@@ -388,7 +356,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
     }
 
-    public void unmarkRenegade(){
+    private void unmarkRenegade() {
         if (renegadeLabel != null) {
             stage.getActors().pop();
             renegadeLabel = null;
@@ -417,7 +385,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
     }
 
-    public void capture(Sprite sprite) {
+    private void capture(Sprite sprite) {
         GameSet.getInstance().removeMarble(sprite);
 
         ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer);
@@ -437,7 +405,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
     }
 
-    public void nextPlayer() {
+    private void nextPlayer() {
         currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
         currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
 
@@ -456,7 +424,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         //online game.. you cant see renegade status of other player yet.
     }
 
-    public void createRenegadeMark(Vector2 center) {
+    private void createRenegadeMark(Vector2 center) {
         renegadeLabel = FactoryHelper.createLabelWithText("R", 20, 20);
         renegadeLabel.setAlignment(Align.center);
         renegadeLabel.setColor(Color.GOLD);
@@ -484,14 +452,14 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 //        nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
     }
 
-    public void selectRenegade(Sprite renegade, Texture texture, Color color) {
+    private void selectRenegade(Sprite renegade, Texture texture, Color color) {
         changeTeam(renegade, texture, color);
         if (SINGLE_DEVICE_MODE) {
             renegadeKeepers[currentPlayer].setRenegade(board.getTileId(renegade));
         }
     }
 
-    public void changeTeam(Sprite sprite, Texture texture, Color color) {
+    private void changeTeam(Sprite sprite, Texture texture, Color color) {
         GameSet.getInstance().removeMarble(sprite);
         sprite.setTexture(texture); //set texture
         sprite.setColor(color);
@@ -670,6 +638,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private void createWinnerLabel() {
         Label winLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
+        currentPlayerLabel.setColor(Color.RED);
 
         Abalone currentGame = this;
         winLabel.addListener(new ClickListener() {
@@ -828,7 +797,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     @Override
-    public void dispose() { //TODO dispose of everything
+    public void dispose() {
         bgMusic.dispose();
 
         batch.dispose();
