@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * This Class manages the data of the game field.
@@ -33,11 +32,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
-    private int renegade;
-    private int deadMarbles;
-
-
     private int renegade = -1;
+
     private UUID userId;
 
     private Abalone abalone;
