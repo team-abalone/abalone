@@ -33,6 +33,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     private int radius;
     private int hexFields;
     private boolean gotPushedOut = false;
+    private int renegade;
+    private int deadMarbles;
+
 
     private int renegade = -1;
     private UUID userId;
