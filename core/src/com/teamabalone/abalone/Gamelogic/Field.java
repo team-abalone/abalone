@@ -43,8 +43,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Constructor for Field.
      *
-     * @param radius the side length of the Field.
-     * @param gameStartedResponse  the response of the Server if a game has started
+     * @param radius              the side length of the Field.
+     * @param gameStartedResponse the response of the Server if a game has started
      */
     public Field(int radius, GameStartedResponse gameStartedResponse) {
         basicFieldInitialisation(radius);
@@ -70,7 +70,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * Sets up the Field with Hexagons you can adress later on.
      * <p></p>
      * This Function will only load a {@code field} to work on but will not put marbles into it.
-     * @param radius  the length of a side of the pentagon field.
+     *
+     * @param radius the length of a side of the pentagon field.
      */
     public void basicFieldInitialisation(int radius) {
         this.radius = radius;
@@ -133,8 +134,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <p></p>
      * This method just adds all extra rows of the 2D {@link com.badlogic.gdx.utils.Array} to the end of a new one with the total length of the argument.
      *
-     * @param array  the 2D Array that should be converted
-     * @return  a normal Array with the exact same values as the param
+     * @param array the 2D Array that should be converted
+     * @return a normal Array with the exact same values as the param
      */
     public int[] to1DArray(int[][] array) {
         int elements = 0;
@@ -155,7 +156,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Initialize the field with marbles.
      *
-     * @param field  the array which contains on which position certain marbles are
+     * @param field the array which contains on which position certain marbles are
      */
     public void fieldSetUp(int[] field) {
         if (field.length != this.field.size()) {
@@ -200,8 +201,8 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * A specific marble which a player chooses will be changed to his color.
      * This is only possible for marbles which don't belong to the player.
      *
-     * @param tileId  the index of the marble that has to be changed
-     * @param playerId  the id of the player that changes the marble
+     * @param tileId   the index of the marble that has to be changed
+     * @param playerId the id of the player that changes the marble
      */
     @Override
     public void changeTo(int tileId, int playerId) {
@@ -217,7 +218,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Returns the ID of the current changed marble (renegade).
      *
-     * @return  the ID of the marble, if none then -1
+     * @return the ID of the marble, if none then -1
      */
     @Override
     public int idOfCurrentRenegade() {
@@ -248,9 +249,9 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <li>the move is legit, all hexes are free. returns an empty array with zero length.
      * <li>the move is legit, enemy marbles can be pushed away, returns an array with the pushed enemy marbles.
      *
-     * @param ids       the selected hexes, not null
-     * @param direction the direction to push
-     * @param fromHandler  the boolean which indicates if the call comes from the local player or from the server
+     * @param ids         the selected hexes, not null
+     * @param direction   the direction to push
+     * @param fromHandler the boolean which indicates if the call comes from the local player or from the server
      * @return an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
      */
     public int[] checkMove(int[] ids, Directions direction, boolean fromHandler) {  //return.length == 0 == false
@@ -321,9 +322,10 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <p></p>
      * Just calls the {@code checkMove(int[] ids, Directions direction, boolean fromHandler)} function with 3rd param as false.
      * This method will be mostly called in single device mode.
-     * @param ids  the selected hexes, not null
-     * @param direction  the direction to push
-     * @return  an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
+     *
+     * @param ids       the selected hexes, not null
+     * @param direction the direction to push
+     * @return an array of the id of the enemy marbles that got pushed, null if the push is not legit, empty if only allied got pushed
      */
     public int[] checkMove(int[] ids, Directions direction) {
         return checkMove(ids, direction, false);
@@ -379,7 +381,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
         }
     }
-
 
     /**
      * Checks if selected marbles can push the blocking marbles
@@ -585,7 +586,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * <p></p>
      * If the game is not in single device mode this method listens to all server responses and reacts to the ones taht deal with the move.
      *
-     * @param response  the response from the server
+     * @param response the response from the server
      */
     @Override
     public void HandleResponse(BaseResponse response) {
@@ -616,7 +617,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     /**
      * Sets the current Abalone
      *
-     * @param abalone  the abalone game
+     * @param abalone the abalone game
      */
     public void setAbalone(Abalone abalone) {
         this.abalone = abalone;
@@ -624,13 +625,13 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     /**
      * Updates the view when an enemy made a move.
-     *
+     * <p>
      * This method will be called only in multiplayer mode.
      * It sends the data this class receives from the server to the {@link Abalone} class so it can update the actual view according to the other players move.
      *
-     * @param ids  the ids of all marbles to move
-     * @param directions  the directions to move to
-     * @param enemy  the boolean value if the enemy has a second turn
+     * @param ids        the ids of all marbles to move
+     * @param directions the directions to move to
+     * @param enemy      the boolean value if the enemy has a second turn
      */
     public void updateView(int[] ids, Directions directions, boolean enemy) {
         abalone.makeRemoteMove(ids, directions, enemy, enemySecondTurn); //should move marbles and only call nextPlayer if enemySecondTurn false

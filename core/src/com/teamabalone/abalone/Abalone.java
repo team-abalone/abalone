@@ -33,6 +33,7 @@ import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.Client.Responses.SurrenderResponse;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
 import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
 import com.teamabalone.abalone.Gamelogic.Directions;
@@ -666,7 +667,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     private void createSurrenderLabel() {
-        Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
+        Label surrenderLabel = FactoryHelper.createLabelWithText("opponent surrenders", screenWidth, screenHeight);
         surrenderLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -831,8 +832,8 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     @Override
     public void HandleResponse(BaseResponse response) {
         if (!GameInfo.getInstance().getSingleDeviceMode()) {
-            if (response instanceof MadeMoveResponse) {
-                if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+            if (response instanceof SurrenderResponse) {
+                if (response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()) {
                     createSurrenderLabel();
                 } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
