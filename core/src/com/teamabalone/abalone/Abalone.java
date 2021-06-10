@@ -617,6 +617,20 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setY(screenHeight - (label.getHeight() + currentPlayerLabel.getHeight()));
     }
 
+    /**
+     * Creates a label and an image which present the count of the dead marbles.
+     *
+     * <li> First, the label will be created with the initial amount of deleted Sprites.
+     * <li>Then the position of the label and marble will be created.
+     * <li>The position should be in the upper left corner and because we measure from the bottom left corner we have to multiply x by 0.1 and y by 0.85.
+     * <li>The Image will be loaded and the position set.
+     * <li>Then you add the image to the stage.
+     *
+     * <li>The label will be added to the stage. Then the position is set.
+     * <li>The whole method can be called and it updates.
+     *
+     */
+
     public void deadBlackMarblesLabel() {
         deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 110, 65);
 
@@ -631,6 +645,15 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setX(position.x + label.getWidth() / 2f);
         label.setY(position.y + label.getHeight() / 2f);
     }
+
+    /**
+     * The method works similar to {@code <deadBlackMarblesLabel>, DeadBlackMarblesLabel}.
+     *
+     *<li> The main difference is the marble image and the position. As we want to have the counter in the bottom right corner, we have to multiply x by 0.85 and y by 0.05.
+     *
+     *
+     *
+     */
 
     public void deadWhiteMarblesLabel() {
         deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 110, 65);
