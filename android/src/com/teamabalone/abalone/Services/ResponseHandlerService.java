@@ -23,6 +23,7 @@ import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 
+import com.teamabalone.abalone.Client.Responses.PlayerLeftResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Client.Responses.StartGameResponse;
@@ -100,6 +101,15 @@ public class ResponseHandlerService extends Service {
                             }
                             else if(response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()){
                                 response = gson.fromJson(responseString, SurrenderResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+                                response = gson.fromJson(responseString, BaseResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.NO_ROOM_TO_LEAVE.getValue()){
+                                response = gson.fromJson(responseString, BaseResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+                                response = gson.fromJson(responseString, PlayerLeftResponse.class);
                             }
                             else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
                                 response = gson.fromJson(responseString, ExceptionResponse.class);

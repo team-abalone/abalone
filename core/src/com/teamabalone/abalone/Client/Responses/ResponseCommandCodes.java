@@ -14,6 +14,9 @@ public enum ResponseCommandCodes {
     GAME_EXCEPTION(200),
     CHAT_EXCEPTION(300),
     ROOM_EXCEPTION(400),
+    LEFT_ROOM(100),
+    OTHER_PLAYER_LEFT(101),
+    NO_ROOM_TO_LEAVE(102)
     ;
     private final int value;
 

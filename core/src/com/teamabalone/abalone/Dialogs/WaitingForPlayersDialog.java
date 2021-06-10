@@ -15,11 +15,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Client.Requests.CloseRoomRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Requests.StartGameRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
+import com.teamabalone.abalone.Client.Responses.PlayerLeftResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.GameImpl;
@@ -64,6 +67,14 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                try{
+                    RequestSender rs = new RequestSender(new LeaveRoomRequest());
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    executorService.submit(rs);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
                 remove();
             };
         });
@@ -173,6 +184,17 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         else if (response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
             game.menuScreen.setField(new Field(5, (GameStartedResponse) response));
             remove();
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+            String tempList[]= new String[playerList.length-1];
+            UUID tempId= ((PlayerLeftResponse) response).getUserId();
+            for (int i = 0, j=0; i <playerList.length ; i++) {
+                if(!(playerList.equals(tempId))){
+                    tempList[j] = playerList[i];
+                    j++;
+                }
+            }
+            playerList = tempList;
         }
         else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
             //Exception handling goes here : Maybe a small notification to be shown

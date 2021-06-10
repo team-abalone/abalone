@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
@@ -697,10 +698,18 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
+                if(!SINGLE_DEVICE_MODE){
+                    try {
+                        RequestSender rs = new RequestSender(new LeaveRoomRequest());
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        executorService.submit(rs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 currentGame.exitCurrentGame();
             }
         });
-
         stage.addActor(surrenderLabel);
     }
 
@@ -855,13 +864,22 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     public void HandleResponse(BaseResponse response) {
         if (!GameInfo.getInstance().getSingleDeviceMode()) {
             if (response instanceof MadeMoveResponse) {
-                if (response.getCommandCode() == ResponseCommandCodes.MADE_MOVE.getValue()) {
+                if (response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()) {
                     createSurrenderLabel();
-                } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 }
             }
