@@ -687,7 +687,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
                 currentGame.exitCurrentGame();
             }
         });
-
         stage.addActor(surrenderLabel);
     }
 
@@ -853,9 +852,11 @@ public class Abalone implements Screen, IResponseHandlerObserver {
                 }
                 else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 }
             }
