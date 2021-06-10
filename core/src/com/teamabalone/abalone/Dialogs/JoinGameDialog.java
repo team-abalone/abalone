@@ -16,6 +16,7 @@ import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
@@ -42,6 +43,15 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         super(title, skin);
         this.stage = stage;
         this.userId = userId;
+
+        try{
+            RequestSender rs = new RequestSender(new LeaveRoomRequest());
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(rs);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
 
         // Creating dialogs.
         waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false, game);
@@ -136,6 +146,12 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         }
         else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
             //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.NO_ROOM_TO_LEAVE.getValue()){
+
         }
     }
 }
