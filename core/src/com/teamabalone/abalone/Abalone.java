@@ -617,30 +617,35 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setY(screenHeight - (label.getHeight() + currentPlayerLabel.getHeight()));
     }
 
-    public void deadBlackMarblesLabel() {
-        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 100, 60);
+    public void deadBlackMarblesLabel(){
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(0).size(),110,65);
+
+        Vector2 position = new Vector2(screenWidth*0.1f,screenHeight*0.85f);
 
         Image imageOfBlackMarble = new Image(playerTextures.get(1));
-        imageOfBlackMarble.setPosition(263, 900);
+        imageOfBlackMarble.setPosition(position.x,position.y);
         stage.addActor(imageOfBlackMarble);
 
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX((label.getWidth() + 220));
-        label.setY(screenHeight - (label.getHeight() + 85));
+        label.setX(position.x + label.getWidth()/2f);
+        label.setY(position.y + label.getHeight()/2f);
     }
 
-    public void deadWhiteMarblesLabel() {
-        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 100, 60);
+    public void deadWhiteMarblesLabel(){
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(1).size(),110,65);
+        //deadWhiteMarbleLabel.setColor(Color.RED);
+
+        Vector2 position = new Vector2(screenWidth*0.85f,screenHeight*0.05f);
 
         Image imageOfWhiteMarble = new Image(playerTextures.get(0));
-        imageOfWhiteMarble.setPosition(1706, 20);
+        imageOfWhiteMarble.setPosition(position.x, position.y);
         stage.addActor(imageOfWhiteMarble);
 
         stage.addActor(deadWhiteMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX(screenWidth - (label.getWidth() + 225));
-        label.setY((label.getHeight() - 5));
+        label.setX(position.x + label.getWidth()/2f);
+        label.setY(position.y + label.getHeight()/2f);
     }
 
     private void createWinnerLabel() {
