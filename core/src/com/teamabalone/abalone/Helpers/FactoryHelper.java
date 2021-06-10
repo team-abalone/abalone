@@ -2,6 +2,7 @@ package com.teamabalone.abalone.Helpers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -187,5 +188,12 @@ public class FactoryHelper {
         imageButton.setY(yPos);
 
         return imageButton;
+    }
+
+    public static ImageButton createExitButton() {
+        ImageButton exitButton = FactoryHelper.createImageButton(getDefaultSkin().get("exit-btn", ImageButton.ImageButtonStyle.class));
+        exitButton.setHeight(100);
+        exitButton.setWidth(100);
+        return exitButton;
     }
 }

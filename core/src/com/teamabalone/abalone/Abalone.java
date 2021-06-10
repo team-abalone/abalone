@@ -584,7 +584,7 @@ public class Abalone implements Screen {
                 // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, currentGame);
+                SettingsDialog settingsDialog = new SettingsDialog("Settings", uiSkin, currentGame);
                 settingsDialog.show(stage);
             }
         });
@@ -599,9 +599,7 @@ public class Abalone implements Screen {
 
     public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
         Skin skin = FactoryHelper.getDefaultSkin();
-        ImageButton exitButton = FactoryHelper.createImageButton(
-                skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
-                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+        ImageButton exitButton = FactoryHelper.createExitButton();
 
         Abalone currentGame = this;
         exitButton.addListener(new ClickListener() {
