@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.teamabalone.abalone.Abalone;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
+import com.teamabalone.abalone.Helpers.GameConstants;
 
 /**
  * Dialog for the settings screen, enabling color selection and
@@ -28,21 +29,19 @@ import com.teamabalone.abalone.Helpers.FactoryHelper;
  * TODO: Not yet working properly.
  */
 public class SettingsDialog extends Dialog {
-    private final int PAD_TOP = 40;
+    private final int PAD_TOP = 30;
+    private final int PAD_LEFT = 30;
+
     private ImageButton exitButton;
 
-    //settings variables
-    float bgMusicVolumeFactor;
-    boolean tiltingActivated;
-    String marbleSkin;
-    String boardSkin;
-    boolean colorSetting;
+    //Settings variables
+    private float bgMusicVolumeFactor;
+    private boolean tiltingActivated;
+    private String marbleSkin;
+    private String boardSkin;
+    private boolean colorSetting;
     private Stage stage;
 
-    private final TextField tfUsername;
-    private final Label lblUserName;
-
-    //
     Preferences settings = Gdx.app.getPreferences("UserSettings");
 
     public SettingsDialog(String title, Skin skin, Abalone abalone) {
@@ -51,34 +50,30 @@ public class SettingsDialog extends Dialog {
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
 
+        Table titleTable = getTitleTable();
+        titleTable.padTop(80);
+
         //exit Button setup
-        Label header = new Label("Settings", skin);
-        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                 if (abalone != null) {
                     abalone.updateSettings();
                 }
                 remove();
-            }
-
-            ;
+            };
         });
 
-        // Music Control setup
-        Label musicVolume = new Label("Music Volume:", skin);
-        final Slider slider = new Slider(0, 100, 1, false, skin);
+        // Music control setup.
+        Label lblMusicVolume = new Label("Music Volume:", skin);
+        Slider slider = new Slider(0, 100, 1, false, skin);
         slider.setValue(settings.getFloat("bgMusicVolumeFactor", 1f) * 100);
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 bgMusicVolumeFactor = slider.getValue() / 100;
-                Gdx.app.log("ClickListener", bgMusicVolumeFactor + " was set");
                 settings.putFloat("bgMusicVolumeFactor", bgMusicVolumeFactor);
                 settings.flush();
                 if (abalone != null) {
@@ -102,36 +97,33 @@ public class SettingsDialog extends Dialog {
         });
 
         //Marble visual setup
-        Label marbleSkinLabel = new Label("Choose a Marble Skin:", skin);
-        FileHandle[] directoryMarbles = Gdx.files.internal("marbles/").list();          //fetches the files in this directory
-        Array<String> marbleSkinsList = new Array<String>();
-        for (FileHandle i : directoryMarbles) {
-            marbleSkinsList.add(i.name());                                  //saves the name of all files in this directory
-        }
-        final SelectBox<String> marbleSkins = new SelectBox<String>(skin);
-        marbleSkins.setItems(marbleSkinsList);
-        marbleSkins.setSelected(settings.getString("marbleSkin" + 1));
-        marbleSkins.addListener(new ChangeListener() {
+        Label lblMarbleSkins = new Label("Choose a marble skin:", skin);
+        SelectBox<String> selectMarbleSkins = new SelectBox<String>(skin);
+
+        selectMarbleSkins.setItems(GameConstants.MARBLE_SKINS.keySet().toArray(new String[GameConstants.MARBLE_SKINS.size()]));
+
+        selectMarbleSkins.setSelected(settings.getString("marbleSkin" + 1));
+        selectMarbleSkins.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                marbleSkin = marbleSkins.getSelected();
-                Gdx.app.log("ClickListener", marbleSkin + " was set");
+                marbleSkin = selectMarbleSkins.getSelected();
                 settings.putString("marbleSkin" + 1, marbleSkin);
                 settings.flush();
             }
         });
 
         //Marble RGB color selection
-        Label marbleRGBLabel = new Label("Choose a Marble Color:", skin);
-        final CheckBox colorBox = new CheckBox("", skin);
+        Label lblMarbleRgb = new Label("Choose a Marble Color:", skin);
+        CheckBox colorBox = new CheckBox("", skin);
         colorBox.setChecked(settings.getBoolean("colorSetting", false));
-        Button selectColor = FactoryHelper.createButtonWithText("Select Color");
+        Button btnSelectColor = FactoryHelper.createButtonWithText("Select Color");
+
         if(colorBox.isChecked()){
-            selectColor.setVisible(true);
-            marbleSkins.setVisible(false);
-        } else{
-            selectColor.setVisible(false);
-            marbleSkins.setVisible(true);
+            btnSelectColor.setVisible(true);
+            selectMarbleSkins.setVisible(false);
+        } else {
+            btnSelectColor.setVisible(false);
+            selectMarbleSkins.setVisible(true);
         }
         colorBox.addListener(new ChangeListener() {
             @Override
@@ -140,14 +132,14 @@ public class SettingsDialog extends Dialog {
                     colorSetting = true;
                     settings.putString("marbleSkin" + 1, "ball_white.png");
                     settings.flush();
-                    marbleSkins.setSelected("ball_white.png");
-                    marbleSkins.setVisible(false);
+                    selectMarbleSkins.setSelected("ball_white.png");
+                    selectMarbleSkins.setVisible(false);
                     Gdx.app.log("ClickListener", "The marble skin for painting has ben set to ball_white.png");
-                    selectColor.setVisible(true);
+                    btnSelectColor.setVisible(true);
                 } else {
                     colorSetting = false;
-                    marbleSkins.setVisible(true);
-                    selectColor.setVisible(false);
+                    selectMarbleSkins.setVisible(true);
+                    btnSelectColor.setVisible(false);
                 }
                 settings.putBoolean("colorSetting", colorSetting);
                 settings.flush();
@@ -155,38 +147,33 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        selectColor.addListener(new ChangeListener() {
+        btnSelectColor.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 ColorPickerDialog colorPickerDialog = new ColorPickerDialog("", skin, abalone);
                 colorPickerDialog.show(stage);
-
             }
         });
 
-        //Gameboard visual setup
-        Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
-        FileHandle[] directoryBoard = Gdx.files.internal("boards/").list();          //fetches the files in this directory
-        Array<String> boardSkinList = new Array<String>();
-        for (FileHandle i : directoryBoard) {
-            boardSkinList.add(i.name());                                  //saves the name of all files in this directory
-        }
-        final SelectBox<String> boardSkins = new SelectBox<String>(skin);
-        boardSkins.setItems(boardSkinList);
-        boardSkins.setSelected(settings.getString("boardSkin"));
-        boardSkins.addListener(new ChangeListener() {
+        // Board skin selection.
+        Label lblBoardSkins = new Label("Chose a Board Skin:", skin);
+
+        SelectBox<String> selectBoardSkins = new SelectBox<String>(skin);
+        selectBoardSkins.setItems(GameConstants.BOARD_SKINS.keySet().toArray(new String[GameConstants.BOARD_SKINS.size()]));
+
+        selectBoardSkins.setSelected(settings.getString("boardSkin"));
+        selectBoardSkins.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                boardSkin = boardSkins.getSelected();
-                Gdx.app.log("ClickListener", boardSkin + " was set");
+                boardSkin = selectBoardSkins.getSelected();
                 settings.putString("boardSkin", boardSkin);
                 settings.flush();
             }
         });
 
-        lblUserName = new Label("Username:", skin);
+        Label lblUserName = new Label("Username:", skin);
 
-        tfUsername = new TextField(settings.getString("UserName"), FactoryHelper.getDefaultSkin());
+        TextField tfUsername = new TextField(settings.getString("UserName"), FactoryHelper.getDefaultSkin());
         TextField.TextFieldStyle style = tfUsername.getStyle();
         style.background.setLeftWidth(60);
         tfUsername.setStyle(style);
@@ -199,33 +186,34 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        //Table that holds everything gets filled
-        rootTable.add(header).left();
-        rootTable.add();
-        rootTable.add(exitButton).right().top().expandX();
+        // ExitButton needs to be added to titleTable.
+        titleTable.add(exitButton).right().top().width(100).height(100);
 
+        //Table that holds everything gets filled
         rootTable.row().padTop(100);
-        rootTable.add(musicVolume).left();
-        rootTable.add(slider).width(600);
+        rootTable.add(lblMusicVolume).left().width(800);
+        rootTable.add(slider).width(800);
 
         rootTable.row().padTop(PAD_TOP);
         rootTable.add(tiltCheck).left();
-        rootTable.add(tiltBox).width(100).center().padLeft(50);
+        rootTable.add(tiltBox).width(100).left().padLeft(PAD_LEFT);
 
         rootTable.row().padTop(PAD_TOP);
-        rootTable.add(marbleSkinLabel).left();
-        rootTable.add(marbleSkins).center();
+        rootTable.add(lblMarbleSkins).left();
+        rootTable.add(selectMarbleSkins).left().padLeft(PAD_LEFT);
+
         rootTable.row();
-        rootTable.add(marbleRGBLabel);
-        rootTable.add(colorBox).left().padLeft(50);
-        rootTable.add(selectColor).maxHeight(100f).left();
+        rootTable.add(lblMarbleRgb).left();
+        rootTable.add(colorBox).left().padLeft(PAD_LEFT).width(100);
+        rootTable.add(btnSelectColor).maxHeight(100f).left().padLeft(-450);
+
         rootTable.row().padTop(PAD_TOP);
-        rootTable.add(boardSkinLabel).left();
-        rootTable.add(boardSkins).center();
+        rootTable.add(lblBoardSkins).left();
+        rootTable.add(selectBoardSkins).left().padLeft(PAD_LEFT);
 
         rootTable.row().padTop(PAD_TOP);
         rootTable.add(lblUserName).left();
-        rootTable.add(tfUsername).center().width(600);
+        rootTable.add(tfUsername).center().width(800).height(100).padLeft(PAD_LEFT);
     }
 
     @Override

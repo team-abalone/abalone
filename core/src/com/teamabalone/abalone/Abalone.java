@@ -742,7 +742,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
-                SettingsDialog settingsDialog = new SettingsDialog("", uiSkin, currentGame);
+                SettingsDialog settingsDialog = new SettingsDialog("Settings", uiSkin, currentGame);
                 settingsDialog.show(stage);
             }
         });
@@ -755,9 +755,10 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
     private void setUpExitButton() {
         Skin skin = FactoryHelper.getDefaultSkin();
-        ImageButton exitButton = FactoryHelper.createImageButton(
+        /*ImageButton exitButton = FactoryHelper.createImageButton(
                 skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
-                150, 150, 0, 0);
+                150, 150, 0, 0);*/
+        ImageButton exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override

@@ -60,9 +60,7 @@ public class WaitingForPlayersDialog extends Dialog implements IResponseHandlerO
         responseHandler.addObserver(this);
 
         headerLabel = new Label("", skin);
-        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override

@@ -66,9 +66,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         rootTable.setFillParent(true);
 
         // Exit button.
-        ImageButton exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        ImageButton exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override
