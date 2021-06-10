@@ -3,9 +3,7 @@ package com.teamabalone.abalone;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
-
 import com.badlogic.gdx.audio.Music;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,27 +14,36 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.teamabalone.abalone.Client.IResponseHandlerObserver;
+import com.teamabalone.abalone.Client.RequestSender;
+import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
+import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
+import com.teamabalone.abalone.Client.Responses.BaseResponse;
+import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
+import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.Client.Responses.SurrenderResponse;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
-
 import com.teamabalone.abalone.Gamelogic.AbaloneQueries;
-import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.Directions;
-
+import com.teamabalone.abalone.Gamelogic.Field;
 import com.teamabalone.abalone.Gamelogic.GameInfo;
 import com.teamabalone.abalone.Gamelogic.GameInfos;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
+import com.teamabalone.abalone.Screens.MenuScreen;
 import com.teamabalone.abalone.View.Board;
 import com.teamabalone.abalone.View.GameSet;
 import com.teamabalone.abalone.View.MarbleSet;
@@ -44,18 +51,23 @@ import com.teamabalone.abalone.View.RenegadeKeeper;
 import com.teamabalone.abalone.View.SelectionList;
 
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class Abalone implements Screen {
+public class Abalone implements Screen, IResponseHandlerObserver {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
+    private final int NUMBER_CAPTURES_TO_WIN = 2;
     private final int SWIPE_SENSITIVITY = 40;
-    private final int NUMBER_CAPTURES_TO_WIN = 6;
-    private final boolean SINGLE_DEVICE_MODE = gameInfos.singleDeviceMode();
-    private final int MAX_SELECT = gameInfos.maximalSelectableMarbles();
-    private final int NUMBER_PLAYERS = gameInfos.numberPlayers();
-    private final int MAP_SIZE = gameInfos.mapSize(); //TODO make only setting valid value possible?
-    private final int PLAYER_ID = gameInfos.playerId();
+    private final double TILT_SENSITIVITY = 2.5;
+    private boolean tiltActive = false;
+    private final boolean SINGLE_DEVICE_MODE = gameInfos.getSingleDeviceMode();
+    private final int MAX_SELECT = gameInfos.getMaximalSelectableMarbles();
+    private final int NUMBER_PLAYERS = gameInfos.getNumberPlayers();
+    private final int MAP_SIZE = gameInfos.getMapSize();
+    private final int PLAYER_ID = gameInfos.getPlayerId();
 
     private Music bgMusic;
     private final Preferences settings;
@@ -75,10 +87,10 @@ public class Abalone implements Screen {
     private final float screenWidth = Gdx.graphics.getWidth();
     private final float screenHeight = Gdx.graphics.getHeight();
     private final Stage stage;
-    private Label nextLabel;
+
+    private Label currentPlayerLabel;
     private Label deadBlackMarbleLabel;
     private Label deadWhiteMarbleLabel;
-    private ImageButton settingsButton;
 
     SelectionList<Sprite> selectedSprites = new SelectionList<>(MAX_SELECT);
     ArrayList<ArrayList<Sprite>> deletedSpritesLists = new ArrayList<>();
@@ -100,16 +112,20 @@ public class Abalone implements Screen {
     private int winner = -1;
 
     private final RenegadeKeeper[] renegadeKeepers = new RenegadeKeeper[SINGLE_DEVICE_MODE ? NUMBER_PLAYERS : 1];
-    private Label renegadeLabels = null;
+    private Label renegadeLabel = null;
+
+    private final float min_zoom = 0.3f;
+    private final float max_zoom = 0.7f;
 
     public Abalone(GameImpl game, Field field) {
         queries = field;
+        field.setAbalone(this);
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
-        batch = game.getBatch();
-
-        stage = new Stage(); //stage not attached, so it moves with screen
+        batch = game.batch;
+        stage = game.gameStage; //stage not attached, so it moves with screen
+        stage.getActors().clear();
         Gdx.input.setInputProcessor(stage);
 
         board();
@@ -127,17 +143,16 @@ public class Abalone implements Screen {
     private void textures() {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
 
-        //TODO putString only temporary. should be in settings later on.
-        settings.putString("marbleSkin" + 0, "ball_white.png");
+        settings.putString("marbleSkin" + 0, "ball_white.png"); //TODO putString only temporary. should be in settings later on.
+//        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
-        //playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
     private void board() {
         tiledMap = new TmxMapLoader().load("abalone_map" + MAP_SIZE + ".tmx");
-        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap);
+        tiledMapRenderer = new HexagonalTiledMapRenderer(tiledMap, batch);
 
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         boardWidth = tileLayer.getWidth() * tileLayer.getTileWidth();
@@ -152,7 +167,6 @@ public class Abalone implements Screen {
 
         camera.setToOrtho(false, boardWidth, boardHeight); //centers camera projection at width/2 and height/2
         camera.zoom = 0.5f;
-//        camera.rotate((360 / (float) NUMBER_PLAYERS) * PLAYER_ID); //player orientation //not working!
     }
 
     private void instantiateBoard() {
@@ -182,9 +196,9 @@ public class Abalone implements Screen {
         }
 
         for (int i = 0; i < positionArrays.size(); i++) {
-            if(settings.getBoolean("colorSetting" ) && i == PLAYER_ID){
-                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"),positionArrays.get(i));
-            } else{
+            if (settings.getBoolean("colorSetting") && i == PLAYER_ID) {
+                GameSet.getInstance().register(playerTextures.get(i), settings.getInteger("rgbaValue"), positionArrays.get(i));
+            } else {
                 GameSet.getInstance().register(playerTextures.get(i), positionArrays.get(i));
             }
             deletedSpritesLists.add(new ArrayList<>()); //add delete list for every team
@@ -205,27 +219,7 @@ public class Abalone implements Screen {
         tiledMapRenderer.setView((OrthographicCamera) viewport.getCamera()); //batch.setProjectionMatrix(viewport.getCamera().combined); is called here
         tiledMapRenderer.render();
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-
-        batch.begin();
-
-        for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
-            for (int i = 0; i < m.size(); i++) {
-                m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
-                m.getMarble(i).draw(batch);
-            }
-        }
-
-        for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
-            for (Sprite sprite : arrayList) {
-                sprite.setScale(0.5f);
-                sprite.draw(batch);
-            }
-        }
-
-        batch.end();
-
-
+        drawSprites();
         stage.act();
         stage.draw();
 
@@ -235,7 +229,9 @@ public class Abalone implements Screen {
 
         //translate
         if (firstFingerTouching && secondFingerTouching && thirdFingerTouching) {
-            viewport.getCamera().translate(-Gdx.input.getDeltaX(1), Gdx.input.getDeltaY(1), 0);
+            float deltaX = -Gdx.input.getDeltaX(0) * ((OrthographicCamera) viewport.getCamera()).zoom;
+            float deltaY = Gdx.input.getDeltaY(0) * ((OrthographicCamera) viewport.getCamera()).zoom;
+            viewport.getCamera().translate(deltaX, deltaY, 0);
         }
 
         //zoom
@@ -245,57 +241,80 @@ public class Abalone implements Screen {
             firstTouchY = Gdx.input.getY();
         }
 
-        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {  //on touch begins
-            firstTouchX = Gdx.input.getX();
-            firstTouchY = Gdx.input.getY();
-            justTouched = true;
+        if (firstFingerTouching && !secondFingerTouching && !thirdFingerTouching && !justTouched) {
+            onTouchBeginns();
         }
 
-        if (justTouched && !firstFingerTouching) { //on touch ends
-            lastTouchX = Gdx.input.getX();
-            lastTouchY = Gdx.input.getY();
+        if (tiltActive) { //move via tilting phone
+            checkTiltMove();
+        }
 
-            lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+        if (justTouched && !firstFingerTouching) {
+            onTouchEnds();
+        }
+    }
+
+    private void drawSprites() {
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        batch.begin();
+
+        for (MarbleSet m : GameSet.getInstance().getMarbleSets()) {
+            for (int i = 0; i < m.size(); i++) {
+                m.getMarble(i).setScale(0.5f); //old: (screenWidth - 15 * 64) / (screenWidth-100)
+                m.getMarble(i).draw(batch);
+            }
+        }
+
+//        for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
+//            for (Sprite sprite : arrayList) {
+//                sprite.setScale(0.5f);
+//                sprite.draw(batch);
+//            }
+//        }
+
+        batch.end();
+    }
+
+    private void checkTiltMove() {
+        float accelerationX = -Gdx.input.getAccelerometerX();
+        float accelerationY = Gdx.input.getAccelerometerY();
+        if (Math.abs(accelerationX) > TILT_SENSITIVITY || Math.abs(accelerationY) > TILT_SENSITIVITY) {
+            lastDirection = Directions.getDirection(accelerationY, accelerationX);
 
             if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
                 if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
                     makeMove();
-                } else {
-                    selectMarbleIfTouched();
                 }
             }
-
-            justTouched = false;
         }
-
     }
 
-    public void background() {
-        float backgroundWidth = background.getWidth();
-        float backgroundHeight = background.getHeight();
-        float startX = boardWidth / 2 - backgroundWidth;
-        float startY = boardHeight / 2 - backgroundHeight;
+    private void onTouchBeginns() {
+        firstTouchX = Gdx.input.getX();
+        firstTouchY = Gdx.input.getY();
+        justTouched = true;
+    }
 
+    private void onTouchEnds() {
+        lastTouchX = Gdx.input.getX();
+        lastTouchY = Gdx.input.getY();
+
+        lastDirection = Directions.calculateDirection(SWIPE_SENSITIVITY, firstTouchX, firstTouchY, lastTouchX, lastTouchY); //only sets direction if sensitivity is exceeded
+
+        if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
+            if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {
+                makeMove();
+            } else {
+                checkSelection();
+            }
+        }
+
+        justTouched = false;
+    }
+
+    private void background() {
         batch.begin();
-        batch.draw(background, startX, startY);
-        batch.draw(background, startX, startY + backgroundHeight);
-        batch.draw(background, startX, startY + backgroundHeight * 2);
-        batch.draw(background, startX, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth, startY);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth, startY - backgroundHeight);
-
-        batch.draw(background, startX + backgroundWidth * 2, startY);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight);
-        batch.draw(background, startX + backgroundWidth * 2, startY + backgroundHeight * 2);
-        batch.draw(background, startX + backgroundWidth * 2, startY - backgroundHeight);
-
-        batch.draw(background, startX - backgroundWidth, startY);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight);
-        batch.draw(background, startX - backgroundWidth, startY + backgroundHeight * 2);
-        batch.draw(background, startX - backgroundWidth, startY - backgroundHeight);
+        batch.draw(background, (boardWidth - background.getWidth()) / 2f, (boardHeight - background.getHeight()) / 2f);
         batch.end();
     }
 
@@ -306,138 +325,220 @@ public class Abalone implements Screen {
         }
 
         int[] enemyMarbles = queries.checkMove(marblesToCheck, lastDirection);
-        boolean validMove = enemyMarbles != null;
-        if (validMove) {
-            boolean marblesToPush = enemyMarbles.length > 0;
-
+        if (enemyMarbles != null) {
             SelectionList<Sprite> selectedEnemySprites = new SelectionList<>(MAX_SELECT);
-            if (marblesToPush) {
-                for (int enemyMarble : enemyMarbles) { //add enemy marbles for move
+
+            if (enemyMarbles.length > 0) {
+                for (int enemyMarble : enemyMarbles) {
                     Vector2 field = board.get(enemyMarble);
                     selectedEnemySprites.select(GameSet.getInstance().getMarble(field.x, field.y));
                 }
             }
 
-            moveSelectedMarbles(selectedSprites); //move
+            moveSelectedMarbles(selectedSprites);
             moveSelectedMarbles(selectedEnemySprites);
 
-            unselectCompleteList();
-
-            //unmark renegade
-            if (renegadeLabels != null) {
-                stage.getActors().pop();
-                renegadeLabels = null;
-            }
+            unselectAllSelectedSprites();
+            unmarkRenegade();
+            lastDirection = Directions.NOTSET;
 
             if (queries.isPushedOutOfBound()) {
-                Sprite capturedMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
-
-                //choose renegade = true
-                renegadeKeepers[GameSet.getInstance().getTeamIndex(capturedMarble)].setCanPickRenegade();
-
-                GameSet.getInstance().removeMarble(capturedMarble);
-
-                ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer); //TODO show captured marbles
-                deletionList.add(capturedMarble);
-                deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
-                deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
-
-                if (currentPlayer == 1) {
-                    capturedMarble.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
-                } else {
-                    capturedMarble.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
-                }
-
-                if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
-                    winner = currentPlayer;
-                    exitLabel();
-                }
+                Sprite pushedOutMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
+//                renegadeKeepers[GameSet.getInstance().getTeamIndex(pushedOutMarble)].setCanPickRenegadeTrue(); //TODO make it work
+                capture(pushedOutMarble);
             }
 
-            lastDirection = Directions.NOTSET;
+            if (SINGLE_DEVICE_MODE && renegadeKeepers[currentPlayer].hasDoubleTurn()) {
+                renegadeKeepers[currentPlayer].takeDoubleTurn();
+            } else if (winner != -1) {
+                stage.getActors().removeValue(currentPlayerLabel, true);
+            } else {
+                nextPlayer();
+            }
+        }
+    }
+
+    private void unmarkRenegade() {
+        if (renegadeLabel != null) {
+            stage.getActors().pop();
+            renegadeLabel = null;
+        }
+    }
+
+    public void makeRemoteMove(int[] ids, Directions direction, boolean enemy, boolean enemySecondTurn) {
+        lastDirection = direction;
+        SelectionList<Sprite> marblesToMove = new SelectionList<>(MAX_SELECT);
+        for (int id : ids) {
+            Vector2 field = board.get(id);
+            marblesToMove.select(GameSet.getInstance().getMarble(field.x, field.y));
+        }
+
+        moveSelectedMarbles(marblesToMove);
+
+        if (enemy && queries.isPushedOutOfBound()) {
+            Sprite pushedOutMarble = marblesToMove.get(marblesToMove.size() - 1); //always the last one
+            capture(pushedOutMarble);
+        }
+
+        if (winner != -1) {
+            stage.getActors().removeValue(currentPlayerLabel, true);
+        } else if (!enemy && !enemySecondTurn) {
             nextPlayer();
         }
     }
 
-    public void createRenegadeMark(Vector2 center) {
-        Label mark = FactoryHelper.createLabelWithText("R", 20, 20);
-        mark.setAlignment(Align.center);
-        mark.setColor(Color.GOLD);
-        renegadeLabels = mark;
+    private void capture(Sprite sprite) {
+        GameSet.getInstance().removeMarble(sprite);
 
-        stage.addActor(mark);
+        ArrayList<Sprite> deletionList = deletedSpritesLists.get(currentPlayer);
+        deletionList.add(sprite);
+        deadBlackMarbleLabel.setText(deletedSpritesLists.get(0).size());
+        deadWhiteMarbleLabel.setText(deletedSpritesLists.get(1).size());
+
+        if (currentPlayer == 1) {
+            sprite.setCenter(780, 140 + (60 * (deletionList.size() - 1)));
+        } else {
+            sprite.setCenter(60, 580 - (60 * (deletionList.size() - 1)));
+        }
+
+        if (deletionList.size() == NUMBER_CAPTURES_TO_WIN) {
+            winner = currentPlayer;
+            createWinnerLabel();
+        }
+    }
+
+    private void nextPlayer() {
+        currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
+        currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer));
+
+        RenegadeKeeper renegadeKeeper = null;
+        if (SINGLE_DEVICE_MODE) {
+            renegadeKeeper = renegadeKeepers[currentPlayer];
+        } else if (currentPlayer == GameInfo.getInstance().getPlayerId()) {
+            renegadeKeeper = renegadeKeepers[0];
+        }
+
+        if (renegadeKeeper != null) {
+            currentPlayerLabel.setText(currentPlayerLabel.getText() + (renegadeKeeper.isCanPickRenegade() ? "*" : ""));
+            renegadeKeeper.checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
+        }
+
+        //online game.. you cant see renegade status of other player yet.
+    }
+
+    private void createRenegadeMark(Vector2 center) {
+        renegadeLabel = FactoryHelper.createLabelWithText("R", 20, 20);
+        renegadeLabel.setAlignment(Align.center);
+        renegadeLabel.setColor(Color.GOLD);
+
+        stage.addActor(renegadeLabel);
         Actor label = stage.getActors().peek();
 
         Vector3 vector = new Vector3(center.x, center.y, 0f);
         viewport.project(vector);
-        label.setX(vector.x - mark.getWidth() / 2);
-        label.setY(vector.y - mark.getHeight() / 2);
+        label.setX(vector.x - renegadeLabel.getWidth() / 2);
+        label.setY(vector.y - renegadeLabel.getHeight() / 2);
     }
 
-    private void selectMarbleIfTouched() {
+    public void updateRemoteRenegade(int fieldId) {
+        Vector2 spriteCenter = board.get(fieldId);
+        Sprite renegadeSprite = GameSet.getInstance().getMarble(spriteCenter.x, spriteCenter.y);
+
+        if (renegadeSprite == null) {
+            throw new IllegalArgumentException("no valid renegade");
+        }
+
+        Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
+        selectRenegade(renegadeSprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor()); //playerTextures.get(currentPlayer));
+        queries.changeTo(fieldId, currentPlayer); //updates logic that marble changed team
+//        nextLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+    }
+
+    private void selectRenegade(Sprite renegade, Texture texture, Color color) {
+        changeTeam(renegade, texture, color);
+        if (SINGLE_DEVICE_MODE) {
+            renegadeKeepers[currentPlayer].setRenegade(board.getTileId(renegade));
+        }
+    }
+
+    private void changeTeam(Sprite sprite, Texture texture, Color color) {
+        GameSet.getInstance().removeMarble(sprite);
+        sprite.setTexture(texture); //set texture
+        sprite.setColor(color);
+        GameSet.getInstance().getMarbleSets().get(currentPlayer).addMarble(sprite);
+    }
+
+    private void checkSelection() {
         //touch coordinates have to be translate to map coordinates
         Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         viewport.unproject(v);
         Sprite potentialSprite = GameSet.getInstance().getMarble(v.x, v.y); //returns null if no marble matches coordinates
-        if (potentialSprite != null && GameSet.getInstance().getTeamIndex(potentialSprite) != currentPlayer) {
 
-            //TODO first turns marble before expose enemy marble
-            if (renegadeKeepers[currentPlayer].expose(board.getTileId(potentialSprite))) {
+        if (potentialSprite != null) {
+            handleSelection(potentialSprite);
+        } else {
+            unselectAllSelectedSprites();
+        }
+    }
+
+    private void handleSelection(Sprite sprite) {
+        if (GameSet.getInstance().getTeamIndex(sprite) != currentPlayer) {
+
+            if (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].expose(board.getTileId(sprite))) { //first expose
                 queries.resetRenegade();
-                createRenegadeMark(board.getCenter(potentialSprite));
-            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) {
-                renegadeKeepers[currentPlayer].chooseRenegade(potentialSprite, playerTextures.get(currentPlayer), currentPlayer, board);
-                queries.changeTo(board.getTileId(potentialSprite), currentPlayer);
-                nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                createRenegadeMark(board.getCenter(sprite));
+
+            } else if (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].isCanPickRenegade()) { //then pick
+                Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
+                selectRenegade(sprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor());
+                queries.changeTo(board.getTileId(sprite), currentPlayer);
+                currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].isCanPickRenegade() ? "*" : ""));
             }
 
             return;
         }
 
-        int marbleCounter = 0;
-        if (potentialSprite != null) {
-            int[] buffer = new int[selectedSprites.size() + 1]; //previously selected + 1
-            for (int i = 0; i < selectedSprites.size(); i++) {
-                buffer[i] = board.getTileId(selectedSprites.get(i));
-                marbleCounter++;
+        if (queries.isInLine(selectedPlus(sprite))) {
+            if (!select(sprite)) {
+                unselectOneOrAll(sprite);
             }
-            if (!selectedSprites.contains(potentialSprite)) {
-                buffer[buffer.length - 1] = board.getTileId(potentialSprite);
-                marbleCounter++;
-            }
+        }
+    }
 
-            int[] marblesToCheck = new int[marbleCounter];
-            for (int i = 0, k = 0; i < buffer.length; i++) { //don't deliver zeros
-                if (buffer[i] != 0) {
-                    marblesToCheck[k++] = buffer[i];
-                }
-            }
+    private int[] selectedPlus(Sprite sprite) {
+        int[] marblesToCheck = new int[selectedSprites.contains(sprite) ? selectedSprites.size() : selectedSprites.size() + 1]; //previously selected + 1
 
-            if (queries.isInLine(marblesToCheck)) {
-                boolean alreadySelected = !select(potentialSprite);
-                if (alreadySelected) {
-                    int tileIndexPotentialSprite = board.getTileId(potentialSprite);
-                    boolean isMax = true;
-                    boolean isMin = true;
-                    for (int i = 0; i < selectedSprites.size(); i++) {
-                        Sprite currentSprite = selectedSprites.get(i);
-                        if (board.getTileId(currentSprite) > tileIndexPotentialSprite) {
-                            isMax = false;
-                        }
-                        if (board.getTileId(currentSprite) < tileIndexPotentialSprite) {
-                            isMin = false;
-                        }
-                    }
+        for (int i = 0; i < selectedSprites.size(); i++) {
+            marblesToCheck[i] = board.getTileId(selectedSprites.get(i));
+        }
 
-                    if (isMax || isMin) { //first or last marble
-                        unselect(potentialSprite);
-                    } else {
-                        unselectCompleteList();
-                    }
-                }
+        if (!selectedSprites.contains(sprite)) {
+            marblesToCheck[marblesToCheck.length - 1] = board.getTileId(sprite);
+        }
+
+        return marblesToCheck;
+    }
+
+    private void unselectOneOrAll(Sprite sprite) {
+        boolean hasSmallestId = true;
+        boolean hasHighestId = true;
+        int tileIndexSprite = board.getTileId(sprite);
+        Sprite currentSprite;
+
+        for (int i = 0; i < selectedSprites.size(); i++) {
+            currentSprite = selectedSprites.get(i);
+            if (board.getTileId(currentSprite) > tileIndexSprite) {
+                hasSmallestId = false;
             }
+            if (board.getTileId(currentSprite) < tileIndexSprite) {
+                hasHighestId = false;
+            }
+        }
+
+        if (hasSmallestId || hasHighestId) {
+            unselect(sprite);
         } else {
-            unselectCompleteList();
+            unselectAllSelectedSprites();
         }
     }
 
@@ -450,39 +551,44 @@ public class Abalone implements Screen {
     }
 
     private void unselect(Sprite sprite) {
+        decolorSprite(sprite);
         selectedSprites.unselect(sprite);
-        if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
-            sprite.setColor(new Color(settings.getInteger("rgbaValue")));
-        } else {
-            sprite.setColor(Color.WHITE);
-        }
-
     }
 
-    private void unselectCompleteList() {
+    private void unselectAllSelectedSprites() {
         for (int i = 0; i < selectedSprites.size(); i++) {
-            Sprite s = selectedSprites.get(i);
-            if (s != null) {
-                if(settings.getBoolean("colorSetting") && currentPlayer == PLAYER_ID){
-                    s.setColor(new Color(settings.getInteger("rgbaValue")));
-                } else {
-                    s.setColor(Color.WHITE);
-                }
-            }
+            decolorSprite(selectedSprites.get(i));
         }
         selectedSprites.unselectAll();
     }
 
+    private void decolorSprite(Sprite sprite) {
+        if (currentPlayer == PLAYER_ID && settings.getBoolean("colorSetting")) {
+            sprite.setColor(new Color(settings.getInteger("rgbaValue")));
+        } else {
+            sprite.setColor(Color.WHITE);
+        }
+    }
+
     private void zoom() {
-        boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1); //set left/right finger to make touch sequence irrelevant
+        //set left/right finger to make touch sequence irrelevant
+        boolean zeroLeftFinger = Gdx.input.getX(0) < Gdx.input.getX(1);
         int indexLeftFinger = zeroLeftFinger ? 0 : 1;
         int indexRightFinger = !zeroLeftFinger ? 0 : 1;
 
-        if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) { //delta left finger neg. -> zoom in (make zoom smaller)
-            ((OrthographicCamera) viewport.getCamera()).zoom -= 0.02;
+        OrthographicCamera camera = ((OrthographicCamera) viewport.getCamera());
+
+        //delta left finger neg. -> zoom in (make zoom smaller)
+        if ((Gdx.input.getDeltaX(indexLeftFinger) < 0 && Gdx.input.getDeltaX(indexRightFinger) > 0)) {
+            if (camera.zoom > min_zoom) {
+                camera.zoom -= 0.02;
+            }
         }
-        if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) { //zoom out
-            ((OrthographicCamera) viewport.getCamera()).zoom += 0.02;
+        //zoom out
+        if ((Gdx.input.getDeltaX(indexLeftFinger) > 0 && Gdx.input.getDeltaX(indexRightFinger) < 0)) {
+            if (camera.zoom < max_zoom) {
+                camera.zoom += 0.02;
+            }
         }
     }
 
@@ -492,96 +598,148 @@ public class Abalone implements Screen {
         }
     }
 
-    public int nextPlayer() { //TODO has to be called if server sends move of opponent
-        if (renegadeKeepers[currentPlayer].hasDoubleTurn()) {
-            renegadeKeepers[currentPlayer].takeDoubleTurn();
-        } else {
-            currentPlayer = (currentPlayer + 1) % NUMBER_PLAYERS;
-            nextLabel.setText((currentPlayer == 0 ? "White" : "Black") + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
-            renegadeKeepers[currentPlayer].checkNewRenegade(queries.idOfCurrentRenegade()); //update renegade id -> has expose attempt
-            //TODO player communication server wont work that easily
-        }
-        return currentPlayer;
-    }
-
     @Override
     public void show() {
-        playerLabel();
+        createCurrentPlayerLabel();
         deadBlackMarblesLabel();
         deadWhiteMarblesLabel();
-        settingsButton();
-        exitButton();
-
-        music();
+        setUpSettingsButton();
+        setUpExitButton();
+        startMusic();
     }
 
-    public void playerLabel() {
-        //TODO proper style?
-        nextLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White" : "Black", 100, 60);
-        stage.addActor(nextLabel);
+    private void createCurrentPlayerLabel() {
+        currentPlayerLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer), 200, 60);
+        currentPlayerLabel.setAlignment(Align.right);
+        currentPlayerLabel.setColor(Color.RED);
+
+        stage.addActor(currentPlayerLabel);
         Actor label = stage.getActors().peek();
-        label.setX(screenWidth - (label.getWidth() + 220));
-        label.setY(screenHeight - (label.getHeight() + 60));
+        label.setX(screenWidth - (label.getWidth() + currentPlayerLabel.getWidth()));
+        label.setY(screenHeight - (label.getHeight() + currentPlayerLabel.getHeight()));
     }
+
+    /**
+     * Creates a label and an image which present the count of the dead marbles.
+     *
+     * <li> First, the label will be created with the initial amount of deleted Sprites.
+     * <li>Then the position of the label and marble will be created.
+     * <li>The position should be in the upper left corner and because we measure from the bottom left corner we have to multiply x by 0.1 and y by 0.85.
+     * <li>The Image will be loaded and the position set.
+     * <li>Then you add the image to the stage.
+     *
+     * <li>The label will be added to the stage. Then the position is set.
+     * <li>The whole method can be called and it updates.
+     *
+     */
 
     public void deadBlackMarblesLabel() {
-        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 100, 60);
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 110, 65);
+
+        Vector2 position = new Vector2(screenWidth * 0.1f, screenHeight * 0.85f);
+
+        Image imageOfBlackMarble = new Image(playerTextures.get(1));
+        imageOfBlackMarble.setPosition(position.x, position.y);
+        stage.addActor(imageOfBlackMarble);
 
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX((label.getWidth() + 220));
-        label.setY(screenHeight - (label.getHeight() + 60));
+        label.setX(position.x + label.getWidth() / 2f);
+        label.setY(position.y + label.getHeight() / 2f);
     }
 
+    /**
+     * The method works similar to {@code <deadBlackMarblesLabel>, DeadBlackMarblesLabel}.
+     *
+     *<li> The main difference is the marble image and the position. As we want to have the counter in the bottom right corner, we have to multiply x by 0.85 and y by 0.05.
+     *
+     *
+     *
+     */
+
     public void deadWhiteMarblesLabel() {
-        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 100, 60);
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 110, 65);
+        //deadWhiteMarbleLabel.setColor(Color.RED);
+
+        Vector2 position = new Vector2(screenWidth * 0.85f, screenHeight * 0.05f);
+
+        Image imageOfWhiteMarble = new Image(playerTextures.get(0));
+        imageOfWhiteMarble.setPosition(position.x, position.y);
+        stage.addActor(imageOfWhiteMarble);
 
         stage.addActor(deadWhiteMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX(screenWidth - (label.getWidth() + 220));
-        label.setY((label.getHeight() + 60));
+        label.setX(position.x + label.getWidth() / 2f);
+        label.setY(position.y + label.getHeight() / 2f);
     }
 
-    public void exitLabel() {
-        //TODO proper style?
-        Label winLabel = FactoryHelper.createLabelWithText(currentPlayer == 0 ? "White won" : "Black won", screenWidth, screenHeight);
+    private void createWinnerLabel() {
+        Label winLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " won", screenWidth, screenHeight);
         winLabel.setAlignment(Align.center);
+        currentPlayerLabel.setColor(Color.RED);
 
         Abalone currentGame = this;
         winLabel.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", winLabel.toString() + " clicked");
-                currentGame.exit();
+                currentGame.exitCurrentGame();
             }
         });
 
         stage.addActor(winLabel);
     }
 
-    private void exit() {
-        bgMusic.stop();
-        game.setScreen(game.menuScreen);
-        reset();
+    private void createSurrenderLabel() {
+        Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
+        surrenderLabel.setAlignment(Align.center);
+
+        Abalone currentGame = this;
+        surrenderLabel.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
+                if(!SINGLE_DEVICE_MODE){
+                    try {
+                        RequestSender rs = new RequestSender(new LeaveRoomRequest());
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        executorService.submit(rs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                currentGame.exitCurrentGame();
+            }
+        });
+        stage.addActor(surrenderLabel);
     }
 
-    public void reset() {
+    private void exitCurrentGame() {
+        resetViewData();
+        bgMusic.stop();
+
+        //switch to menu screen
+        MenuScreen menuScreen = game.menuScreen;
+        menuScreen.setField(null);
+        game.setScreen(menuScreen);
+        Gdx.input.setInputProcessor(game.menuStage);
+    }
+
+    private void resetViewData() {
         board = null;
         GameSet.reset();
     }
 
-    public void settingsButton() { //TODO copied code from SettingsDialog; make it not repetitive
+    private void setUpSettingsButton() {
         Skin skin = FactoryHelper.getDefaultSkin();
-        settingsButton = FactoryHelper.createImageButton(
+        ImageButton settingsButton = FactoryHelper.createImageButton(
                 skin.get("settings-btn", ImageButton.ImageButtonStyle.class),
-                150, 150, 0, 0); //TODO method without x/y parameters? want to make it width/height dependent
+                150, 150, 0, 0);
 
         Abalone currentGame = this;
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", settingsButton.toString() + " clicked");
                 Skin uiSkin = new Skin(Gdx.files.internal(GameConstants.CUSTOM_UI_JSON));
                 SettingsDialog settingsDialog = new SettingsDialog("Settings", uiSkin, currentGame);
@@ -593,21 +751,30 @@ public class Abalone implements Screen {
         Actor button = stage.getActors().peek();
         button.setX(screenWidth - (button.getWidth() + 20));
         button.setY(screenHeight - (button.getHeight() + 20));
-
-        // TODO updating setting changes
     }
 
-    public void exitButton() { //TODO copied code from SettingsDialog; make it not repetitive
+    private void setUpExitButton() {
         Skin skin = FactoryHelper.getDefaultSkin();
+        /*ImageButton exitButton = FactoryHelper.createImageButton(
+                skin.get("exit-btn", ImageButton.ImageButtonStyle.class),
+                150, 150, 0, 0);*/
         ImageButton exitButton = FactoryHelper.createExitButton();
 
-        Abalone currentGame = this;
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO: Open settings overlay.
                 Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
-                currentGame.exit();
+                if (!SINGLE_DEVICE_MODE) {
+                    BaseRequest surrenderRequest = new SurrenderRequest(UUID.fromString(Gdx.app.getPreferences("UserPreferences").getString("UserId")));
+                    try {
+                        RequestSender rs = new RequestSender(surrenderRequest);
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        executorService.submit(rs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                createSurrenderLabel();
             }
         });
 
@@ -617,65 +784,68 @@ public class Abalone implements Screen {
         button.setY(screenHeight - (button.getHeight() + 20));
     }
 
-    public void music() {
+    private void startMusic() {
         bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds\\background.wav"));
         bgMusic.play();
         bgMusic.setLooping(true);
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
     }
 
+    /**
+     * Update values that have been changed in the settings menu during the game, so they take effect.
+     */
     public void updateSettings() {
+
+        //volume
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
 
+        //background
         String boardTexturePath = "boards/" + settings.getString("boardSkin");
         if (!background.toString().equals(boardTexturePath)) {
             background = new Texture(boardTexturePath);
         }
 
+        //player texture
         for (int k = 0; k < playerTextures.size(); k++) {
             Texture oldTexture = playerTextures.get(k);
             playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
             Texture newTexture = playerTextures.get(k);
-            if (!newTexture.toString().equals(oldTexture.toString())) { //if texture type changed
-                MarbleSet marbleSet = GameSet.getInstance().getMarbleSets().get(k);
-                if (marbleSet.getMarble(0) != null) {
-                    for (int i = 0; i < marbleSet.size(); i++) {
-                        marbleSet.getMarble(i).setTexture(newTexture);
-                    }
-                }
 
+            if (!newTexture.toString().equals(oldTexture.toString())) {
+                GameSet.getInstance().setTextureOfMarbleSet(newTexture, k);
             }
         }
 
-        if(settings.getBoolean("colorSetting")){
+        //player color
+        if (settings.getBoolean("colorSetting")) {
             GameSet.getInstance().colorMarbleSet(settings.getInteger("rgbaValue"), PLAYER_ID);
         } else {
-            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID);
+            GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID); //no color
         }
+
+        //update sensor control
+        tiltActive = settings.getBoolean("TiltingActive");
     }
 
     @Override
     public void resize(int width, int height) {
-
     }
 
     @Override
     public void pause() {
-        reset();
+        exitCurrentGame();
     }
 
     @Override
     public void resume() {
-        //TODO you get more murbles if you close the up and start it up again
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
-    public void dispose() { //TODO dispose of everything
+    public void dispose() {
         bgMusic.dispose();
 
         batch.dispose();
@@ -688,6 +858,33 @@ public class Abalone implements Screen {
         for (int i = 0; i < playerTextures.size(); i++) {
             playerTextures.get(i).dispose();
         }
-        reset();
+
+        exitCurrentGame();
+    }
+
+    @Override
+    public void HandleResponse(BaseResponse response) {
+        if (!GameInfo.getInstance().getSingleDeviceMode()) {
+            if (response instanceof SurrenderResponse) {
+                if (response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()) {
+                    createSurrenderLabel();
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                    //Exception handling goes here : Maybe a small notification to be shown
+                }
+            }
+        }
     }
 }

@@ -36,11 +36,10 @@ public class SettingsDialog extends Dialog {
 
     //Settings variables
     private float bgMusicVolumeFactor;
-    private boolean sfxSoundActive;
+    private boolean tiltingActivated;
     private String marbleSkin;
     private String boardSkin;
     private boolean colorSetting;
-
     private Stage stage;
 
     Preferences settings = Gdx.app.getPreferences("UserSettings");
@@ -83,20 +82,17 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        //SFX control setup.
-        Label sfxCheck = new Label("Disable SFX?", skin);
-        CheckBox sfxBox = new CheckBox("", skin);
-        sfxBox.setChecked(settings.getBoolean("sfxSoundActive", false));
-        sfxBox.addListener(new ChangeListener() {
+        //Tilting Control setup
+        Label tiltCheck = new Label("Tilting Movement active?", skin);
+        final CheckBox tiltBox = new CheckBox("", skin);
+        tiltBox.setChecked(settings.getBoolean("TiltingActive", false));
+        tiltBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (sfxBox.isChecked()) {
-                    sfxSoundActive = false;
-                } else {
-                    sfxSoundActive = true;
-                }
-                settings.putBoolean("sfxSoundActive", sfxSoundActive);
+                tiltingActivated = tiltBox.isChecked(); //toggle
+                settings.putBoolean("TiltingActive", tiltingActivated);
                 settings.flush();
+                Gdx.app.log("ClickListener", "Tilting Movement is: " + tiltingActivated);
             }
         });
 
@@ -147,9 +143,10 @@ public class SettingsDialog extends Dialog {
                 }
                 settings.putBoolean("colorSetting", colorSetting);
                 settings.flush();
-                Gdx.app.log("ClickListener", "The Color Setting is: " + sfxSoundActive);
+                Gdx.app.log("ClickListener", "The Color Setting is: " + tiltingActivated);
             }
         });
+
         btnSelectColor.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -198,8 +195,8 @@ public class SettingsDialog extends Dialog {
         rootTable.add(slider).width(800);
 
         rootTable.row().padTop(PAD_TOP);
-        rootTable.add(sfxCheck).left();
-        rootTable.add(sfxBox).width(100).left().padLeft(PAD_LEFT);
+        rootTable.add(tiltCheck).left();
+        rootTable.add(tiltBox).width(100).left().padLeft(PAD_LEFT);
 
         rootTable.row().padTop(PAD_TOP);
         rootTable.add(lblMarbleSkins).left();

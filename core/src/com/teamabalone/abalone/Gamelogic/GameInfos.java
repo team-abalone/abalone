@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public interface GameInfos {
 
-    boolean singleDeviceMode();
-    int numberPlayers();
-    int mapSize();
-    int maximalSelectableMarbles();
-    int playerId();
-    ArrayList<String> names();
+    boolean getSingleDeviceMode();
+    int getNumberPlayers();
+    int getMapSize();
+    int getMaximalSelectableMarbles();
+    int getPlayerId();
+    ArrayList<String> getNames();
 }

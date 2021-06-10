@@ -1,8 +1,11 @@
 package com.teamabalone.abalone.Client.Requests;
 
 public enum InititalFieldType {
-    GERMANY_DAISY(10),
-    DEFAULT(20);
+    DEFAULT(20),
+    GERMAN_DAISY(10),
+    THE_WALL(30),
+    SNAKE(40)
+    ;
 
     private final int value;
 

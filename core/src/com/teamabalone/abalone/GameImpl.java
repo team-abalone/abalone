@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.teamabalone.abalone.Client.ICoreLauncher;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.SocketManager;
@@ -15,9 +16,13 @@ import java.util.UUID;
 public class GameImpl extends Game {
     public static Abalone abalone;
 
-    private ICoreLauncher launcher;
     public SpriteBatch batch;
     public MenuScreen menuScreen;
+
+    public Stage menuStage;
+    public Stage gameStage;
+
+    private ICoreLauncher launcher;
 
     public GameImpl(ICoreLauncher launcher) {
         this.launcher = launcher;
@@ -26,7 +31,7 @@ public class GameImpl extends Game {
     @Override
     public void create() {
         // Ensuring the app has a UserId stored.
-        EnsureUserIdCreated();
+        ensureUserIdCreated();
 
 
         // Initializing our response handler, which is called from Service.
@@ -41,6 +46,9 @@ public class GameImpl extends Game {
             e.printStackTrace();
         }
 
+        menuStage = new Stage();
+        gameStage = new Stage();
+        Gdx.input.setInputProcessor(menuStage);
         batch = new SpriteBatch();
         menuScreen = new MenuScreen(this, launcher.getCommitHash());
         this.setScreen(menuScreen);
@@ -53,20 +61,10 @@ public class GameImpl extends Game {
     }
 
     @Override
-    public void pause() {
-        super.pause();
-    }
-
-    @Override
-    public void render() {
-        super.render();
-    }
-
-    @Override
-    public void dispose() {/*
+    public void dispose() {
         super.dispose();
         menuScreen.dispose();
-        batch.dispose();*/
+        batch.dispose();
     }
 
     public SpriteBatch getBatch() {
@@ -77,7 +75,7 @@ public class GameImpl extends Game {
      * Ensures, the app has a generated UserId, which is later used for api communication.
      * Upon first start a new id is generated and stored using Preferences.
      */
-    private void EnsureUserIdCreated() {
+    private void ensureUserIdCreated() {
         Preferences preferences = Gdx.app.getPreferences("UserPreferences");
         String userId = preferences.getString("UserId");
 

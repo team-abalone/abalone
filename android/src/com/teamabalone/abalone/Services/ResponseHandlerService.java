@@ -11,17 +11,23 @@ import android.os.Message;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.teamabalone.abalone.Client.ICoreResponseMessageHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 
+import com.teamabalone.abalone.Client.Responses.ExceptionResponse;
+import com.teamabalone.abalone.Client.Responses.GameClosedResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 
 import com.teamabalone.abalone.Client.Responses.GameStartedResponse;
 
+import com.teamabalone.abalone.Client.Responses.PlayerLeftResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
 import com.teamabalone.abalone.Client.Responses.StartGameResponse;
+import com.teamabalone.abalone.Client.Responses.SurrenderResponse;
 import com.teamabalone.abalone.Helpers.Helpers;
 
 import java.io.BufferedReader;
@@ -65,10 +71,15 @@ public class ResponseHandlerService extends Service {
 
                         String responseString = in.readLine();
 
+                        // If this fails input isn't valid json.
+                        new JsonParser().parse(responseString);
+
                         Gson gson = Helpers.GetGsonInstance();
+
 
                         if (CoreResponseMessageHandler != null) {
                             BaseResponse response = gson.fromJson(responseString, BaseResponse.class);
+
                             if(response.getCommandCode() == ResponseCommandCodes.ROOM_CREATED.getValue()) {
                                 response = gson.fromJson(responseString, CreateRoomResponse.class);
                             }
@@ -85,13 +96,41 @@ public class ResponseHandlerService extends Service {
                             else if(response.getCommandCode() == ResponseCommandCodes.GAME_STARTED.getValue()) {
                                 response = gson.fromJson(responseString, GameStartedResponse.class);
                             }
+                            else if(response.getCommandCode() == ResponseCommandCodes.GAME_CLOSED.getValue()){
+                                response = gson.fromJson(responseString, GameClosedResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()){
+                                response = gson.fromJson(responseString, SurrenderResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+                                response = gson.fromJson(responseString, BaseResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.NO_ROOM_TO_LEAVE.getValue()){
+                                response = gson.fromJson(responseString, BaseResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+                                response = gson.fromJson(responseString, PlayerLeftResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
+                            }
+                            else if(response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()){
+                                response = gson.fromJson(responseString, ExceptionResponse.class);
+                            }
 
-
-                            CoreResponseMessageHandler.HandleMessage(response);
+                            if(response.getCommandCode() != 0) {
+                                CoreResponseMessageHandler.HandleMessage(response);
+                            }
                         }
                     } catch (IOException e) {
                         // Restore interrupt status.
                         Thread.currentThread().interrupt();
+                    }
+                    catch(JsonSyntaxException e) {
+                        // Ignore message if server sent invalid json.
                     }
                 }
             }

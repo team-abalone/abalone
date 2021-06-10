@@ -3,6 +3,7 @@ package com.teamabalone.abalone.View;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing a set of marbles of one team holding all it's marble sprites.
@@ -17,7 +18,7 @@ public class MarbleSet {
      *
      * @param sprites  an {@link ArrayList} of {@link Sprite Sprites}, not null
      */
-    public MarbleSet(ArrayList<Sprite> sprites) {
+    public MarbleSet(List<Sprite> sprites) {
         if (sprites == null) {
             throw new IllegalArgumentException("no sprites were passed to marble set");
         }

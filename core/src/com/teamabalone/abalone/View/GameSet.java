@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton instance containing all marble sets of a game in one collection.
@@ -23,7 +24,7 @@ public class GameSet { //singleton
      * Initialize a new GameSet if the current one is null.
      * Otherwise returns {@link GameSet#gameSet}.
      *
-     * @return  the gameSet
+     * @return the gameSet
      */
     public static GameSet getInstance() {
         if (gameSet == null) {
@@ -50,14 +51,14 @@ public class GameSet { //singleton
      * @param positions center coordinates of marbles
      * @return created marble set
      */
-    public MarbleSet register(Texture texture, int rgbaValue, float[] positions ) {
+    public MarbleSet register(Texture texture, int rgbaValue, float[] positions) {
         MarbleSet marbleSet = new MarbleSet(createMarbles(texture, rgbaValue, positions));
         marbleSets.add(marbleSet);
         return marbleSet;
     }
 
-    public MarbleSet register(Texture texture, float[] positions ) {
-        return register(texture, 0 , positions);
+    public MarbleSet register(Texture texture, float[] positions) {
+        return register(texture, 0, positions);
     }
 
     /**
@@ -65,11 +66,11 @@ public class GameSet { //singleton
      *
      * @param texture     texture for sprites, not null
      * @param coordinates coordinates to center the sprites
-     * @param rgbaValue  the possibly desired coloring, not null
+     * @param rgbaValue   the possibly desired coloring, not null
      * @return list of created sprites
-     * @throws IllegalArgumentException  in case of an coordinate that's not even
+     * @throws IllegalArgumentException in case of an coordinate that's not even
      */
-    public ArrayList<Sprite> createMarbles(Texture texture, int rgbaValue,  float... coordinates) {
+    public List<Sprite> createMarbles(Texture texture, int rgbaValue, float... coordinates) {
         if (texture == null) {
             throw new IllegalArgumentException("no texture passed");
         }
@@ -83,7 +84,7 @@ public class GameSet { //singleton
 
         for (int i = 0; i < coordinates.length; i += 2) {
             sprite = new Sprite(texture);
-            if(rgbaValue != 0){
+            if (rgbaValue != 0) {
                 sprite.setColor(new Color(rgbaValue));
             }
             sprite.setCenter(coordinates[i], coordinates[i + 1]);
@@ -94,16 +95,16 @@ public class GameSet { //singleton
     }
 
 
-    public ArrayList<Sprite> createMarbles(Texture texture,  float... coordinates) {
+    public List<Sprite> createMarbles(Texture texture, float... coordinates) {
         return createMarbles(texture, 0, coordinates);
     }
 
     /**
      * Returns this marbleSet.
      *
-     * @return  the marbleSet
+     * @return the marbleSet
      */
-    public ArrayList<MarbleSet> getMarbleSets() {
+    public List<MarbleSet> getMarbleSets() {
         return marbleSets;
     }
 
@@ -164,9 +165,21 @@ public class GameSet { //singleton
         return false;
     }
 
-    public void colorMarbleSet(int rgbaValue, int index){
-        for (int i = 0; i < marbleSets.get(index).size(); i++) {
-            marbleSets.get(index).getMarble(i).setColor(new Color(rgbaValue));
+    public void colorMarbleSet(int rgbaValue, int index) {
+        MarbleSet marbleSet = (marbleSets.get(index));
+        if (marbleSet != null && marbleSet.getMarble(0) != null) {
+            for (int i = 0; i < marbleSets.get(index).size(); i++) {
+                marbleSets.get(index).getMarble(i).setColor(new Color(rgbaValue));
+            }
+        }
+    }
+
+    public void setTextureOfMarbleSet(Texture texture, int index) {
+        MarbleSet marbleSet = (marbleSets.get(index));
+        if (marbleSet != null && marbleSet.getMarble(0) != null) {
+            for (int i = 0; i < marbleSet.size(); i++) {
+                marbleSet.getMarble(i).setTexture(texture);
+            }
         }
     }
 }
