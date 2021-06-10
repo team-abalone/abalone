@@ -73,34 +73,74 @@ public class GameInfo implements GameInfos {
         return names;
     }
 
+    /**
+     * Sets if the current game mode is single or multiplayer
+     *
+     * @param singleDeviceMode  the boolean for the mode
+     */
     public void setSingleDeviceMode(boolean singleDeviceMode) {
         this.singleDeviceMode = singleDeviceMode;
     }
 
+    /**
+     * sets the number of players
+     *
+     * @param numberPlayers  the number of players
+     */
     public void setNumberPlayers(int numberPlayers) {
         this.numberPlayers = numberPlayers;
     }
 
+    /**
+     * Sets the current size for the Field.
+     *
+     * @param mapSize  the side length of the pentagon
+     */
     public void setMapSize(int mapSize) {
         this.mapSize = mapSize;
     }
 
+    /**
+     * Sets the max amount a player can select in one turn
+     *
+     * @param maximalSelectableMarbles  the amount of selectable marbles
+     */
     public void setMaximalSelectableMarbles(int maximalSelectableMarbles) {
         this.maximalSelectableMarbles = maximalSelectableMarbles;
     }
 
+    /**
+     * Sets the players ID
+     *
+     * @param playerId  the id of the current player
+     */
     public void setPlayerId(int playerId) {
         this.playerId = playerId;
     }
 
+    /**
+     * Sets the name of all players
+     *
+     * @param names  an array of all players
+     */
     public void setNames(ArrayList<String> names) {
         this.names = names;
     }
 
+    /**
+     * Sets the starting position for the marbles
+     *
+     * @param startPosition  the position to start with
+     */
     public void setStartPosition(GameStartPositions startPosition) {
         this.startPosition = startPosition;
     }
 
+    /**
+     * Gets the position to start with
+     *
+     * @return  the position to start with
+     */
     public GameStartPositions getStartPosition() {
         return startPosition;
     }

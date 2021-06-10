@@ -277,7 +277,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         float accelerationX = -Gdx.input.getAccelerometerX();
         float accelerationY = Gdx.input.getAccelerometerY();
         if (Math.abs(accelerationX) > TILT_SENSITIVITY || Math.abs(accelerationY) > TILT_SENSITIVITY) {
-            lastDirection = Directions.calculateDirectionFromAcceleration(accelerationY, accelerationX);
+            lastDirection = Directions.getDirection(accelerationY, accelerationX);
 
             if (SINGLE_DEVICE_MODE || PLAYER_ID == currentPlayer) { //waiting for turn if multiple devices
                 if (lastDirection != Directions.NOTSET && !selectedSprites.isEmpty()) {

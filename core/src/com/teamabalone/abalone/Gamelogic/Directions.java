@@ -36,11 +36,18 @@ public enum Directions {
         return getDirection(adjacentLeg, oppositeLeg);
     }
 
-    public static Directions calculateDirectionFromAcceleration(float adjacentLeg, float oppositeLeg) {
+   /* public static Directions calculateDirectionFromAcceleration(float adjacentLeg, float oppositeLeg) {
         return getDirection(adjacentLeg, oppositeLeg);
     }
-
-    private static Directions getDirection(float adjacentLeg, float oppositeLeg) {
+*/
+    /**
+     * Calculates the direction according to the tilt sensor
+     *
+     * @param adjacentLeg   the x-coordinate of the tilt location
+     * @param oppositeLeg  the y-coordinate of the tilt location
+     * @return  the most fitting direction
+     */
+    public static Directions getDirection(float adjacentLeg, float oppositeLeg) {
 
         //to get 360°
         boolean olneg = oppositeLeg < 0;
