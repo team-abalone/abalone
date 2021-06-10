@@ -342,7 +342,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
             if (queries.isPushedOutOfBound()) {
                 Sprite pushedOutMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
-                renegadeKeepers[GameSet.getInstance().getTeamIndex(pushedOutMarble)].setCanPickRenegadeTrue(); //TODO make it work
+//                renegadeKeepers[GameSet.getInstance().getTeamIndex(pushedOutMarble)].setCanPickRenegadeTrue(); //TODO make it work
                 capture(pushedOutMarble);
             }
 
@@ -482,15 +482,15 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private void handleSelection(Sprite sprite) {
         if (GameSet.getInstance().getTeamIndex(sprite) != currentPlayer) {
 
-            if (renegadeKeepers[currentPlayer].expose(board.getTileId(sprite))) { //first expose
+            if (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].expose(board.getTileId(sprite))) { //first expose
                 queries.resetRenegade();
                 createRenegadeMark(board.getCenter(sprite));
 
-            } else if (renegadeKeepers[currentPlayer].isCanPickRenegade()) { //then pick
+            } else if (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].isCanPickRenegade()) { //then pick
                 Sprite marbleOfCurrentPlayer = GameSet.getInstance().getMarbleSets().get(currentPlayer).getMarble(0);
                 selectRenegade(sprite, marbleOfCurrentPlayer.getTexture(), marbleOfCurrentPlayer.getColor());
                 queries.changeTo(board.getTileId(sprite), currentPlayer);
-                currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[currentPlayer].isCanPickRenegade() ? "*" : ""));
+                currentPlayerLabel.setText(GameInfo.getInstance().getNames().get(currentPlayer) + (renegadeKeepers[SINGLE_DEVICE_MODE ? currentPlayer : 0].isCanPickRenegade() ? "*" : ""));
             }
 
             return;
@@ -617,26 +617,26 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setY(screenHeight - (label.getHeight() + currentPlayerLabel.getHeight()));
     }
 
-    public void deadBlackMarblesLabel(){
-        deadBlackMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(0).size(),110,65);
+    public void deadBlackMarblesLabel() {
+        deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 110, 65);
 
-        Vector2 position = new Vector2(screenWidth*0.1f,screenHeight*0.85f);
+        Vector2 position = new Vector2(screenWidth * 0.1f, screenHeight * 0.85f);
 
         Image imageOfBlackMarble = new Image(playerTextures.get(1));
-        imageOfBlackMarble.setPosition(position.x,position.y);
+        imageOfBlackMarble.setPosition(position.x, position.y);
         stage.addActor(imageOfBlackMarble);
 
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX(position.x + label.getWidth()/2f);
-        label.setY(position.y + label.getHeight()/2f);
+        label.setX(position.x + label.getWidth() / 2f);
+        label.setY(position.y + label.getHeight() / 2f);
     }
 
-    public void deadWhiteMarblesLabel(){
-        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText(""+deletedSpritesLists.get(1).size(),110,65);
+    public void deadWhiteMarblesLabel() {
+        deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 110, 65);
         //deadWhiteMarbleLabel.setColor(Color.RED);
 
-        Vector2 position = new Vector2(screenWidth*0.85f,screenHeight*0.05f);
+        Vector2 position = new Vector2(screenWidth * 0.85f, screenHeight * 0.05f);
 
         Image imageOfWhiteMarble = new Image(playerTextures.get(0));
         imageOfWhiteMarble.setPosition(position.x, position.y);
@@ -644,8 +644,8 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
         stage.addActor(deadWhiteMarbleLabel);
         Actor label = stage.getActors().peek();
-        label.setX(position.x + label.getWidth()/2f);
-        label.setY(position.y + label.getHeight()/2f);
+        label.setX(position.x + label.getWidth() / 2f);
+        label.setY(position.y + label.getHeight() / 2f);
     }
 
     private void createWinnerLabel() {
