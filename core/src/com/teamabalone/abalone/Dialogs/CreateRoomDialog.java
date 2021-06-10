@@ -16,10 +16,12 @@ import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.InititalFieldType;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.ResponseHandler;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.CreateRoomResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 import com.teamabalone.abalone.Helpers.GameConstants;
 
@@ -38,12 +40,20 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
 
     private WaitingForPlayersDialog waitingForPlayersDialog;
 
-    public CreateRoomDialog(UUID userId, String title, final Skin skin, Stage stage) {
+    public CreateRoomDialog(UUID userId, String title, final Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
         this.stage = stage;
-
+        //Leave room if a connection should still exist
+        try{
+            RequestSender rs = new RequestSender(new LeaveRoomRequest());
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(rs);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
         // Dialog declarations
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), true);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), true, game);
 
         responseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         responseHandler.addObserver(this);
@@ -55,9 +65,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
         rootTable.setFillParent(true);
 
         Label header = new Label(title, skin);
-        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override
@@ -80,7 +88,7 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
                 try {
                     RequestSender rs = new RequestSender(createRoomRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
+                    executorService.submit(rs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -138,5 +146,18 @@ public class CreateRoomDialog extends Dialog implements IResponseHandlerObserver
             waitingForPlayersDialog.show(stage);
             this.hide();
         }
+        else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.NO_ROOM_TO_LEAVE.getValue()){
+
+        }
+
     }
 }

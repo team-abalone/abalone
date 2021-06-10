@@ -16,12 +16,15 @@ import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.CreateRoomRequest;
 import com.teamabalone.abalone.Client.Requests.JoinRoomRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.RoomJoinedResponse;
+import com.teamabalone.abalone.GameImpl;
 import com.teamabalone.abalone.Helpers.FactoryHelper;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -36,13 +39,22 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
 
     private com.teamabalone.abalone.Client.ResponseHandler ResponseHandler;
 
-    public JoinGameDialog(UUID userId, String title, final Skin skin, Stage stage) {
+    public JoinGameDialog(UUID userId, String title, final Skin skin, Stage stage, GameImpl game) {
         super(title, skin);
         this.stage = stage;
         this.userId = userId;
 
+        try{
+            RequestSender rs = new RequestSender(new LeaveRoomRequest());
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(rs);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
         // Creating dialogs.
-        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false);
+        waitingForPlayersDialog = new WaitingForPlayersDialog(userId,"Waiting for players...", FactoryHelper.getDefaultSkin(), false, game);
 
         ResponseHandler = com.teamabalone.abalone.Client.ResponseHandler.newInstance();
         ResponseHandler.addObserver(this);
@@ -54,9 +66,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         rootTable.setFillParent(true);
 
         // Exit button.
-        ImageButton exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        ImageButton exitButton = FactoryHelper.createExitButton();
 
         exitButton.addListener(new ClickListener() {
             @Override
@@ -85,7 +95,7 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
                 try {
                     RequestSender rs = new RequestSender(joinRoomRequest);
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    Future future = executorService.submit(rs);
+                    executorService.submit(rs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -123,11 +133,23 @@ public class JoinGameDialog extends Dialog implements IResponseHandlerObserver {
         // User joined successfully.
         if (response.getCommandCode() == ResponseCommandCodes.ROOM_JOINED.getValue()) {
             waitingForPlayersDialog.setTitle(String.format("Waiting for players (%s) ... ", ((RoomJoinedResponse) response).getRoomKey()));
-            List<UUID> playerListTemp = ((RoomJoinedResponse) response).getPlayers();
-            UUID[] playerList = playerListTemp.toArray(new UUID[playerListTemp.size()]);
+            Collection<String> playerListTemp = ((RoomJoinedResponse) response).getPlayerMap().values();
+            String[] playerList = playerListTemp.toArray(new String[playerListTemp.size()]);
             waitingForPlayersDialog.setPlayers(playerList);
             waitingForPlayersDialog.show(stage);
             this.hide();
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()){
+            //Exception handling goes here : Maybe a small notification to be shown
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+        }
+        else if(response.getCommandCode() == ResponseCommandCodes.NO_ROOM_TO_LEAVE.getValue()){
+
         }
     }
 }

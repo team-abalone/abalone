@@ -23,26 +23,26 @@ import com.teamabalone.abalone.Helpers.FactoryHelper;
 public class ColorPickerDialog extends Dialog {
     private ImageButton exitButton;
     private Pixmap colorTable;
-    int rgbaValue;
-    Stage stage;
-    Preferences settings = Gdx.app.getPreferences("UserSettings");
+    private int rgbaValue;
+    private Stage stage;
+    private Preferences settings = Gdx.app.getPreferences("UserSettings");
 
     public ColorPickerDialog(String title, Skin skin, Abalone abalone) {
         super(title, skin);
 
         Table rootTable = getContentTable();
         rootTable.setFillParent(true);
+
+        Table titleTable = getTitleTable();
+        titleTable.padTop(80);
         rgbaValue = settings.getInteger("rgbaValue", -197377);
 
-        //exit Button setup
-        Label header = new Label("Settings", skin);
-        exitButton = FactoryHelper.createImageButton(skin.get("exit-btn", ImageButton.ImageButtonStyle.class));
-        exitButton.setHeight(100);
-        exitButton.setWidth(100);
+        // Exit Button setup
+        exitButton = FactoryHelper.createExitButton();
+
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.log("ClickListener", exitButton.toString() + " clicked");
                 if (abalone != null) {
                     abalone.updateSettings();
                 }
@@ -69,25 +69,22 @@ public class ColorPickerDialog extends Dialog {
         colorTable = new Pixmap(Gdx.files.internal("images/colorTable.png"));
         Image color = new Image();
         color.setDrawable(new TextureRegionDrawable(new TextureRegion(new Texture(colorTable))));  //wtf is this shit???
-        color.addListener(new DragListener(){
+        color.addListener(new DragListener() {
             @Override
-            public void touchDragged (InputEvent event, float x, float y, int pointer) {
-                rgbaValue = colorTable.getPixel((int)x,800-(int)y);
-                if(rgbaValue != 0){
+            public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                rgbaValue = colorTable.getPixel((int) x, 800 - (int) y);
+                if (rgbaValue != 0) {
                     preview.setColor(new Color(rgbaValue));
                 }
                 Gdx.app.log("ClickListener", rgbaValue + " was clicked");
-                Gdx.app.log("ClickListener", x +", "+ y + " was clicked");
+                Gdx.app.log("ClickListener", x + ", " + y + " was clicked");
                 super.touchDragged(event, x, y, pointer);
             }
         });
 
-
-
-
         rootTable.add();
         rootTable.add().width(700);
-        rootTable.add(exitButton);
+        titleTable.add(exitButton).width(100).height(100).top().right();
         rootTable.row();
         rootTable.add(color);
         rootTable.add(marbleTable).center();
