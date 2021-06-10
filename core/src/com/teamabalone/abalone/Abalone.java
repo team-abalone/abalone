@@ -146,7 +146,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
-        //playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
     }
 
     private void board() {
@@ -253,7 +252,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         }
     }
 
-    private void drawSprites(){
+    private void drawSprites() {
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
@@ -622,20 +621,20 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 100, 60);
 
         Image imageOfBlackMarble = new Image(playerTextures.get(1));
-        imageOfBlackMarble.setPosition(263,900);
+        imageOfBlackMarble.setPosition(263, 900);
         stage.addActor(imageOfBlackMarble);
 
         stage.addActor(deadBlackMarbleLabel);
         Actor label = stage.getActors().peek();
         label.setX((label.getWidth() + 220));
-        label.setY(screenHeight - (label.getHeight() + 85 ));
+        label.setY(screenHeight - (label.getHeight() + 85));
     }
 
     public void deadWhiteMarblesLabel() {
         deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 100, 60);
 
         Image imageOfWhiteMarble = new Image(playerTextures.get(0));
-        imageOfWhiteMarble.setPosition(1706,20);
+        imageOfWhiteMarble.setPosition(1706, 20);
         stage.addActor(imageOfWhiteMarble);
 
         stage.addActor(deadWhiteMarbleLabel);
@@ -784,11 +783,13 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         } else {
             GameSet.getInstance().colorMarbleSet(-197377, PLAYER_ID); //no color
         }
+
+        //update sensor control
+        tiltActive = settings.getBoolean("TiltingActive");
     }
 
     @Override
     public void resize(int width, int height) {
-
     }
 
     @Override
@@ -802,7 +803,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
     @Override
     public void hide() {
-
     }
 
     @Override

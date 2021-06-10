@@ -33,7 +33,7 @@ public class SettingsDialog extends Dialog {
 
     //settings variables
     float bgMusicVolumeFactor;
-    boolean sfxSoundActive;
+    boolean tiltingActivated;
     String marbleSkin;
     String boardSkin;
     boolean colorSetting;
@@ -87,21 +87,17 @@ public class SettingsDialog extends Dialog {
             }
         });
 
-        //SFX Control setup
-        Label sfxCheck = new Label("Disbale SFX?", skin);
-        final CheckBox sfxBox = new CheckBox("", skin);
-        sfxBox.setChecked(settings.getBoolean("sfxSoundActive", false));
-        sfxBox.addListener(new ChangeListener() {
+        //Tilting Control setup
+        Label tiltCheck = new Label("Tilting Movement active?", skin);
+        final CheckBox tiltBox = new CheckBox("", skin);
+        tiltBox.setChecked(settings.getBoolean("TiltingActive", false));
+        tiltBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (sfxBox.isChecked()) {
-                    sfxSoundActive = false;
-                } else {
-                    sfxSoundActive = true;
-                }
-                settings.putBoolean("sfxSoundActive", sfxSoundActive);
+                tiltingActivated = tiltBox.isChecked(); //toggle
+                settings.putBoolean("TiltingActive", tiltingActivated);
                 settings.flush();
-                Gdx.app.log("ClickListener", "The SFX is: " + sfxSoundActive);
+                Gdx.app.log("ClickListener", "Tilting Movement is: " + tiltingActivated);
             }
         });
 
@@ -155,9 +151,10 @@ public class SettingsDialog extends Dialog {
                 }
                 settings.putBoolean("colorSetting", colorSetting);
                 settings.flush();
-                Gdx.app.log("ClickListener", "The Color Setting is: " + sfxSoundActive);
+                Gdx.app.log("ClickListener", "The Color Setting is: " + tiltingActivated);
             }
         });
+
         selectColor.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -166,10 +163,6 @@ public class SettingsDialog extends Dialog {
 
             }
         });
-
-
-
-
 
         //Gameboard visual setup
         Label boardSkinLabel = new Label("Chose a Board Skin:", skin);
@@ -216,8 +209,8 @@ public class SettingsDialog extends Dialog {
         rootTable.add(slider).width(600);
 
         rootTable.row().padTop(PAD_TOP);
-        rootTable.add(sfxCheck).left();
-        rootTable.add(sfxBox).width(100).center().padLeft(50);
+        rootTable.add(tiltCheck).left();
+        rootTable.add(tiltBox).width(100).center().padLeft(50);
 
         rootTable.row().padTop(PAD_TOP);
         rootTable.add(marbleSkinLabel).left();
