@@ -12,7 +12,8 @@ public enum RequestCommandCodes {
     GET_USER_ID(60),
     START_GAME(70),
     CLOSE_GAME(80),
-    SURRENDER(90);
+    SURRENDER(90),
+    LEAVE_ROOM(100);
 
     private final int value;
 

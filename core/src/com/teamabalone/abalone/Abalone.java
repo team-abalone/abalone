@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.teamabalone.abalone.Client.IResponseHandlerObserver;
 import com.teamabalone.abalone.Client.RequestSender;
 import com.teamabalone.abalone.Client.Requests.BaseRequest;
+import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
 import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
@@ -618,6 +619,20 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setY(screenHeight - (label.getHeight() + currentPlayerLabel.getHeight()));
     }
 
+    /**
+     * Creates a label and an image which present the count of the dead marbles.
+     *
+     * <li> First, the label will be created with the initial amount of deleted Sprites.
+     * <li>Then the position of the label and marble will be created.
+     * <li>The position should be in the upper left corner and because we measure from the bottom left corner we have to multiply x by 0.1 and y by 0.85.
+     * <li>The Image will be loaded and the position set.
+     * <li>Then you add the image to the stage.
+     *
+     * <li>The label will be added to the stage. Then the position is set.
+     * <li>The whole method can be called and it updates.
+     *
+     */
+
     public void deadBlackMarblesLabel() {
         deadBlackMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(0).size(), 110, 65);
 
@@ -632,6 +647,15 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         label.setX(position.x + label.getWidth() / 2f);
         label.setY(position.y + label.getHeight() / 2f);
     }
+
+    /**
+     * The method works similar to {@code <deadBlackMarblesLabel>, DeadBlackMarblesLabel}.
+     *
+     *<li> The main difference is the marble image and the position. As we want to have the counter in the bottom right corner, we have to multiply x by 0.85 and y by 0.05.
+     *
+     *
+     *
+     */
 
     public void deadWhiteMarblesLabel() {
         deadWhiteMarbleLabel = FactoryHelper.createLabelWithText("" + deletedSpritesLists.get(1).size(), 110, 65);
@@ -667,7 +691,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     private void createSurrenderLabel() {
-        Label surrenderLabel = FactoryHelper.createLabelWithText("opponent surrenders", screenWidth, screenHeight);
+        Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
         surrenderLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -675,10 +699,18 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
+                if(!SINGLE_DEVICE_MODE){
+                    try {
+                        RequestSender rs = new RequestSender(new LeaveRoomRequest());
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        executorService.submit(rs);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 currentGame.exitCurrentGame();
             }
         });
-
         stage.addActor(surrenderLabel);
     }
 
@@ -835,11 +867,20 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             if (response instanceof SurrenderResponse) {
                 if (response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()) {
                     createSurrenderLabel();
-                } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+
+                }
+                else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                }
+                else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 }
             }
