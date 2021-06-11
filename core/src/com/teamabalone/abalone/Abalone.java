@@ -265,13 +265,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             }
         }
 
-//        for (ArrayList<Sprite> arrayList : deletedSpritesLists) {
-//            for (Sprite sprite : arrayList) {
-//                sprite.setScale(0.5f);
-//                sprite.draw(batch);
-//            }
-//        }
-
         batch.end();
     }
 
@@ -344,7 +337,11 @@ public class Abalone implements Screen, IResponseHandlerObserver {
 
             if (queries.isPushedOutOfBound()) {
                 Sprite pushedOutMarble = selectedEnemySprites.get(selectedEnemySprites.size() - 1); //always the last one
-//                renegadeKeepers[GameSet.getInstance().getTeamIndex(pushedOutMarble)].setCanPickRenegadeTrue(); //TODO make it work
+
+                int team = GameSet.getInstance().getTeamIndex(pushedOutMarble);
+                if (SINGLE_DEVICE_MODE || team == PLAYER_ID) {
+                    renegadeKeepers[team].setCanPickRenegadeTrue(); //TODO make it work
+                }
                 capture(pushedOutMarble);
             }
 
@@ -630,7 +627,6 @@ public class Abalone implements Screen, IResponseHandlerObserver {
      *
      * <li>The label will be added to the stage. Then the position is set.
      * <li>The whole method can be called and it updates.
-     *
      */
 
     public void deadBlackMarblesLabel() {
@@ -651,10 +647,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     /**
      * The method works similar to {@code <deadBlackMarblesLabel>, DeadBlackMarblesLabel}.
      *
-     *<li> The main difference is the marble image and the position. As we want to have the counter in the bottom right corner, we have to multiply x by 0.85 and y by 0.05.
-     *
-     *
-     *
+     * <li> The main difference is the marble image and the position. As we want to have the counter in the bottom right corner, we have to multiply x by 0.85 and y by 0.05.
      */
 
     public void deadWhiteMarblesLabel() {
@@ -691,7 +684,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     }
 
     private void createSurrenderLabel() {
-        Label surrenderLabel = FactoryHelper.createLabelWithText(GameInfo.getInstance().getNames().get(currentPlayer) + " surrenders", screenWidth, screenHeight);
+        Label surrenderLabel = FactoryHelper.createLabelWithText(SINGLE_DEVICE_MODE ? GameInfo.getInstance().getNames().get(currentPlayer) : "opponent" + " surrenders", screenWidth, screenHeight);
         surrenderLabel.setAlignment(Align.center);
 
         Abalone currentGame = this;
@@ -699,7 +692,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("ClickListener", surrenderLabel.toString() + " clicked");
-                if(!SINGLE_DEVICE_MODE){
+                if (!SINGLE_DEVICE_MODE) {
                     try {
                         RequestSender rs = new RequestSender(new LeaveRoomRequest());
                         ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -868,20 +861,15 @@ public class Abalone implements Screen, IResponseHandlerObserver {
             if (response instanceof SurrenderResponse) {
                 if (response.getCommandCode() == ResponseCommandCodes.SURRENDERED.getValue()) {
                     createSurrenderLabel();
-                }
-                else if(response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()){
+                } else if (response.getCommandCode() == ResponseCommandCodes.LEFT_ROOM.getValue()) {
 
-                }
-                else if(response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()){
+                } else if (response.getCommandCode() == ResponseCommandCodes.OTHER_PLAYER_LEFT.getValue()) {
 
-                }
-                else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
+                } else if (response.getCommandCode() == ResponseCommandCodes.ROOM_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                }
-                else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
+                } else if (response.getCommandCode() == ResponseCommandCodes.SERVER_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
-                }
-                else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
+                } else if (response.getCommandCode() == ResponseCommandCodes.GAME_EXCEPTION.getValue()) {
                     //Exception handling goes here : Maybe a small notification to be shown
                 }
             }

@@ -13,6 +13,7 @@ import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -305,6 +306,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
         }
         if (!GameInfo.getInstance().getSingleDeviceMode() && !fromHandler) {
             BaseRequest makeMoveRequest = new MakeMoveRequest(userId, ids, direction, renegade, enemySecondTurn);
+            System.out.println("<--- " + Arrays.toString(ids) + " " + direction + " " + renegade + " " + enemySecondTurn);
             enemySecondTurn = false;
             try {
                 RequestSender rs = new RequestSender(makeMoveRequest);
@@ -634,6 +636,7 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      * @param enemy      the boolean value if the enemy has a second turn
      */
     public void updateView(int[] ids, Directions directions, boolean enemy) {
+        System.out.println("---> " + Arrays.toString(ids) + " " + directions + " " + enemy + " " + renegade + " " + enemySecondTurn);
         abalone.makeRemoteMove(ids, directions, enemy, enemySecondTurn); //should move marbles and only call nextPlayer if enemySecondTurn false
 
         //change marble style in view
