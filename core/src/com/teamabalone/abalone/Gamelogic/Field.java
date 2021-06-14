@@ -37,7 +37,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
 
     private UUID userId;
 
-    private Abalone abalone;
     private boolean enemySecondTurn = false;
 
 
@@ -617,15 +616,6 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
     }
 
     /**
-     * Sets the current Abalone
-     *
-     * @param abalone the abalone game
-     */
-    public void setAbalone(Abalone abalone) {
-        this.abalone = abalone;
-    }
-
-    /**
      * Updates the view when an enemy made a move.
      * <p>
      * This method will be called only in multiplayer mode.
@@ -637,11 +627,11 @@ public class Field implements Iterable<Hexagon>, IResponseHandlerObserver, Abalo
      */
     public void updateView(int[] ids, Directions directions, boolean enemy) {
         System.out.println("---> " + Arrays.toString(ids) + " " + directions + " " + enemy + " " + renegade + " " + enemySecondTurn);
-        abalone.makeRemoteMove(ids, directions, enemy, enemySecondTurn); //should move marbles and only call nextPlayer if enemySecondTurn false
+        Abalone.instance.makeRemoteMove(ids, directions, enemy, enemySecondTurn); //should move marbles and only call nextPlayer if enemySecondTurn false
 
         //change marble style in view
         if (renegade != -1) {
-            abalone.updateRemoteRenegade(renegade);
+            Abalone.instance.updateRemoteRenegade(renegade);
         }
     }
 }

@@ -117,9 +117,11 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final float min_zoom = 0.3f;
     private final float max_zoom = 0.7f;
 
+    static public Abalone instance;
+
     public Abalone(GameImpl game, Field field) {
         queries = field;
-        field.setAbalone(this);
+        instance = this;
         settings = Gdx.app.getPreferences("UserSettings");
 
         this.game = game;
@@ -144,7 +146,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         background = new Texture("boards/" + settings.getString("boardSkin", "Laminat.png"));
 
         settings.putString("marbleSkin" + 0, "ball_white.png"); //TODO putString only temporary. should be in settings later on.
-//        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
+        settings.putString("marbleSkin" + 1, "ball.png"); //TODO something happened in SETTINGS?
         settings.flush();
         playerTextures.add(new Texture("marbles/ball_white.png"));
         playerTextures.add(new Texture("marbles/" + settings.getString("marbleSkin" + 1)));
