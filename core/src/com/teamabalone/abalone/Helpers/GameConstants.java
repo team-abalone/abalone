@@ -26,11 +26,11 @@ public class GameConstants {
         put("Wooden Table", "wooden_table.png");
     }};
 
-    public String getBoardSkinPathPerName(String name) {
+    public static String getBoardSkinPathPerName(String name) {
         return BOARD_SKINS.get(name);
     }
 
-    public String getMarbleSkinPathPerName(String name) {
+    public static String getMarbleSkinPathPerName(String name) {
         return MARBLE_SKINS.get(name);
     }
 }
