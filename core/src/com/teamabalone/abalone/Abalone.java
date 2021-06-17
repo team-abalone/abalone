@@ -32,7 +32,6 @@ import com.teamabalone.abalone.Client.Requests.BaseRequest;
 import com.teamabalone.abalone.Client.Requests.LeaveRoomRequest;
 import com.teamabalone.abalone.Client.Requests.SurrenderRequest;
 import com.teamabalone.abalone.Client.Responses.BaseResponse;
-import com.teamabalone.abalone.Client.Responses.MadeMoveResponse;
 import com.teamabalone.abalone.Client.Responses.ResponseCommandCodes;
 import com.teamabalone.abalone.Client.Responses.SurrenderResponse;
 import com.teamabalone.abalone.Dialogs.SettingsDialog;
@@ -59,7 +58,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int NUMBER_CAPTURES_TO_WIN = 2;
+    private final int NUMBER_CAPTURES_TO_WIN = 2; //should be 6, reduced for presentation purposses
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
     private boolean tiltActive = false;
