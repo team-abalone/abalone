@@ -794,7 +794,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
 
         //background
-        String boardTexturePath = "boards/" + settings.getString("boardSkin");
+        String boardTexturePath = "boards/" + settings.getString("boardSkin", "Laminat.png");
         if (!background.toString().equals(boardTexturePath)) {
             background = new Texture(boardTexturePath);
         }
