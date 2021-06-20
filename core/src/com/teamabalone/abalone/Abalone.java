@@ -802,7 +802,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         //player texture
         for (int k = 0; k < playerTextures.size(); k++) {
             Texture oldTexture = playerTextures.get(k);
-            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
+            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k, "ball_white.png" )));
             Texture newTexture = playerTextures.get(k);
 
             if (!newTexture.toString().equals(oldTexture.toString())) {
