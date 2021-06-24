@@ -58,7 +58,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int NUMBER_CAPTURES_TO_WIN = 2; //should be 6, reduced for presentation purposses
+    private final int NUMBER_CAPTURES_TO_WIN = 6; //should be 6, reduced for presentation purposses
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
     private boolean tiltActive = false;
@@ -794,7 +794,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         bgMusic.setVolume(settings.getFloat("bgMusicVolumeFactor", 1f));
 
         //background
-        String boardTexturePath = "boards/" + settings.getString("boardSkin");
+        String boardTexturePath = "boards/" + settings.getString("boardSkin", "Laminat.png");
         if (!background.toString().equals(boardTexturePath)) {
             background = new Texture(boardTexturePath);
         }
@@ -802,7 +802,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
         //player texture
         for (int k = 0; k < playerTextures.size(); k++) {
             Texture oldTexture = playerTextures.get(k);
-            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k)));
+            playerTextures.set(k, new Texture("marbles/" + settings.getString("marbleSkin" + k, "ball_white.png" )));
             Texture newTexture = playerTextures.get(k);
 
             if (!newTexture.toString().equals(oldTexture.toString())) {
