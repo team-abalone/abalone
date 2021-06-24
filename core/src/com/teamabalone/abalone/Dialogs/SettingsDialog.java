@@ -1,4 +1,4 @@
-package com.teamabalone.abalone.Dialogs;
+ package com.teamabalone.abalone.Dialogs;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -107,7 +107,7 @@ public class SettingsDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 marbleSkin = selectMarbleSkins.getSelected();
-                settings.putString("marbleSkin" + 1, marbleSkin);
+                settings.putString("marbleSkin" + 1, GameConstants.getMarbleSkinPathPerName(marbleSkin));
                 settings.flush();
             }
         });
@@ -130,7 +130,7 @@ public class SettingsDialog extends Dialog {
             public void changed(ChangeEvent event, Actor actor) {
                 if (colorBox.isChecked()) {
                     colorSetting = true;
-                    settings.putString("marbleSkin" + 1, "ball_white.png");
+                    settings.putString("marbleSkin" + 0, GameConstants.getMarbleSkinPathPerName("ball_white.png"));
                     settings.flush();
                     selectMarbleSkins.setSelected("ball_white.png");
                     selectMarbleSkins.setVisible(false);
@@ -166,7 +166,7 @@ public class SettingsDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 boardSkin = selectBoardSkins.getSelected();
-                settings.putString("boardSkin", boardSkin);
+                settings.putString("boardSkin", GameConstants.getBoardSkinPathPerName(boardSkin));
                 settings.flush();
             }
         });
