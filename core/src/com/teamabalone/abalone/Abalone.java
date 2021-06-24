@@ -58,7 +58,7 @@ public class Abalone implements Screen, IResponseHandlerObserver {
     private final GameInfos gameInfos = GameInfo.getInstance();
 
     private final int MAX_TEAMS = 6;
-    private final int NUMBER_CAPTURES_TO_WIN = 2; //should be 6, reduced for presentation purposses
+    private final int NUMBER_CAPTURES_TO_WIN = 6; //should be 6, reduced for presentation purposses
     private final int SWIPE_SENSITIVITY = 40;
     private final double TILT_SENSITIVITY = 2.5;
     private boolean tiltActive = false;
