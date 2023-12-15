@@ -11,8 +11,8 @@ An implementation of the abalone game as an android app, developed as a group pr
 ## Roles
 | Role           | Main                    | Backup                  |
 |----------------|-------------------------|-------------------------|
-| Architekt      | Aron Sacherer           | Alexander Franz Laggner |
-| User Interface | Nicolas Wetscher        | Aron Sacherer           |
+| Architekt      | -                       | Alexander Franz Laggner |
+| User Interface | Nicolas Wetscher        | -                       |
 | Tester         | Kilian Ricardo Fröhlich | Nicolas Wetscher        |
 | Developer      | Lukas Kohlmaier         | Kilian Ricardo Fröhlich |
 | Documentation  | Alexander Franz Laggner | Lukas Kohlmaier         |
